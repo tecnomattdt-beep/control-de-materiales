@@ -1,28 +1,26 @@
-// service worker mínimo — lo único que quiero es que la app se pueda "instalar"
-// en el móvil y que, si en algún momento no hay conexión, al menos abra desde caché
-// en vez de quedarse en blanco. No hago nada más raro que eso.
+// Service worker mínimo: permite instalar la app y, sin conexión, servirla desde caché
+// en vez de dejar la pantalla en blanco.
 //
-// cuando suba un index.html nuevo, cambio este número de versión — eso es lo que
-// hace que el navegador detecte que hay un service worker distinto y arranque
-// el proceso de actualización (que luego el propio index.html avisa al usuario)
-const CACHE_NAME = 'tecnomat-materiales-v145';
+// El número de versión de CACHE_NAME cambia con cada index.html nuevo — es lo que
+// hace que el navegador detecte un service worker distinto y arranque la actualización
+// (el propio index.html avisa al usuario cuando eso ocurre).
+const CACHE_NAME = 'tecnomat-materiales-v147';
 const APP_SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', event => {
-  // cacheo el "esqueleto" de la app nada más instalarse — con {cache:'reload'} para
-  // que sea la copia de verdad del servidor, no una guardada en la caché HTTP del navegador
+  // Cachea el esqueleto de la app al instalarse. {cache:'reload'} fuerza la copia real
+  // del servidor, no una guardada en la caché HTTP del navegador.
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache =>
       Promise.all(APP_SHELL.map(url => fetch(url, {cache:'reload'}).then(resp => cache.put(url, resp))))
     )
   );
-  // ya NO hago self.skipWaiting() aquí — quiero que la versión nueva se quede
-  // "esperando" hasta que el usuario pulse el aviso de "Actualizar ahora" en la
-  // propia app, en vez de cambiar la versión activa sin avisar a mitad de sesión
+  // Sin self.skipWaiting() aquí a propósito: la versión nueva queda en espera hasta
+  // que el usuario pulsa "Actualizar ahora" en la app, en vez de activarse a mitad de sesión.
 });
 
 self.addEventListener('activate', event => {
-  // limpio cachés de versiones antiguas
+  // Limpia cachés de versiones antiguas.
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
@@ -31,25 +29,24 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// esto es lo que dispara el "Actualizar ahora" del banner: la página le manda
-// este mensaje al service worker nuevo (que estaba esperando) y aquí le digo
-// que pase a ser el activo
+// Dispara la actualización real: la página envía este mensaje al service worker
+// nuevo (que estaba en espera) para que pase a ser el activo.
 self.addEventListener('message', event => {
   if(event.data === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('fetch', event => {
-  // solo intercepto peticiones GET — el resto (POST a Firebase, etc.) lo dejo pasar tal cual
+  // Solo se interceptan peticiones GET; el resto (POST a Firebase, etc.) pasa sin tocar.
   if(event.request.method !== 'GET') return;
 
   event.respondWith(
     fetch(event.request)
       .then(resp => {
-        // si ha ido bien por red, aprovecho y actualizo la copia en caché
+        // Petición de red correcta: actualiza la copia en caché.
         const clone = resp.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
         return resp;
       })
-      .catch(() => caches.match(event.request)) // sin conexión, tiro de lo que tenga cacheado
+      .catch(() => caches.match(event.request)) // Sin conexión: sirve lo que haya en caché.
   );
 });
