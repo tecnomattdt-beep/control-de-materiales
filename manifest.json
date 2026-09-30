@@ -2,7 +2,7 @@
   "name": "Tecnomat - Control de Materiales",
   "short_name": "Tecnomat",
   "description": "Control de stock, montaje, proyectos y pedidos de Tecnomat",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
