@@ -40,18 +40,18 @@ El objetivo era tener una herramienta de almacén que no necesitara servidor pro
 ## 1. Publicarla en GitHub Pages
 
 1. Entra en [github.com](https://github.com) y crea un repositorio nuevo (botón **New repository**).
-2. Dentro del repositorio, pulsa **Add file → Upload files** y sube todos los archivos de esta carpeta (`index.html`, `sw.js`, `manifest.json`, `icon-192.png`, `icon-512.png`) a la raíz del repositorio, no dentro de ninguna subcarpeta.
-3. Haz commit de los cambios (botón verde **Commit changes**).
-4. Ve a **Settings → Pages** (menú lateral del repositorio).
-5. En **Build and deployment → Source**, selecciona **Deploy from a branch**.
-6. En **Branch**, elige `main` (o `master`) y la carpeta `/ (root)`. Guarda.
-7. Espera 1-2 minutos. GitHub muestra una URL parecida a `https://tu-usuario.github.io/tu-repositorio/`.
+2. Dentro del repositorio, pulsar **Add file → Upload files** y subir todos los archivos de esta carpeta (`index.html`, `sw.js`, `manifest.json`, `icon-192.png`, `icon-512.png`) a la raíz del repositorio, no dentro de ninguna subcarpeta.
+3. Hacer commit de los cambios (botón verde **Commit changes**).
+4. Ir a **Settings → Pages** (menú lateral del repositorio).
+5. En **Build and deployment → Source**, seleccionar **Deploy from a branch**.
+6. En **Branch**, elegir `main` (o `master`) y la carpeta `/ (root)`, y guardar.
+7. Esperar 1-2 minutos. GitHub muestra una URL parecida a `https://usuario.github.io/repositorio/`.
 
-**Al subir cambios más adelante:** sube siempre `index.html` **y** `sw.js` juntos, y sube en 1 el número de la primera línea de verdad de `sw.js`:
+**Al subir cambios más adelante:** subir siempre `index.html` **y** `sw.js` juntos, aumentando en 1 el número de la primera línea de verdad de `sw.js`:
 ```js
-const CACHE_NAME = 'tecnomat-materiales-v4'; // súbelo a v5, v6... cada vez que subas cambios
+const CACHE_NAME = 'tecnomat-materiales-v4'; // incrementar a v5, v6... con cada subida de cambios
 ```
-Si subes `index.html` nuevo pero te olvidas de tocar `sw.js`, el navegador no se entera de que hay nada distinto y el aviso de "hay una versión nueva" no salta.
+Si se sube un `index.html` nuevo sin modificar `sw.js`, el navegador no detecta ningún cambio y el aviso de "hay una versión nueva" no salta.
 
 ## 2. Cómo se guardan los datos
 
@@ -59,7 +59,7 @@ Si subes `index.html` nuevo pero te olvidas de tocar `sw.js`, el navegador no se
 - **Sin ninguno configurado**: usa `localStorage`, la memoria propia del navegador — sigue guardándose todo solo, pero queda en ese navegador y dispositivo concretos, sin sincronizarse con otros.
 - **Si el backend en uso falla a media conexión** (el navegador puede seguir creyendo que hay internet, pero la petición concreta no llega) — el dato no se pierde: se guarda en `localStorage` de ese dispositivo, con un aviso, y se sincroniza en cuanto la conexión se recupera del todo.
 
-**Recomendación:** usa el botón **"Descargar todo"** (dentro de Almacén) de vez en cuando para bajarte una copia de seguridad real en un archivo `.json`, y **"Restaurar"** si necesitas pasar esos datos a otro dispositivo o recuperarlos tras borrar el navegador.
+**Recomendación:** usar el botón **"Descargar todo"** (dentro de Almacén) de vez en cuando para obtener una copia de seguridad real en un archivo `.json`, y **"Restaurar"** cuando haga falta pasar esos datos a otro dispositivo o recuperarlos tras borrar el navegador.
 
 ## 3. Backend real (Supabase + Firebase, a la vez)
 
@@ -159,6 +159,16 @@ Montaje/Venta y Proyecto viven bajo una sola pestaña, **Trabajo** — al crear 
 Cada línea de la Hoja de pedido tiene además dos campos editables: **"Escandallo/Pedido"** (si ese material se pasó a un escandallo de costes o a un pedido a proveedor) y su **número identificativo** — editables tanto en líneas pendientes como en las **ya servidas**, ya que normalmente se sabe después de entregar el material, no antes. Al elegir el tipo en una línea, si ya hay otra línea de la misma hoja con ese mismo tipo y número puesto, se copia solo. Con la casilla por línea se pueden marcar varias a la vez (pendientes o servidas, mezcladas si hace falta), pidiendo un único número para todas las seleccionadas. **"Plano"** es un dato de toda la orden, no por línea — se edita en la cabecera de la Hoja de pedido, junto a la OT.
 
 Una orden o proyecto **no se cierra sola** al entregar material — sigue activa y se puede seguir añadiendo hasta que alguien de Almacén pulse "Finalizar" a propósito.
+
+**Clasificación del material (solo Almacén)**: cada línea de material se clasifica como **Interno**, **Externo** o **Pequeño material**. Es independiente del tipo Interno/Externo de la orden completa; esta clasificación es por línea.
+- Al pulsar **"Asignar referencia"**, tras elegir la referencia, una ventana pregunta el tipo de material (o se puede omitir). Si el sistema ya tiene una sugerencia, aparece marcada como "sugerido".
+- En la pestaña **Hoja de pedido**, el panel **"Clasificación del material"** lista todas las líneas pendientes con tres botones por línea. Una línea con borde discontinuo y "?" es una **sugerencia** del sistema, todavía sin confirmar; pulsar su botón la confirma y pulsar otro botón la corrige. El botón "Confirmar las N sugeridas" confirma todas de una vez.
+- **Aprendizaje**: cada clasificación confirmada o corregida se recuerda por referencia y por las palabras con que Taller describe el material (sin distinguir mayúsculas ni tildes, ignorando cantidades y medidas). Con el uso, las líneas nuevas aparecen ya sugeridas. Una sugerencia nunca se aplica sola: solo lo confirmado enseña al sistema y solo lo confirmado entra en la petición externa.
+- **Dos listados**: bajo el panel se generan **Listado interno** (líneas confirmadas como Interno y como Pequeño material, estas últimas con la etiqueta «Pequeño material»; botón «Copiar listado interno») y **Listado externo** (petición de material externo).
+- **Listado externo**: bajo el panel, con las líneas confirmadas como Externo, se genera un texto listo para copiar ("En la orden «…» hacen falta las siguientes unidades de material externo: referencia, descripción y cantidad"). **"Copiar texto"** lo lleva al portapapeles y **"Abrir correo"** abre el correo del dispositivo ya redactado, con el asunto y el correo de destino (se escribe una vez y se recuerda).
+- **Referencias sugeridas**: el sistema también recuerda a qué referencia se asoció cada texto que Taller escribió a mano (sin distinguir mayúsculas, tildes ni singular/plural: «tornillo» y «tornillos» cuentan igual; tolera cambios de orden o palabras sueltas). En la Hoja de pedido, las líneas «sin referencia» parecidas a otras ya asociadas aparecen en el panel **«Referencias sugeridas»** con la referencia propuesta: **Confirmar** la asigna (queda anotado en el chat), **No es** descarta esa propuesta para la línea, y «Confirmar las N referencias sugeridas» lo hace de una vez. Solo lo confirmado enseña al sistema. Si la referencia ya no existe en el stock, no se propone.
+- **Pestaña «Pequeño material»** (Taller y Almacén): entre «Chat» y «Hoja de pedido» de cada orden. Muestra, en cuadrícula compacta, las referencias clasificadas como Pequeño material. Se marcan, se ajusta la cantidad y **«Añadir al pedido»** las incorpora con su referencia y etiqueta, sin escribir ni ocupar espacio en el chat. Con más de 8 hay un filtro. Si todavía no hay ninguna, la pestaña lo indica. Taller recibe la clasificación actualizada de forma periódica (cada ~30 s).
+- Lo aprendido se guarda en la clave `clasificacion` del mismo almacenamiento que el resto de datos.
 
 **Órdenes creadas por otra app**: si otra app conectada al mismo proyecto de Supabase inserta una fila en `ordenes_trabajo` (con sus materiales en `orden_materiales`), Tecnomat la detecta en tiempo real y hace todo esto sola, sin intervención:
 - Crea la orden o proyecto con el nombre, tipo e Interno/Externo que traiga.
