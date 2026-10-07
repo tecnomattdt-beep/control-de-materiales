@@ -258,6 +258,10 @@ Una vez instalada, abre en pantalla completa y guarda una copia básica en cach�
 
 Cuando se suben cambios nuevos, aparece un banner — *"Hay una versión nueva disponible"* — con un botón para actualizar. Hasta que no se pulse, sigue con la versión que ya tenía cargada.
 
+### Adaptación a tablet y móvil
+
+La disposición de escritorio no cambia. En pantallas de hasta 1000 px la **Hoja de pedido** pasa de tabla a tarjetas por línea (artículo, referencia, cantidad, reserva, escandallo/pedido y recibido), sin desplazamiento horizontal. En móvil (hasta 760 px) la cabecera se compacta (logotipo, título y botones en una sola franja; se ocultan el subtítulo y el aviso de guardado), el selector de orden y «+ Nueva» comparten fila, el chat coloca el texto en una línea propia y debajo cantidad, «Reserva» y «Enviar», los campos usan 16 px (evita el zoom automático), la pestaña activa del trabajo se centra en la barra de pestañas y los paneles secundarios «Ayuda de IA» y «Listado interno» aparecen plegados (se despliegan al pulsar el título).
+
 ## Migrar a otro hosting o base de datos
 
 Todo lo que depende de Supabase y/o Firebase vive dentro de un único objeto, `backend`, cerca del principio del `<script>` — el resto de la app nunca menciona ninguno de los dos directamente fuera de ese bloque, solo llama a `backend.get/set/delete/watch` y a `backend.auth.*`. Ahora mismo ese objeto combina los dos (escritura doble, login por Firebase); sustituirlo entero por uno nuevo con esta misma forma es lo único que hace falta para dejar de depender de cualquiera de los dos, o de ambos.
