@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat de Taller</title>
+<style>
+  :root{--bg:#16181d; --panel:#1e2128; --raised:#272b34; --border:#343945; --text:#e8e9ec; --muted:#9aa0ac; --accent:#f0a500; --ok:#1fbf8f; --danger:#e5484d;}
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%; margin:0;}
+  body{background:var(--bg); color:var(--text); font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; display:flex; flex-direction:column;}
+  header{padding:10px 14px; border-bottom:1px solid var(--border); background:var(--panel);}
+  header b{display:block; color:var(--accent); font-size:15px;}
+  header span{color:var(--muted); font-size:12px;}
+  #lista{flex:1; overflow-y:auto; padding:12px 14px; display:flex; flex-direction:column; gap:8px;}
+  .msg{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:8px 10px;}
+  .msg small{display:block; color:var(--muted); font-size:11.5px; margin-top:2px;}
+  .msg .ok{color:var(--ok);}
+  #vacio{color:var(--muted); text-align:center; margin-top:24px;}
+  form{display:grid; grid-template-columns:1fr 84px; gap:8px; padding:10px 14px; border-top:1px solid var(--border); background:var(--panel);}
+  form .ancho{grid-column:1 / -1;}
+  input,button{font:inherit; color:var(--text); background:var(--raised); border:1px solid var(--border); border-radius:7px; padding:10px; min-height:42px; width:100%;}
+  input::placeholder{color:var(--muted);}
+  input:focus{outline:none; border-color:var(--accent);}
+  button{background:var(--accent); border-color:var(--accent); color:#1a1300; font-weight:700; cursor:pointer;}
+  button:disabled{opacity:.6;}
+  #aviso{grid-column:1 / -1; font-size:12.5px; min-height:16px; color:var(--danger);}
+  #aviso.ok{color:var(--ok);}
+</style>
+</head>
+<body>
+<header><b id="titulo">Chat de Taller</b><span id="sub">Pide aquí el material de esta orden.</span></header>
+<div id="lista"><p id="vacio">Cargando…</p></div>
+<form id="form" autocomplete="off">
+  <input class="ancho" id="autor" placeholder="Tu nombre" maxlength="60" required>
+  <input id="texto" placeholder="Material que hace falta" maxlength="300" required>
+  <input id="cantidad" type="number" min="1" max="9999" value="1" aria-label="Cantidad" required>
+  <input class="ancho" id="codigo" placeholder="Código de la referencia (opcional)" maxlength="60">
+  <button class="ancho" id="enviar" type="submit">Enviar</button>
+  <div id="aviso"></div>
+</form>
+<script>
+(function () {
+  const q = new URLSearchParams(location.search);
+  const base = q.get('u') || '', clave = q.get('a') || '', ot = q.get('ot') || '', token = q.get('t') || '';
+  const $ = id => document.getElementById(id);
+  const aviso = (t, ok) => { $('aviso').textContent = t || ''; $('aviso').className = ok ? 'ok' : ''; };
+  let valido = false;
+  try { valido = /^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(new URL(base).origin) && !!clave && !!ot && !!token; } catch (e) { valido = false; }
+  if (!valido) { $('vacio').textContent = 'Enlace no válido.'; $('form').style.display = 'none'; return; }
+
+  let memoria = '';
+  try { memoria = localStorage.getItem('tecnomat_chat_autor') || ''; } catch (e) {}
+  $('autor').value = memoria;
+
+  async function rpc(nombre, cuerpo) {
+    const r = await fetch(base + '/rest/v1/rpc/' + nombre, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: clave, Authorization: 'Bearer ' + clave }, body: JSON.stringify(cuerpo) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.message || 'Error de conexión');
+    return j;
+  }
+
+  function pintar(d) {
+    $('titulo').textContent = d.nombre;
+    const l = $('lista');
+    const abajo = l.scrollHeight - l.scrollTop - l.clientHeight < 60;
+    l.textContent = '';
+    if (!d.mensajes.length) { const p = document.createElement('p'); p.id = 'vacio'; p.textContent = 'Todavía no hay mensajes.'; l.appendChild(p); return; }
+    d.mensajes.forEach(m => {
+      const e = document.createElement('div'); e.className = 'msg';
+      e.textContent = m.texto + ' × ' + m.cantidad + (m.codigo ? ' (' + m.codigo + ')' : '');
+      const s = document.createElement('small');
+      s.textContent = m.autor + ' · ' + new Date(m.created_at).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
+      if (m.importado) { const k = document.createElement('span'); k.className = 'ok'; k.textContent = ' · ✓ recibido en almacén'; s.appendChild(k); }
+      e.appendChild(s); l.appendChild(e);
+    });
+    if (abajo) l.scrollTop = l.scrollHeight;
+  }
+
+  async function cargar() {
+    try { pintar(await rpc('chat_ext_leer', { p_ot: ot, p_token: token })); }
+    catch (e) { $('lista').textContent = ''; const p = document.createElement('p'); p.id = 'vacio'; p.textContent = /no válido/i.test(e.message) ? 'Enlace no válido o caducado.' : 'Sin conexión. Reintentando…'; $('lista').appendChild(p); }
+  }
+
+  $('form').addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const b = $('enviar'); b.disabled = true; aviso('');
+    try {
+      await rpc('chat_ext_enviar', { p_ot: ot, p_token: token, p_autor: $('autor').value, p_texto: $('texto').value, p_cantidad: parseInt($('cantidad').value, 10) || 1, p_codigo: $('codigo').value });
+      try { localStorage.setItem('tecnomat_chat_autor', $('autor').value.trim()); } catch (e) {}
+      $('texto').value = ''; $('cantidad').value = '1'; $('codigo').value = '';
+      aviso('Enviado.', true);
+      await cargar();
+      $('lista').scrollTop = $('lista').scrollHeight;
+    } catch (e) { aviso(e.message); }
+    b.disabled = false;
+  });
+
+  cargar();
+  setInterval(() => { if (!document.hidden) cargar(); }, 6000);
+})();
+</script>
+</body>
+</html>

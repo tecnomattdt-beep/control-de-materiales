@@ -121,7 +121,36 @@ Sin `emailjsConfig` configurado, los avisos siguen apareciendo como banner dentr
 - **Sin conexión**: banner en rojo si se corta el internet a media faena, avisando de que los cambios se siguen guardando en el dispositivo pero no se sincronizan hasta que vuelva. Avisa también al recuperarse.
 - **Sonido al escanear**: pitido corto al confirmar un escaneo con éxito (distinto del de "pedido nuevo"), desactivable en Almacén → Avisos.
 
-Todo lo anterior (banner, sonido, notificación del sistema) solo funciona con la app abierta en ese momento, aunque sea en segundo plano si está instalada — para que funcione con la app completamente cerrada haría falta notificaciones push de verdad, una pieza bastante más grande de montar. El correo es el único de los avisos que llega siempre, esté la app abierta o no.
+Todo lo anterior (banner, sonido, notificación del sistema) solo funciona con la app abierta en ese momento, aunque sea en segundo plano si está instalada — para que funcione con la app completamente cerrada haría falta notificaciones push de verdad, una pieza bastante más grande de montar. El correo es el único de los avisos que llega siempre, esté la app abierta o no. El aviso con la app cerrada se cubre con el proxy de Apps Script descrito a continuación (Telegram y notificaciones push de OneSignal).
+
+### Proxy de Apps Script: correo automático, Telegram y respaldo en Drive
+
+El archivo `apps-script-proxy.gs` amplía el proxy de Gemini (mismo proyecto de Apps Script y misma URL) con funciones gratuitas:
+
+- **Envío automático de la petición externa**: en el listado externo, el botón **«Enviar correo automáticamente»** manda el texto desde la cuenta de Google propietaria del script y registra la petición solo si el envío funciona. «Abrir correo» sigue disponible como alternativa. Una cuenta gmail.com admite 100 correos al día.
+- **Aviso por Telegram** (opcional): cada correo enviado y las revisiones programadas avisan a un chat de Telegram.
+- **Respaldo en Drive**: mientras Almacén usa la app, cada 30 minutos como máximo y solo si hay cambios, se envía una copia de los datos (catálogo, últimos 1000 movimientos, grupos, entregas, ubicaciones, trabajadores, clasificación y ajustes) y la lista de stock bajo. Se guarda en la carpeta «Tecnomat respaldo» de Drive (`respaldo_actual.json`, `stock_bajo.json`). Una copia fechada semanal conserva las últimas 8 semanas.
+- **Stock mínimo por referencia**: en Almacén → Editar, el campo **«Stock mínimo»** fija el mínimo de esa referencia; vacío, rige el umbral general de Avisos. Una referencia está en stock bajo cuando sus unidades son iguales o inferiores a su mínimo, tanto en los avisos de la app como en los del proxy.
+- **Aviso diario de stock bajo con la app cerrada**: a las 8:00 se envía por Telegram, por push y por correo (si se indica) la última lista de stock bajo recibida, con el mínimo de cada referencia.
+- **Notificaciones push (OneSignal, plan gratuito)**: avisan en el dispositivo aunque la app esté cerrada, al enviarse una petición externa y en la revisión diaria de stock bajo.
+
+**Instalación**
+1. En el proyecto de Apps Script, renombrar la función `doPost` existente (la de Gemini) a `doPostGemini` y pegar el contenido de `apps-script-proxy.gs` en el mismo proyecto.
+2. En **Configuración del proyecto → Propiedades del script**, añadir:
+   - `CORREOS_PERMITIDOS`: direcciones a las que puede enviar el servidor, separadas por comas (obligatoria; sin ella no se envía ningún correo).
+   - `TELEGRAM_TOKEN` y `TELEGRAM_CHAT_ID` (opcionales): token del bot creado con @BotFather e id del chat o grupo.
+   - `AVISOS_CORREO` (opcional): dirección que recibe también el resumen diario de stock bajo.
+   - `ONESIGNAL_APP_ID` y `ONESIGNAL_API_KEY` (opcionales, para push): identificador y clave de la API REST de la aplicación creada en OneSignal. `ONESIGNAL_SEGMENTO` (opcional) cambia el segmento de destino, que por defecto es «Subscribed Users».
+3. Ejecutar una vez la función `instalarDisparadores` y aceptar los permisos (correo, Drive y conexiones externas).
+4. **Implementar → Administrar implementaciones → Editar → Nueva versión** para mantener la misma URL.
+
+**Activar las notificaciones push en cada dispositivo**
+1. En OneSignal, crear una aplicación de tipo **Web** (*Custom Code*), con la URL de la app y HTTPS. Anotar el identificador de la aplicación y la clave de la API REST.
+2. Subir a GitHub el archivo `OneSignalSDKWorker.js`, en la misma carpeta que `index.html` (no requiere subcarpetas).
+3. En la app: Almacén → Más opciones → panel **Notificaciones push** → pegar el identificador de la aplicación y **Guardar ID**.
+4. En cada dispositivo de Almacén que deba recibir avisos, pulsar **«Activar en este dispositivo»** y aceptar el permiso del navegador. En iPhone se requiere iOS 16.4 o superior y la app añadida a la pantalla de inicio.
+
+**Seguridad.** La URL del proxy es pública, por eso el servidor solo envía correos a las direcciones autorizadas en `CORREOS_PERMITIDOS`, limita los envíos a 20 por hora y no acepta datos de respaldo vacíos. Las claves viven solo en las propiedades del script.
 
 ## 5. Roles: Almacén y Taller
 
@@ -185,6 +214,26 @@ Una orden o proyecto **no se cierra sola** al entregar material — sigue activa
 
 Si Tecnomat todavía no está configurado con Supabase (ver sección 3), esta parte simplemente no ocurre y las órdenes se siguen creando a mano como siempre.
 
+### Chat externo de Taller (dentro de otra aplicación)
+
+Permite mostrar el chat de una orden dentro de otra aplicación, como un recuadro incrustado, sin abrir Tecnomat. Requiere **Supabase activo** (sin él, el panel no aparece).
+
+**Preparación (una sola vez)**
+1. En Supabase → SQL Editor, ejecutar `supabase_chat_externo.sql` (después de `supabase_setup.sql`). Crea las tablas del chat y dos funciones que son lo único accesible sin sesión, protegidas por el identificador de la orden y una clave.
+2. Subir `chat.html` a GitHub junto a `index.html`. No requiere configuración: el enlace lleva los datos de Supabase.
+
+**Uso**
+1. En Tecnomat, dentro de la orden → pestaña **Chat** → panel **«Chat externo de Taller»** (solo Almacén) → **«Crear enlace de chat»**. El enlace se copia al portapapeles; **«Copiar enlace»** lo vuelve a copiar.
+2. En la otra aplicación, pegar el enlace como página incrustada (iframe o vista web) en la pantalla de esa orden. Si Taller debe poder usar la cámara desde ahí, la otra aplicación tiene que permitir el acceso a la cámara en ese recuadro.
+3. En el recuadro, Taller escribe su nombre, el material, la cantidad y, si la conoce, la referencia. Cada mensaje queda a la vista con la marca «recibido en almacén» cuando Tecnomat lo importa.
+
+**Qué hace Tecnomat con los mensajes**
+- Se importan cada 15 segundos mientras haya una sesión de Tecnomat abierta (de Almacén o de Taller); si no hay ninguna, esperan en Supabase hasta la siguiente.
+- Cada mensaje se añade a la **solicitud pendiente** de esa orden: con la referencia del stock si el código coincide (las cantidades de una misma referencia se suman) o como línea «sin referencia todavía» si no. Queda anotado en el chat de la orden como «Taller (app externa)». Si la solicitud no tenía solicitante, se usa el nombre indicado en el mensaje.
+- Un mensaje ya importado no se repite.
+
+**Seguridad.** El enlace es la llave del chat de esa orden: quien lo tenga puede leerlo y escribir en él, y nada más. **«Regenerar enlace»** (con confirmación) invalida el anterior y copia uno nuevo, que hay que pegar de nuevo en la otra aplicación. La página solo acepta servidores `*.supabase.co`, y el servidor limita a 20 mensajes por minuto en cada orden.
+
 ## 8. Pedido
 
 Sirve para pedir material que falta en el almacén (por ejemplo, para reponer stock desde un proveedor) — no lleva firma, es un listado que se manda por correo. Tiene el mismo chat que Trabajo (con su pestaña "Chat" y "Lista"), pero aquí **se pregunta quién hace el pedido en cada escaneo o mensaje**, no solo una vez — pensado para un dispositivo que se comparte entre varias personas. Cada línea del chat muestra quién pidió esa unidad en concreto.
@@ -218,6 +267,36 @@ Sirve para pedir material que falta en el almacén (por ejemplo, para reponer st
 - **Rendimiento con inventarios grandes**: la lista solo pinta 80 artículos a la vez, con "Cargar más" para ver el resto.
 - **Colores pensados para daltonismo**: ningún dato depende solo del color (siempre hay texto o número también). Pedido usa magenta y Stock bajo/OK usan rosa/verde azulado en vez de rojo/verde puros, para distinguirse bien bajo daltonismo rojo-verde.
 - **Tour inicial y botón "Ayuda"**: repaso corto de la app que aparece solo la primera vez, y se puede volver a abrir cuando se quiera.
+
+### Categoría «Ropa» y Trabajadores
+
+**Ropa** es una categoría más del stock: se asigna a una referencia desde Almacén → Editar → Categoría (también aparece en el filtro por categoría). En la sección **Trabajadores**, al dar de alta a un trabajador se muestran únicamente las referencias de la categoría Ropa; se marcan las prendas, se indica la cantidad de cada una y **«Añadir»** crea la ficha.
+
+- **Perfil de ropa.** La ropa asignada con su cantidad forma el perfil permanente del trabajador. Desde la ficha se puede asignar más ropa, editar la cantidad o quitar una prenda. Asignar **no descuenta stock** y el perfil **no se borra nunca al entregar**.
+- **Registrar entrega** (solo Almacén). Con las prendas marcadas del perfil (por defecto todas), el botón *Registrar entrega de la ropa marcada* pide confirmación, descuenta las unidades del stock (movimiento de salida «Entrega de ropa — trabajador») y añade la entrega al listado. Si alguna referencia no existe o no tiene stock suficiente, la entrega se bloquea con un aviso y no se descuenta nada.
+- **Listado de ropa entregada.** Muestra cada entrega con fecha, artículos y cantidad, de la más reciente a la más antigua. Se puede **copiar** como texto o **descargar en Excel**. *Anular* (solo Almacén) devuelve las unidades al stock y elimina esa entrega; el perfil permanece igual.
+- Si una referencia se elimina del stock, la ficha lo indica y permite quitarla. Si no hay referencias de Ropa, la propia pantalla indica cómo crearlas.
+
+## Pegar lista de material
+
+En la pestaña Chat de cada orden, el panel plegable «Pegar lista de material» convierte texto escrito o pegado (un correo, un mensaje de mensajería, una nota) en líneas de la solicitud pendiente.
+
+- Una línea por artículo; también se admiten comas y punto y coma. Formatos reconocidos: «3 bridas negras», «bridas x3», «bridas: 3», «3 uds bridas».
+- El análisis es local y gratuito. Solo las líneas que mezclan varios artículos o son largas se envían a Gemini, todas juntas en una única petición.
+- Cada línea se enlaza con una referencia del catálogo cuando coincide; si no, queda como texto libre. La vista previa permite desmarcar líneas y corregir cantidades antes de añadirlas.
+- Si la solicitud no tiene solicitante, el panel pide el nombre antes de añadir.
+
+## Análisis de actividad
+
+En Resumen (solo Almacén), el panel «Análisis de actividad (30 días)» calcula sin IA: mayor consumo, referencias que se agotan en 10 días o menos, stock bajo, salidas anómalas y referencias con stock sin movimiento en 90 días. El botón de recomendaciones envía a Gemini únicamente ese resumen (nunca el catálogo completo) y guarda la respuesta; si los datos no han cambiado, se reutiliza sin nueva consulta.
+
+## Control del consumo de Gemini
+
+- **Primero lógica local:** Gemini solo interviene cuando el análisis local no resuelve.
+- **Límites diarios:** clasificación de líneas, 8; lista de texto, 10; recomendaciones, 2. Cada panel muestra los usos del día. Al alcanzar el límite, la función sigue disponible en modo local.
+- **Cachés:** las respuestas se conservan por contenido (texto interpretado, clasificación y resumen por huella de los datos), de modo que una consulta repetida no se vuelve a enviar.
+- **Imágenes del escáner reducidas:** cada página se envía con lado máximo de 1600 px y JPEG al 80 %, en lugar de la resolución completa de la cámara. Es el mayor ahorro, ya que el coste de una imagen crece con su tamaño. Si un documento con letra muy pequeña deja de leerse bien, el valor se ajusta en `__GEMINI_LADO_MAX`.
+- **Prompts cortos:** el contexto de catálogo enviado con el escáner se limita a 25 referencias con descripciones de 40 caracteres como máximo.
 
 ## 11. Crear una orden/proyecto subiendo un archivo (Excel, CSV o PDF)
 
