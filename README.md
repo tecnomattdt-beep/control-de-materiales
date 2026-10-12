@@ -135,7 +135,7 @@ El archivo `apps-script-proxy.gs` amplía el proxy de Gemini (mismo proyecto de 
 - **Notificaciones push (OneSignal, plan gratuito)**: avisan en el dispositivo aunque la app esté cerrada, al enviarse una petición externa y en la revisión diaria de stock bajo.
 
 **Instalación**
-1. En el proyecto de Apps Script, renombrar la función `doPost` existente (la de Gemini) a `doPostGemini` y pegar el contenido de `apps-script-proxy.gs` en el mismo proyecto.
+1. En el proyecto de Apps Script, sustituir todo el código por el contenido de `apps-script-proxy.gs` (incluye la función de Gemini). La clave de Gemini debe estar en las propiedades del script con el nombre `GEMINI_API_KEY`. El modelo se cambia en la constante `MODELO_GEMINI`, al inicio del archivo.
 2. En **Configuración del proyecto → Propiedades del script**, añadir:
    - `CORREOS_PERMITIDOS`: direcciones a las que puede enviar el servidor, separadas por comas (obligatoria; sin ella no se envía ningún correo).
    - `TELEGRAM_TOKEN` y `TELEGRAM_CHAT_ID` (opcionales): token del bot creado con @BotFather e id del chat o grupo.

@@ -1,7 +1,7 @@
 /**
- * Ampliación del proxy de Tecnomat (Google Apps Script).
+ * Proxy de Tecnomat (Google Apps Script). Sustituye por completo al proxy anterior.
  *
- * Añade al proxy de Gemini existente cuatro funciones, todas gratuitas:
+ *   - gemini:   reenvío de las peticiones de texto e imagen a Gemini, con la clave guardada solo en el servidor.
  *   - correo:   envío automático de la petición de material externo.
  *   - aviso:    notificación por Telegram y push de OneSignal (tras cada correo enviado y en las revisiones programadas).
  *   - respaldo: copia de los datos en Google Drive y registro del stock bajo.
@@ -11,6 +11,8 @@
  * Las claves y destinatarios se guardan solo en Propiedades del script, nunca en el index.html.
  */
 
+const MODELO_GEMINI = 'gemini-3.8-flash';
+const CLAVES_GEMINI = ['GEMINI_API_KEY', 'GEMINI_KEY', 'API_KEY'];
 const CARPETA = 'Tecnomat respaldo';
 const MAX_CORREOS_HORA = 20;
 const MAX_TEXTO = 5000;
@@ -19,13 +21,36 @@ const SEMANAS_HISTORICO = 8;
 function doPost(e) {
   let d = null;
   try { d = JSON.parse(e.postData.contents); } catch (err) { d = null; }
-  if (!d || !d.accion) return doPostGemini(e);
+  if (!d) return responder({ error: { message: 'Petición no válida.' } });
+  if (!d.accion) return responder(consultarGemini(d));
   try {
     if (d.accion === 'correo') return responder(enviarCorreo(d));
     if (d.accion === 'respaldo') return responder(guardarRespaldo(d));
     return responder({ ok: false, error: 'Acción desconocida.' });
   } catch (err) {
     return responder({ ok: false, error: String(err.message || err) });
+  }
+}
+
+function consultarGemini(d) {
+  const clave = CLAVES_GEMINI.map(propiedad).filter(Boolean)[0];
+  if (!clave) return { error: { message: 'Falta la clave de Gemini en las propiedades del script.' } };
+  const partes = [{ text: String(d.prompt || '') }];
+  (Array.isArray(d.imagenes) ? d.imagenes : []).forEach(function (img) {
+    partes.push({ inline_data: { mime_type: img.mime_type, data: img.data } });
+  });
+  try {
+    const resp = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + MODELO_GEMINI + ':generateContent', {
+      method: 'post',
+      contentType: 'application/json',
+      headers: { 'x-goog-api-key': clave },
+      payload: JSON.stringify({ contents: [{ parts: partes }], generationConfig: { temperature: 0 } }),
+      muteHttpExceptions: true
+    });
+    try { return JSON.parse(resp.getContentText()); }
+    catch (err) { return { error: { message: 'Respuesta de Gemini no válida (HTTP ' + resp.getResponseCode() + ').' } }; }
+  } catch (err) {
+    return { error: { message: String(err.message || err) } };
   }
 }
 
