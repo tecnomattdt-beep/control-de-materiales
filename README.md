@@ -285,9 +285,9 @@ Sirve para pedir material que falta en el almacén (por ejemplo, para reponer st
 
 En la pestaña Chat de cada orden, el panel plegable «Pegar lista de material» convierte texto escrito o pegado (un correo, un mensaje de mensajería, una nota) en líneas de la solicitud pendiente.
 
-- Una línea por artículo; también se admiten comas y punto y coma. Formatos reconocidos: «3 bridas negras», «bridas x3», «bridas: 3», «3 uds bridas».
-- El análisis es local y gratuito. Solo las líneas que mezclan varios artículos o son largas se envían a Gemini, todas juntas en una única petición.
-- Cada línea se enlaza con una referencia del catálogo cuando coincide; si no, queda como texto libre. La vista previa permite desmarcar líneas y corregir cantidades antes de añadirlas.
+- Un artículo por línea; también se admiten comas y punto y coma. El texto se respeta tal como está escrito («test», «test 1», «test 2» son tres líneas distintas): no se extraen cantidades, que asigna Almacén en la Hoja de pedido. Cada línea entra con cantidad 1.
+- El análisis es local y gratuito. Solo las líneas que mezclan varios artículos (largas, con «y» o «+», o con una palabra inicial repetida) se envían a Gemini, todas juntas en una única petición. El chat de Trabajo aplica la misma separación al enviar.
+- Cada línea se enlaza con una referencia del catálogo cuando coincide; los números cuentan: «test 1» no se enlaza con una referencia «Test» sin número. Si no hay coincidencia, queda como texto libre. La vista previa permite desmarcar líneas antes de añadirlas.
 - Si la solicitud no tiene solicitante, el panel pide el nombre antes de añadir.
 
 ## Análisis de actividad
