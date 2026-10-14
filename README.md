@@ -270,6 +270,7 @@ Sirve para pedir material que falta en el almacén (por ejemplo, para reponer st
 - **Rendimiento con inventarios grandes**: la lista solo pinta 80 artículos a la vez, con "Cargar más" para ver el resto.
 - **Colores pensados para daltonismo**: ningún dato depende solo del color (siempre hay texto o número también). Pedido usa magenta y Stock bajo/OK usan rosa/verde azulado en vez de rojo/verde puros, para distinguirse bien bajo daltonismo rojo-verde.
 - **Tour inicial y botón "Ayuda"**: repaso corto de la app que aparece solo la primera vez, y se puede volver a abrir cuando se quiera. Incluye los pasos de pedido por chat y de clasificación Interno/Externo/Pequeño material (este último solo para Almacén).
+- **Pantalla de Trabajo simplificada**: cada pestaña muestra una línea de guía según el rol; en la Hoja de pedido, Almacén dispone de una única tarjeta «Revisar pedido» (referencias por confirmar, «Interno o externo» con los botones «Correcto» y «Pasar a…», y la consulta a la IA para las líneas sin detectar); «Pegar una lista larga» y el listado interno quedan plegados; el bloque de escaneo es plegable (abierto por defecto para Almacén y cerrado para Taller, con la última elección recordada en el dispositivo).
 - **Mensajes de error comprensibles**: los fallos de conexión, de límite de consultas y de tiempo de espera de la IA y del correo se muestran en lenguaje llano en lugar del texto técnico del navegador.
 
 ### Categoría «Ropa» y Trabajadores
