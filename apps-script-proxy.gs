@@ -110,7 +110,7 @@ function consultarGemini(d) {
     return { error: { message: 'Límite de consultas a la IA alcanzado.' } };
   }
   try {
-    const resp = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + MODELO_GEMINI + ':generateContent', {
+    const resp = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(propiedad('MODELO_GEMINI') || MODELO_GEMINI) + ':generateContent', {
       method: 'post',
       contentType: 'application/json',
       headers: { 'x-goog-api-key': clave },

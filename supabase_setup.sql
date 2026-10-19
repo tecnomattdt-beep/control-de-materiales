@@ -94,27 +94,35 @@ end;
 $$;
 
 -- 5) Tiempo real activado en las tablas que hace falta escuchar
-alter publication supabase_realtime add table tecnomat_kv;
-alter publication supabase_realtime add table ordenes_trabajo;
-alter publication supabase_realtime add table materiales;
-alter publication supabase_realtime add table materiales_rapidos;
+do $$
+declare
+  t text;
+begin
+  foreach t in array array['tecnomat_kv', 'ordenes_trabajo', 'materiales', 'materiales_rapidos'] loop
+    if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t) then
+      execute format('alter publication supabase_realtime add table %I', t);
+    end if;
+  end loop;
+end $$;
 
--- 6) Seguridad — de momento, cualquiera con sesión iniciada puede leer
---    y escribir (igual de abierto que Tecnomat ahora mismo con Firebase).
---    Se puede cerrar más adelante sin tocar el código de ninguna app.
+-- 6) Seguridad — por defecto, cualquier cuenta con sesión iniciada puede leer y escribir.
+--    supabase_seguridad.sql lo restringe a los correos autorizados. Las políticas solo se crean
+--    si la tabla aún no tiene ninguna, de modo que volver a ejecutar este archivo no deshace esa restricción.
 alter table tecnomat_kv enable row level security;
 alter table ordenes_trabajo enable row level security;
 alter table orden_materiales enable row level security;
 alter table materiales enable row level security;
 alter table materiales_rapidos enable row level security;
 
-create policy "lectura y escritura con sesión iniciada" on tecnomat_kv
-  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "lectura y escritura con sesión iniciada" on ordenes_trabajo
-  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "lectura y escritura con sesión iniciada" on orden_materiales
-  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "lectura y escritura con sesión iniciada" on materiales
-  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-create policy "lectura y escritura con sesión iniciada" on materiales_rapidos
-  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+do $$
+declare
+  t text;
+begin
+  foreach t in array array['tecnomat_kv', 'ordenes_trabajo', 'orden_materiales', 'materiales', 'materiales_rapidos'] loop
+    if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = t) then
+      execute format(
+        'create policy "lectura y escritura con sesión iniciada" on %I for all using (auth.role() = ''authenticated'') with check (auth.role() = ''authenticated'')', t
+      );
+    end if;
+  end loop;
+end $$;

@@ -2,13 +2,13 @@
 -- Ejecutar UNA vez (SQL Editor → New query → Run), después de supabase_setup.sql y supabase_chat_externo.sql.
 --
 -- Orden recomendado:
---   1) En Authentication → Users, crear en Supabase las mismas cuentas (mismo correo y misma contraseña)
---      que se usan para entrar en la app. La app inicia sesión también en Supabase con ellas.
---   2) Ejecutar este archivo. Todas las cuentas existentes en ese momento quedan autorizadas.
---   3) En Authentication → Sign In / Providers, desactivar «Allow new users to sign up».
+--   1) En Authentication → Sign In / Providers, desactivar «Allow new users to sign up» ANTES de nada más.
+--   2) En Authentication → Users, comprobar que solo existen las cuentas propias y crear las que falten
+--      (mismo correo y misma contraseña que en Firebase; la app inicia sesión también en Supabase con ellas).
+--   3) Ajustar los correos del bloque «insert» de más abajo y ejecutar este archivo.
 --
 -- Efecto: solo los correos de la tabla tecnomat_usuarios pueden leer y escribir. Una cuenta creada por
--- terceros (si el registro público estuviera activo) deja de tener acceso a los datos.
+-- terceros deja de tener acceso a los datos.
 -- Para autorizar una cuenta nueva:  insert into tecnomat_usuarios (email) values ('correo@dominio.es');
 
 create table if not exists tecnomat_usuarios (
@@ -16,8 +16,9 @@ create table if not exists tecnomat_usuarios (
 );
 alter table tecnomat_usuarios enable row level security;
 
-insert into tecnomat_usuarios (email)
-select lower(email) from auth.users where email is not null
+insert into tecnomat_usuarios (email) values
+  ('almacen@tecnomat.es'),
+  ('taller@tecnomat.es')
 on conflict do nothing;
 
 create or replace function es_usuario_tecnomat()

@@ -3,7 +3,8 @@
 --
 -- Permite que otra aplicación muestre dentro de sí el chat de una orden mediante la página
 -- chat.html. El acceso anónimo se limita a dos funciones que exigen el identificador de la
--- orden y su clave; las tablas siguen protegidas por sesión iniciada.
+-- orden y su clave; las tablas solo son accesibles con sesión iniciada (y, tras ejecutar
+-- supabase_seguridad.sql, solo para los correos autorizados).
 
 create table if not exists chat_externo (
   id uuid primary key default gen_random_uuid(),
@@ -29,12 +30,20 @@ create index if not exists chat_externo_mensajes_ot on chat_externo_mensajes (ot
 alter table chat_externo enable row level security;
 alter table chat_externo_mensajes enable row level security;
 
-drop policy if exists "lectura y escritura con sesión iniciada" on chat_externo;
-create policy "lectura y escritura con sesión iniciada" on chat_externo
-  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
-drop policy if exists "lectura y escritura con sesión iniciada" on chat_externo_mensajes;
-create policy "lectura y escritura con sesión iniciada" on chat_externo_mensajes
-  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+-- Las políticas solo se crean si la tabla aún no tiene ninguna, de modo que volver a ejecutar este
+-- archivo (por ejemplo, para actualizar las funciones) no deshace las restricciones de supabase_seguridad.sql.
+do $$
+declare
+  t text;
+begin
+  foreach t in array array['chat_externo', 'chat_externo_mensajes'] loop
+    if not exists (select 1 from pg_policies where schemaname = 'public' and tablename = t) then
+      execute format(
+        'create policy "lectura y escritura con sesión iniciada" on %I for all using (auth.role() = ''authenticated'') with check (auth.role() = ''authenticated'')', t
+      );
+    end if;
+  end loop;
+end $$;
 
 create or replace function chat_ext_leer(p_ot uuid, p_token text)
 returns jsonb
