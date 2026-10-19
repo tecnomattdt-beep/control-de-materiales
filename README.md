@@ -367,6 +367,8 @@ Gracias a `manifest.json`, `sw.js` y los iconos (súbelos todos junto al `index.
 
 Una vez instalada, abre en pantalla completa y guarda una copia básica en caché para no quedarse en blanco si se corta la conexión un momento.
 
+El número de versión instalada se muestra bajo el botón «Ayuda» (por ejemplo, «v195») y debe coincidir con el de `CACHE_NAME` en `sw.js`; si no coincide, el navegador sigue mostrando una versión anterior.
+
 Cuando se suben cambios nuevos, aparece un banner — *"Hay una versión nueva disponible"* — con un botón para actualizar. Hasta que no se pulse, sigue con la versión que ya tenía cargada.
 
 ### Adaptación a tablet y móvil
