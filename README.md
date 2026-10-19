@@ -301,11 +301,12 @@ Sirve para pedir material que falta en el almacén (por ejemplo, para reponer st
 
 ### Categoría «Ropa» y Trabajadores
 
-**Ropa** es una categoría más del stock: se asigna a una referencia desde Almacén → Editar → Categoría (también aparece en el filtro por categoría). En la sección **Trabajadores**, al dar de alta a un trabajador se muestran únicamente las referencias de la categoría Ropa; se marcan las prendas, se indica la cantidad de cada una y **«Añadir»** crea la ficha.
+**Ropa** es una categoría más del stock: se asigna a una referencia desde Almacén → Editar → Categoría (también aparece en el filtro por categoría). En la sección **Trabajadores** cada persona tiene una **ficha de ropa**.
 
-- **Perfil de ropa.** La ropa asignada con su cantidad forma el perfil permanente del trabajador. Desde la ficha se puede asignar más ropa, editar la cantidad o quitar una prenda. Asignar **no descuenta stock** y el perfil **no se borra nunca al entregar**.
-- **Registrar entrega** (solo Almacén). Con las prendas marcadas del perfil (por defecto todas), el botón *Registrar entrega de la ropa marcada* pide confirmación, descuenta las unidades del stock (movimiento de salida «Entrega de ropa — trabajador») y añade la entrega al listado. Si alguna referencia no existe o no tiene stock suficiente, la entrega se bloquea con un aviso y no se descuenta nada.
-- **Listado de ropa entregada.** Muestra cada entrega con fecha, artículos y cantidad, de la más reciente a la más antigua. Se puede **copiar** como texto o **descargar en Excel**. *Anular* (solo Almacén) devuelve las unidades al stock y elimina esa entrega; el perfil permanece igual.
+- **Crear la ficha.** Se escribe el nombre, se marcan las prendas de la categoría Ropa con su cantidad (opcional) y se pulsa **«Crear ficha»**. Crear o editar una ficha **nunca descuenta stock**.
+- **Ficha editable.** La ficha se abre mostrando lo que tiene asignado el trabajador. Todo es editable: el nombre, las cantidades, **«Quitar»** una prenda y **«Añadir a la ficha»** otra. Junto a cada prenda aparece lo que se le ha entregado hasta ahora.
+- **Entregar** (solo Almacén). Con las prendas marcadas de la ficha (por defecto todas), el botón **«Entregar la ropa marcada»** pide confirmación, descuenta las unidades del stock (movimiento de salida «Entrega de ropa — trabajador») y añade la entrega al listado. Es la única acción que modifica el stock. Las prendas permanecen en la ficha después de entregar. Si alguna referencia no existe o no tiene stock suficiente, la entrega se bloquea con un aviso.
+- **Listado de ropa entregada.** Muestra cada entrega con fecha, artículos y cantidad, de la más reciente a la más antigua. Se puede **copiar** como texto o **descargar en Excel**. *Anular* (solo Almacén) devuelve las unidades al stock y elimina esa entrega; la ficha permanece igual.
 - Si una referencia se elimina del stock, la ficha lo indica y permite quitarla. Si no hay referencias de Ropa, la propia pantalla indica cómo crearlas.
 
 ## Pegar lista de material
