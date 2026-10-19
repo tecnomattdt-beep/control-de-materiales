@@ -7,38 +7,108 @@
  *   - respaldo: copia de los datos en Google Drive y registro del stock bajo.
  *   - revisiones programadas: aviso diario de stock bajo y copia semanal con histórico.
  *
+ * Toda petición exige el token de sesión de Firebase del usuario («token») y que su correo figure en
+ * USUARIOS_PERMITIDOS. Sin esa lista, o sin FIREBASE_API_KEY, el servidor rechaza todo.
+ *
  * Instalación: ver la sección «Proxy de Apps Script» del README.
- * Las claves y destinatarios se guardan solo en Propiedades del script, nunca en el index.html.
+ * Las claves, usuarios y destinatarios se guardan solo en Propiedades del script, nunca en el index.html.
  */
 
 const MODELO_GEMINI = 'gemini-3.8-flash';
 const CLAVES_GEMINI = ['GEMINI_API_KEY', 'GEMINI_KEY', 'API_KEY'];
 const CARPETA = 'Tecnomat respaldo';
 const MAX_CORREOS_HORA = 20;
+const MAX_GEMINI_MINUTO = 20;
+const MAX_GEMINI_DIA = 400;
+const MAX_PROMPT = 30000;
+const MAX_IMAGENES = 12;
+const MAX_IMAGEN = 7000000;
+const MAX_RESPALDO = 8000000;
 const MAX_TEXTO = 5000;
 const SEMANAS_HISTORICO = 8;
+const MIME_IMAGEN = /^image\/(?:jpeg|png|webp)$/;
 
 function doPost(e) {
   let d = null;
   try { d = JSON.parse(e.postData.contents); } catch (err) { d = null; }
-  if (!d) return responder({ error: { message: 'Petición no válida.' } });
+  if (!d || typeof d !== 'object') return responder({ ok: false, error: { message: 'Petición no válida.' } });
+  const usuario = autenticar(d);
+  if (!usuario) {
+    return responder(d.accion
+      ? { ok: false, error: 'No autorizado: es necesario iniciar sesión de nuevo.' }
+      : { error: { message: 'No autorizado: es necesario iniciar sesión de nuevo.' } });
+  }
   if (!d.accion) return responder(consultarGemini(d));
   try {
     if (d.accion === 'correo') return responder(enviarCorreo(d));
-    if (d.accion === 'respaldo') return responder(guardarRespaldo(d));
+    if (d.accion === 'respaldo') return responder(guardarRespaldo(d, usuario));
     return responder({ ok: false, error: 'Acción desconocida.' });
   } catch (err) {
     return responder({ ok: false, error: String(err.message || err) });
   }
 }
 
+function lista(nombre) {
+  return propiedad(nombre).toLowerCase().split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+}
+
+function contador(clave, segundos, maximo) {
+  const cache = CacheService.getScriptCache();
+  const usados = parseInt(cache.get(clave) || '0', 10);
+  if (usados >= maximo) return false;
+  cache.put(clave, String(usados + 1), segundos);
+  return true;
+}
+
+function autenticar(d) {
+  const token = String(d.token || '');
+  if (token.length < 20 || token.length > 4096) return '';
+  const cache = CacheService.getScriptCache();
+  const huella = 'tok_' + Utilities.base64EncodeWebSafe(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, token));
+  const conocido = cache.get(huella);
+  if (conocido) return conocido;
+  const clave = propiedad('FIREBASE_API_KEY');
+  const permitidos = lista('USUARIOS_PERMITIDOS');
+  if (!clave || !permitidos.length) return '';
+  const minuto = Math.floor(Date.now() / 60000);
+  if (parseInt(cache.get('fallos_' + minuto) || '0', 10) >= 30) return '';
+  let correo = '';
+  try {
+    const resp = UrlFetchApp.fetch('https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=' + encodeURIComponent(clave), {
+      method: 'post',
+      contentType: 'application/json',
+      payload: JSON.stringify({ idToken: token }),
+      muteHttpExceptions: true
+    });
+    if (resp.getResponseCode() === 200) {
+      const u = (JSON.parse(resp.getContentText()).users || [])[0];
+      if (u && u.email && !u.disabled) correo = String(u.email).toLowerCase();
+    }
+  } catch (err) { correo = ''; }
+  if (!correo || permitidos.indexOf(correo) === -1) {
+    contador('fallos_' + minuto, 120, 1000);
+    return '';
+  }
+  cache.put(huella, correo, 300);
+  return correo;
+}
+
 function consultarGemini(d) {
   const clave = CLAVES_GEMINI.map(propiedad).filter(Boolean)[0];
   if (!clave) return { error: { message: 'Falta la clave de Gemini en las propiedades del script.' } };
-  const partes = [{ text: String(d.prompt || '') }];
-  (Array.isArray(d.imagenes) ? d.imagenes : []).forEach(function (img) {
+  const prompt = String(d.prompt || '');
+  const imagenes = Array.isArray(d.imagenes) ? d.imagenes : [];
+  if (!prompt || prompt.length > MAX_PROMPT || imagenes.length > MAX_IMAGENES) return { error: { message: 'Petición no válida.' } };
+  const partes = [{ text: prompt }];
+  for (let i = 0; i < imagenes.length; i++) {
+    const img = imagenes[i] || {};
+    if (!MIME_IMAGEN.test(String(img.mime_type)) || typeof img.data !== 'string' || img.data.length > MAX_IMAGEN) return { error: { message: 'Imagen no válida.' } };
     partes.push({ inline_data: { mime_type: img.mime_type, data: img.data } });
-  });
+  }
+  const dia = new Date().toISOString().slice(0, 10);
+  if (!contador('gemini_min_' + Math.floor(Date.now() / 60000), 120, MAX_GEMINI_MINUTO) || !contador('gemini_dia_' + dia, 90000, MAX_GEMINI_DIA)) {
+    return { error: { message: 'Límite de consultas a la IA alcanzado.' } };
+  }
   try {
     const resp = UrlFetchApp.fetch('https://generativelanguage.googleapis.com/v1beta/models/' + MODELO_GEMINI + ':generateContent', {
       method: 'post',
@@ -63,18 +133,15 @@ function propiedad(nombre) {
 }
 
 function enviarCorreo(d) {
-  const permitidos = propiedad('CORREOS_PERMITIDOS').toLowerCase().split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+  const permitidos = lista('CORREOS_PERMITIDOS');
   const para = String(d.para || '').trim().toLowerCase();
   if (!permitidos.length) return { ok: false, error: 'No hay destinatarios autorizados en el servidor.' };
   if (permitidos.indexOf(para) === -1) return { ok: false, error: 'El destinatario no está autorizado en el servidor.' };
-  const cache = CacheService.getScriptCache();
-  const usados = parseInt(cache.get('correos_hora') || '0', 10);
-  if (usados >= MAX_CORREOS_HORA) return { ok: false, error: 'Límite de correos por hora alcanzado.' };
-  const asunto = String(d.asunto || 'Material externo').slice(0, 150);
+  const asunto = String(d.asunto || 'Material externo').replace(/[\r\n]+/g, ' ').slice(0, 150);
   const texto = String(d.texto || '').slice(0, MAX_TEXTO);
   if (!texto) return { ok: false, error: 'El texto está vacío.' };
+  if (!contador('correos_' + Math.floor(Date.now() / 3600000), 7200, MAX_CORREOS_HORA)) return { ok: false, error: 'Límite de correos por hora alcanzado.' };
   MailApp.sendEmail({ to: para, subject: asunto, body: texto });
-  cache.put('correos_hora', String(usados + 1), 3600);
   enviarAviso('Petición enviada', 'Enviada a ' + para + ': ' + asunto);
   return { ok: true };
 }
@@ -131,11 +198,12 @@ function leerArchivo(nombre) {
   return it.hasNext() ? it.next().getBlob().getDataAsString() : null;
 }
 
-function guardarRespaldo(d) {
+function guardarRespaldo(d, usuario) {
   if (!d.datos || !Array.isArray(d.datos.catalog) || !d.datos.catalog.length) return { ok: false, error: 'Datos no válidos.' };
-  const ahora = new Date().toISOString();
-  escribirArchivo('respaldo_actual.json', JSON.stringify({ fecha: ahora, datos: d.datos }));
-  escribirArchivo('stock_bajo.json', JSON.stringify({ fecha: ahora, umbral: d.umbral, items: Array.isArray(d.bajo) ? d.bajo : [] }));
+  const contenido = JSON.stringify({ fecha: new Date().toISOString(), usuario: usuario, datos: d.datos });
+  if (contenido.length > MAX_RESPALDO) return { ok: false, error: 'Los datos superan el tamaño máximo del respaldo.' };
+  escribirArchivo('respaldo_actual.json', contenido);
+  escribirArchivo('stock_bajo.json', JSON.stringify({ fecha: new Date().toISOString(), umbral: d.umbral, items: Array.isArray(d.bajo) ? d.bajo.slice(0, 500) : [] }));
   return { ok: true };
 }
 

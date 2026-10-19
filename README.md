@@ -91,11 +91,33 @@ Si solo se rellena uno de los dos (Supabase o Firebase), la app funciona con esa
 5. En `index.html`, sustituye el objeto `firebaseConfig` de ejemplo por ese bloque real.
 6. **Authentication → Users → Add user** para crear las cuentas de acceso (por ejemplo, `taller@tecnomat.es` y la de Almacén).
 
-### Notas de seguridad
+### Seguridad
 
-- **Supabase**: el SQL de configuración ya deja las tablas cerradas a cualquiera que no haya iniciado sesión (Row Level Security activada, con una política que exige `auth.role() = 'authenticated'`). Con eso basta para que nadie sin cuenta pueda leer ni escribir nada, aunque conozca la URL y la clave pública del proyecto — la clave `anon` está pensada para ir en el código del cliente, no es un secreto por sí sola. Nótese que, como el login corre por Firebase y no por Supabase, esta condición (`auth.role() = 'authenticated'`, que mira la sesión de Supabase) puede no reflejar el login real de la app — si se quiere cerrar Supabase de verdad en este reparto, conviene ajustar esa política o restringir por otra vía (por ejemplo, IP o solo permitir desde el dominio publicado).
-- **Firebase**: en Firestore Database → Reglas, exigir `request.auth != null` para leer y escribir la colección `tecnomat_materiales`.
-- **Restricción real para Taller** (la de la interfaz, ver sección 5, es solo visual) — para impedir de verdad que esa cuenta escriba en el catálogo o los movimientos, hay que añadir una regla equivalente en cada backend configurado, comprobando el email de quien ha iniciado sesión en vez de solo si hay sesión.
+Las claves de Firebase y la clave `anon` de Supabase son públicas por diseño: la protección real está en las reglas de cada servicio. Mientras el registro público siga activo, cualquier persona puede crear una cuenta con esas claves, por lo que **«tener sesión iniciada» no basta**; hay que limitar el acceso a una lista de correos. Pasos, una sola vez:
+
+1. **Firebase → Authentication → Settings → User actions**: desactivar «Enable create (sign-up)». Las cuentas se crean solo desde Authentication → Users.
+2. **Firebase → Firestore Database → Reglas**: sustituir las reglas por las siguientes, con los correos reales de Almacén y Taller:
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /{document=**} {
+         allow read, write: if request.auth != null
+           && request.auth.token.email in ['almacen@tecnomat.es', 'taller@tecnomat.es'];
+       }
+     }
+   }
+   ```
+3. **Supabase** (solo si se usa): crear en Authentication → Users las mismas cuentas, con el mismo correo y la misma contraseña que en Firebase (la app inicia sesión también en Supabase al entrar); ejecutar `supabase_seguridad.sql` en el SQL Editor; y desactivar «Allow new users to sign up» en Authentication → Sign In / Providers. El SQL crea la tabla `tecnomat_usuarios` con los correos autorizados y limita todas las tablas a ellos. Para autorizar una cuenta nueva: `insert into tecnomat_usuarios (email) values ('correo@dominio.es');`.
+4. **Proxy de Apps Script**: añadir las propiedades `FIREBASE_API_KEY` y `USUARIOS_PERMITIDOS` (ver más abajo). Sin ellas el proxy rechaza todas las peticiones.
+5. **EmailJS** (solo si se usa): en el panel de EmailJS, limitar el servicio al dominio donde se publica la app, ya que su clave pública va en el código.
+6. **Restricción real para Taller**: la de la interfaz (sección 5) es solo visual. Para impedir que esa cuenta escriba en el catálogo o los movimientos, las reglas de cada backend deben distinguir por correo en vez de aceptar a todos los autorizados.
+
+Medidas incluidas en el código:
+- Un saneador global elimina los manejadores de eventos, las etiquetas peligrosas y las direcciones `javascript:` de cualquier HTML que se inserte, de modo que un dato manipulado en la base de datos no pueda ejecutar código en el navegador de otro usuario.
+- La política de seguridad del navegador impide objetos incrustados, cambios de base de URL y envíos de formularios a otros dominios. `chat.html` lleva una política más estricta, sin referer.
+- El service worker solo guarda en caché los archivos de la app y las librerías de los CDN; las respuestas de las bases de datos nunca se almacenan.
+- El proxy verifica la sesión de Firebase de cada petición, limita las consultas a la IA (20 por minuto y 400 al día), valida el tamaño y el tipo de las imágenes y el tamaño del respaldo.
 
 ### La otra app conectada al mismo proyecto de Supabase
 
@@ -137,6 +159,8 @@ El archivo `apps-script-proxy.gs` amplía el proxy de Gemini (mismo proyecto de 
 **Instalación**
 1. En el proyecto de Apps Script, sustituir todo el código por el contenido de `apps-script-proxy.gs` (incluye la función de Gemini). La clave de Gemini debe estar en las propiedades del script con el nombre `GEMINI_API_KEY`. El modelo se cambia en la constante `MODELO_GEMINI`, al inicio del archivo.
 2. En **Configuración del proyecto → Propiedades del script**, añadir:
+   - `FIREBASE_API_KEY` (obligatoria): la `apiKey` del objeto `firebaseConfig` del proyecto de Firebase. Sirve para comprobar la sesión de quien llama.
+   - `USUARIOS_PERMITIDOS` (obligatoria): correos con acceso al proxy, separados por comas, normalmente los de Almacén y Taller. Sin esta lista el proxy rechaza todo.
    - `CORREOS_PERMITIDOS`: direcciones a las que puede enviar el servidor, separadas por comas (obligatoria; sin ella no se envía ningún correo).
    - `TELEGRAM_TOKEN` y `TELEGRAM_CHAT_ID` (opcionales): token del bot creado con @BotFather e id del chat o grupo.
    - `AVISOS_CORREO` (opcional): dirección que recibe también el resumen diario de stock bajo.
@@ -150,7 +174,7 @@ El archivo `apps-script-proxy.gs` amplía el proxy de Gemini (mismo proyecto de 
 3. En la app: Almacén → Más opciones → panel **Notificaciones push** → pegar el identificador de la aplicación y **Guardar ID**.
 4. En cada dispositivo de Almacén que deba recibir avisos, pulsar **«Activar en este dispositivo»** y aceptar el permiso del navegador. En iPhone se requiere iOS 16.4 o superior y la app añadida a la pantalla de inicio.
 
-**Seguridad.** La URL del proxy es pública, por eso el servidor solo envía correos a las direcciones autorizadas en `CORREOS_PERMITIDOS`, limita los envíos a 20 por hora y no acepta datos de respaldo vacíos. Las claves viven solo en las propiedades del script.
+**Seguridad.** La URL del proxy es pública, por eso toda petición debe llevar el token de sesión de Firebase de un usuario de `USUARIOS_PERMITIDOS`. Además, el servidor solo envía correos a las direcciones autorizadas en `CORREOS_PERMITIDOS`, limita los envíos a 20 por hora y las consultas a la IA a 20 por minuto y 400 al día, y no acepta respaldos vacíos ni superiores a 8 MB. Las claves viven solo en las propiedades del script.
 
 ## 5. Roles: Almacén y Taller
 
@@ -161,6 +185,8 @@ Quien entra con la cuenta **`taller@tecnomat.es`** solo ve las pestañas **Traba
 ## 6. Resumen (pantalla de inicio)
 
 Al abrir la app, siempre se aterriza aquí primero (no en la última sección usada) — un vistazo con lo más urgente antes de entrar a trabajar: stock bajo, bobinas a punto de expirar, avisos sin leer, líneas pendientes en Pedido, y revisiones de Mantenimiento atrasadas o próximas. Cada tarjeta se puede tocar para ir directo a esa sección. **Exclusiva de Almacén** — Taller no ve esta pestaña, entra directo a Trabajo. La orden o proyecto que se estuviera viendo antes se recuerda igual, así que al entrar a Trabajo desde una tarjeta se sigue justo donde se dejó.
+
+**Reposición** (solo Almacén): cuando hay materiales por debajo de su mínimo, el Resumen muestra una lista con la cantidad propuesta para volver al doble del mínimo. Cada línea se puede desmarcar o ajustar, y la lista resultante se copia o se abre en el correo con un solo toque.
 
 ## 7. Trabajo (Montaje/Venta y Proyecto) y su chat
 
@@ -235,7 +261,7 @@ Permite mostrar el chat de una orden dentro de otra aplicación, como un recuadr
 - Cada mensaje se añade a la **solicitud pendiente** de esa orden: con la referencia del stock si el código coincide (las cantidades de una misma referencia se suman) o como línea «sin referencia todavía» si no. Queda anotado en el chat de la orden como «Taller (app externa)». Si la solicitud no tenía solicitante, se usa el nombre indicado en el mensaje.
 - Un mensaje ya importado no se repite.
 
-**Seguridad.** El enlace es la llave del chat de esa orden: quien lo tenga puede leerlo y escribir en él, y nada más. **«Regenerar enlace»** (con confirmación) invalida el anterior y copia uno nuevo, que hay que pegar de nuevo en la otra aplicación. La página solo acepta servidores `*.supabase.co`, y el servidor limita a 20 mensajes por minuto en cada orden.
+**Seguridad.** El enlace es la llave del chat de esa orden: quien lo tenga puede leerlo y escribir en él, y nada más. **«Regenerar enlace»** (con confirmación) invalida el anterior y copia uno nuevo, que hay que pegar de nuevo en la otra aplicación. La página solo acepta servidores `*.supabase.co`, y el servidor limita a 20 mensajes por minuto y 2000 en total por orden (hay que volver a ejecutar `supabase_chat_externo.sql` para aplicar el tope).
 
 ## 8. Pedido
 

@@ -78,6 +78,9 @@ begin
   if (select count(*) from chat_externo_mensajes where ot_id = p_ot and created_at > now() - interval '1 minute') >= 20 then
     raise exception 'Demasiados mensajes seguidos';
   end if;
+  if (select count(*) from chat_externo_mensajes where ot_id = p_ot) >= 2000 then
+    raise exception 'Chat lleno';
+  end if;
   insert into chat_externo_mensajes (ot_id, autor, texto, cantidad, codigo)
   values (p_ot, left(trim(p_autor), 60), left(trim(p_texto), 300), greatest(1, least(coalesce(p_cantidad, 1), 9999)), nullif(left(trim(coalesce(p_codigo, '')), 60), ''));
 end;
