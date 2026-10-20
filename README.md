@@ -159,7 +159,7 @@ El archivo `apps-script-proxy.gs` amplía el proxy de Gemini (mismo proyecto de 
 **Instalación**
 1. En el proyecto de Apps Script, sustituir todo el código por el contenido de `apps-script-proxy.gs` (incluye la función de Gemini). La clave de Gemini debe estar en las propiedades del script con el nombre `GEMINI_API_KEY`. El modelo por defecto está en la constante `MODELO_GEMINI`, al inicio del archivo; si Google retira un modelo basta con añadir la propiedad `MODELO_GEMINI` con el nombre nuevo, sin editar el código. Tras pegar el código hay que publicarlo: **Implementar → Gestionar implementaciones → editar (lápiz) → Versión: Nueva versión → Implementar**. Sin este paso sigue activa la versión anterior.
 2. En **Configuración del proyecto → Propiedades del script**, añadir:
-   - `FIREBASE_API_KEY` (obligatoria): la `apiKey` del objeto `firebaseConfig` del proyecto de Firebase. Sirve para comprobar la sesión de quien llama.
+   - `FIREBASE_API_KEY` (obligatoria): la `apiKey` del objeto `firebaseConfig` del proyecto de Firebase. Sirve para comprobar la sesión de quien llama. Si la clave tiene restricción de sitios web en Google Cloud, la constante `ORIGEN_APP` de `apps-script-proxy.gs` debe coincidir con uno de los sitios permitidos; de lo contrario la comprobación falla y la IA responde «No autorizado».
    - `USUARIOS_PERMITIDOS` (obligatoria): correos con acceso al proxy, separados por comas, normalmente los de Almacén y Taller. Sin esta lista el proxy rechaza todo.
    - `CORREOS_PERMITIDOS`: direcciones a las que puede enviar el servidor, separadas por comas (obligatoria; sin ella no se envía ningún correo).
    - `TELEGRAM_TOKEN` y `TELEGRAM_CHAT_ID` (opcionales): token del bot creado con @BotFather e id del chat o grupo.
@@ -303,8 +303,9 @@ Sirve para pedir material que falta en el almacén (por ejemplo, para reponer st
 
 **Ropa** es una categoría más del stock: se asigna a una referencia desde Almacén → Editar → Categoría (también aparece en el filtro por categoría). En la sección **Trabajadores** cada persona tiene una **ficha de ropa**.
 
-- **Crear la ficha.** Se escribe el nombre, se marcan las prendas de la categoría Ropa con su cantidad (opcional) y se pulsa **«Crear ficha»**. Crear o editar una ficha **nunca descuenta stock**.
-- **Ficha editable.** La ficha se abre mostrando lo que tiene asignado el trabajador. Todo es editable: el nombre, las cantidades, **«Quitar»** una prenda y **«Añadir a la ficha»** otra. Junto a cada prenda aparece lo que se le ha entregado hasta ahora.
+- **Añadir y asignar.** Se escribe el nombre y se pulsa **«Añadir»**. Después se asignan las prendas de la categoría Ropa (selector, cantidad y **«Asignar»**). Mientras no exista la ficha, la ropa asignada aparece como borrador.
+- **Crear la ficha.** Con al menos una prenda asignada se activa **«Crear ficha»**. La ficha muestra la fecha de creación y lo asignado al trabajador. Asignar, crear o editar una ficha **nunca descuenta stock**.
+- **Ficha editable.** **«Editar»** permite cambiar el nombre y las cantidades, **«Quitar»** una prenda y **«Añadir a la ficha»** otra; **«Listo»** vuelve a la vista de la ficha. Junto a cada prenda aparece lo entregado hasta ahora.
 - **Entregar** (solo Almacén). Con las prendas marcadas de la ficha (por defecto todas), el botón **«Entregar la ropa marcada»** pide confirmación, descuenta las unidades del stock (movimiento de salida «Entrega de ropa — trabajador») y añade la entrega al listado. Es la única acción que modifica el stock. Las prendas permanecen en la ficha después de entregar. Si alguna referencia no existe o no tiene stock suficiente, la entrega se bloquea con un aviso.
 - **Listado de ropa entregada.** Muestra cada entrega con fecha, artículos y cantidad, de la más reciente a la más antigua. Se puede **copiar** como texto o **descargar en Excel**. *Anular* (solo Almacén) devuelve las unidades al stock y elimina esa entrega; la ficha permanece igual.
 - Si una referencia se elimina del stock, la ficha lo indica y permite quitarla. Si no hay referencias de Ropa, la propia pantalla indica cómo crearlas.
@@ -325,7 +326,7 @@ En Resumen (solo Almacén), el panel «Análisis de actividad (30 días)» calcu
 ## Control del consumo de Gemini
 
 - **Primero lógica local:** Gemini solo interviene cuando el análisis local no resuelve.
-- **Límites diarios:** clasificación de líneas, 8; lista de texto, 10; recomendaciones, 2. Cada panel muestra los usos del día. Al alcanzar el límite, la función sigue disponible en modo local.
+- **Límites diarios:** clasificación de líneas, 8; lista de texto, 10; recomendaciones, 10. Solo cuentan las consultas que la IA responde correctamente. Cada panel muestra los usos del día. Al alcanzar el límite, la función sigue disponible en modo local.
 - **Cachés:** las respuestas se conservan por contenido (texto interpretado, clasificación y resumen por huella de los datos), de modo que una consulta repetida no se vuelve a enviar.
 - **Imágenes del escáner reducidas:** cada página se envía con lado máximo de 1600 px y JPEG al 80 %, en lugar de la resolución completa de la cámara. Es el mayor ahorro, ya que el coste de una imagen crece con su tamaño. Si un documento con letra muy pequeña deja de leerse bien, el valor se ajusta en `__GEMINI_LADO_MAX`.
 - **Prompts cortos:** el contexto de catálogo enviado con el escáner se limita a 25 referencias con descripciones de 40 caracteres como máximo.

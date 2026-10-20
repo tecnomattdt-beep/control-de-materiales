@@ -17,6 +17,7 @@
 const MODELO_GEMINI = 'gemini-3.8-flash';
 const CLAVES_GEMINI = ['GEMINI_API_KEY', 'GEMINI_KEY', 'API_KEY'];
 const CARPETA = 'Tecnomat respaldo';
+const ORIGEN_APP = 'https://tecnomattdt-beep.github.io/control-de-materiales/';
 const MAX_CORREOS_HORA = 20;
 const MAX_GEMINI_MINUTO = 20;
 const MAX_GEMINI_DIA = 400;
@@ -77,6 +78,7 @@ function autenticar(d) {
     const resp = UrlFetchApp.fetch('https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=' + encodeURIComponent(clave), {
       method: 'post',
       contentType: 'application/json',
+      headers: { Referer: ORIGEN_APP },
       payload: JSON.stringify({ idToken: token }),
       muteHttpExceptions: true
     });
