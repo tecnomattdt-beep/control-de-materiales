@@ -14,7 +14,7 @@
  * Las claves, usuarios y destinatarios se guardan solo en Propiedades del script, nunca en el index.html.
  */
 
-const MODELO_GEMINI = 'gemini-3.8-flash';
+const MODELO_GEMINI = 'gemini-3.5-flash-lite';
 const CLAVES_GEMINI = ['GEMINI_API_KEY', 'GEMINI_KEY', 'API_KEY'];
 const CARPETA = 'Tecnomat respaldo';
 const ORIGEN_APP = 'https://tecnomattdt-beep.github.io/control-de-materiales/';
@@ -116,7 +116,7 @@ function consultarGemini(d) {
       method: 'post',
       contentType: 'application/json',
       headers: { 'x-goog-api-key': clave },
-      payload: JSON.stringify({ contents: [{ parts: partes }], generationConfig: { temperature: 0 } }),
+      payload: JSON.stringify({ contents: [{ parts: partes }], generationConfig: { temperature: 0, thinkingConfig: { thinkingLevel: 'low' } } }),
       muteHttpExceptions: true
     });
     try { return JSON.parse(resp.getContentText()); }
