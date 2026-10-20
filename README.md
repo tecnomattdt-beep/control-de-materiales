@@ -326,6 +326,8 @@ En Almacén (solo rol Almacén) el panel **Herramientas** abre dos diálogos.
 
 **Mínimos automáticos.** En Almacén → Herramientas → **«Mínimos automáticos»** se propone un mínimo por referencia a partir de las salidas de los últimos 90 días: el mínimo cubre 14 días de consumo y solo se tienen en cuenta las referencias con 3 o más salidas. Cada propuesta se puede desmarcar antes de **«Aplicar seleccionados»**; el stock no se modifica, solo el mínimo de la referencia.
 
+**Pitido de lectura.** La casilla «Pitido al leer un código» del panel Herramientas activa o desactiva el sonido de la cámara continua y del inventario guiado.
+
 ### Categoría «Ropa» y Trabajadores
 
 **Ropa** es una categoría más del stock: se asigna a una referencia desde Almacén → Editar → Categoría (también aparece en el filtro por categoría). En la sección **Trabajadores** cada persona tiene una **ficha de ropa**.
@@ -397,7 +399,7 @@ Gracias a `manifest.json`, `sw.js` y los iconos (súbelos todos junto al `index.
 
 Una vez instalada, abre en pantalla completa y guarda una copia básica en caché para no quedarse en blanco si se corta la conexión un momento.
 
-El número de versión instalada se muestra bajo el botón «Ayuda» (por ejemplo, «v199») y debe coincidir con el de `CACHE_NAME` en `sw.js`; si no coincide, el navegador sigue mostrando una versión anterior.
+El número de versión instalada se muestra bajo el botón «Ayuda» (por ejemplo, «v201») y debe coincidir con el de `CACHE_NAME` en `sw.js`; si no coincide, el navegador sigue mostrando una versión anterior.
 
 Cuando se suben cambios nuevos, aparece un banner — *"Hay una versión nueva disponible"* — con un botón para actualizar. Hasta que no se pulse, sigue con la versión que ya tenía cargada.
 
