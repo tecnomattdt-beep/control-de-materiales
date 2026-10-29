@@ -1,18 +1,9 @@
--- ============================================================
--- Tecnomat · Control de Materiales — configuración de Supabase
--- ============================================================
-
--- 1) Almacén genérico de clave/valor — sustituye a los documentos de
---    Firestore para todo lo que Tecnomat ya gestiona por su cuenta
---    (catálogo, movimientos, chat, pedidos, ajustes...)
 create table if not exists tecnomat_kv (
   key text primary key,
   value jsonb not null,
   updated_at timestamptz not null default now()
 );
 
--- 2) Órdenes de trabajo — la tabla compartida con la otra app.
---    La otra app inserta aquí cada OT/proyecto que genera.
 create table if not exists ordenes_trabajo (
   id uuid primary key default gen_random_uuid(),
   nombre text not null,
@@ -25,7 +16,6 @@ create table if not exists ordenes_trabajo (
   created_at timestamptz not null default now()
 );
 
--- 3) Materiales que trae ya definidos una orden de trabajo
 create table if not exists orden_materiales (
   id uuid primary key default gen_random_uuid(),
   orden_id uuid not null references ordenes_trabajo(id) on delete cascade,
@@ -35,9 +25,6 @@ create table if not exists orden_materiales (
   referencia text
 );
 
--- 3b) Catálogo de materiales sincronizado desde A3 (vía la otra app) — datos
---     maestros (código, descripción, precio), no cantidades. El stock físico
---     real lo sigue llevando Tecnomat aparte, sumando y restando por escaneo.
 create table if not exists materiales (
   id uuid primary key default gen_random_uuid(),
   codigo_articulo text not null unique,
@@ -48,10 +35,6 @@ create table if not exists materiales (
   updated_at timestamptz not null default now()
 );
 
--- 3c) Lista rápida de materiales frecuentes — la misma para todas las órdenes
---     y proyectos, pensada para elegir de un vistazo en vez de escanear o
---     escribir a mano. Separada de "materiales" (el catálogo de A3): esta la
---     mantiene quien haga falta directamente en Supabase, a mano.
 create table if not exists materiales_rapidos (
   id uuid primary key default gen_random_uuid(),
   codigo text,
@@ -60,8 +43,6 @@ create table if not exists materiales_rapidos (
   updated_at timestamptz not null default now()
 );
 
--- 4) Función para ajustar el stock de forma segura, aunque dos
---    dispositivos escriban a la vez (evita que se pisen un cambio)
 create or replace function ajustar_stock(clave text, item_id text, delta numeric, item_nuevo jsonb)
 returns void
 language plpgsql
@@ -93,7 +74,6 @@ begin
 end;
 $$;
 
--- 5) Tiempo real activado en las tablas que hace falta escuchar
 do $$
 declare
   t text;
@@ -105,9 +85,6 @@ begin
   end loop;
 end $$;
 
--- 6) Seguridad — por defecto, cualquier cuenta con sesión iniciada puede leer y escribir.
---    supabase_seguridad.sql lo restringe a los correos autorizados. Las políticas solo se crean
---    si la tabla aún no tiene ninguna, de modo que volver a ejecutar este archivo no deshace esa restricción.
 alter table tecnomat_kv enable row level security;
 alter table ordenes_trabajo enable row level security;
 alter table orden_materiales enable row level security;

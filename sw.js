@@ -1,12 +1,7 @@
-// Service worker: instalación de la app y acceso sin conexión desde caché.
-// CACHE_NAME cambia con cada versión de index.html; así el navegador detecta el
-// service worker nuevo y la app avisa de la actualización.
-const CACHE_NAME = 'tecnomat-materiales-v211';
+const CACHE_NAME = 'tecnomat-materiales-v214';
 const APP_SHELL = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', event => {
-  // {cache:'reload'} evita copias de la caché HTTP del navegador.
-  // Sin skipWaiting: la versión nueva espera a que se pulse «Actualizar ahora».
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache =>
       Promise.all(APP_SHELL.map(url => fetch(url, {cache:'reload'}).then(resp => cache.put(url, resp))))
@@ -27,8 +22,6 @@ self.addEventListener('message', event => {
   if(event.data === 'SKIP_WAITING') self.skipWaiting();
 });
 
-// Solo se guardan en caché los archivos de la propia app y las librerías de los CDN
-// conocidos; las respuestas de las bases de datos y de las API nunca se almacenan.
 const ORIGENES_CACHE = ['https://www.gstatic.com', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com', 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
 
 self.addEventListener('fetch', event => {

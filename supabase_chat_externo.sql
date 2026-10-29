@@ -1,11 +1,3 @@
--- Chat externo de Taller — ejecutar UNA vez en Supabase (SQL Editor → New query → Run),
--- después de supabase_setup.sql.
---
--- Permite que otra aplicación muestre dentro de sí el chat de una orden mediante la página
--- chat.html. El acceso anónimo se limita a dos funciones que exigen el identificador de la
--- orden y su clave; las tablas solo son accesibles con sesión iniciada (y, tras ejecutar
--- supabase_seguridad.sql, solo para los correos autorizados).
-
 create table if not exists chat_externo (
   id uuid primary key default gen_random_uuid(),
   token text not null default replace(gen_random_uuid()::text, '-', ''),
@@ -30,8 +22,6 @@ create index if not exists chat_externo_mensajes_ot on chat_externo_mensajes (ot
 alter table chat_externo enable row level security;
 alter table chat_externo_mensajes enable row level security;
 
--- Las políticas solo se crean si la tabla aún no tiene ninguna, de modo que volver a ejecutar este
--- archivo (por ejemplo, para actualizar las funciones) no deshace las restricciones de supabase_seguridad.sql.
 do $$
 declare
   t text;

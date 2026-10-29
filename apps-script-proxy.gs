@@ -1,19 +1,3 @@
-/**
- * Proxy de Tecnomat (Google Apps Script). Sustituye por completo al proxy anterior.
- *
- *   - gemini:   reenvío de las peticiones de texto e imagen a Gemini, con la clave guardada solo en el servidor.
- *   - correo:   envío automático de la petición de material externo.
- *   - aviso:    notificación por Telegram y push de OneSignal (tras cada correo enviado y en las revisiones programadas).
- *   - respaldo: copia de los datos en Google Drive y registro del stock bajo.
- *   - revisiones programadas: aviso diario de stock bajo y copia semanal con histórico.
- *
- * Toda petición exige el token de sesión de Firebase del usuario («token») y que su correo figure en
- * USUARIOS_PERMITIDOS. Sin esa lista, o sin FIREBASE_API_KEY, el servidor rechaza todo.
- *
- * Instalación: ver la sección «Proxy de Apps Script» del README.
- * Las claves, usuarios y destinatarios se guardan solo en Propiedades del script, nunca en el index.html.
- */
-
 const MODELO_GEMINI = 'gemini-3.5-flash-lite';
 const CLAVES_GEMINI = ['GEMINI_API_KEY', 'GEMINI_KEY', 'API_KEY'];
 const CARPETA = 'Tecnomat respaldo';

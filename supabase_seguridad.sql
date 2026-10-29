@@ -1,16 +1,3 @@
--- Tecnomat · Endurecimiento de la seguridad de Supabase.
--- Ejecutar UNA vez (SQL Editor → New query → Run), después de supabase_setup.sql y supabase_chat_externo.sql.
---
--- Orden recomendado:
---   1) En Authentication → Sign In / Providers, desactivar «Allow new users to sign up» ANTES de nada más.
---   2) En Authentication → Users, comprobar que solo existen las cuentas propias y crear las que falten
---      (mismo correo y misma contraseña que en Firebase; la app inicia sesión también en Supabase con ellas).
---   3) Ajustar los correos del bloque «insert» de más abajo y ejecutar este archivo.
---
--- Efecto: solo los correos de la tabla tecnomat_usuarios pueden leer y escribir. Una cuenta creada por
--- terceros deja de tener acceso a los datos.
--- Para autorizar una cuenta nueva:  insert into tecnomat_usuarios (email) values ('correo@dominio.es');
-
 create table if not exists tecnomat_usuarios (
   email text primary key check (email = lower(email))
 );
