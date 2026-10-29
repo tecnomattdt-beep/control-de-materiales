@@ -149,7 +149,7 @@ Todo lo anterior (banner, sonido, notificación del sistema) solo funciona con l
 
 El archivo `apps-script-proxy.gs` amplía el proxy de Gemini (mismo proyecto de Apps Script y misma URL) con funciones gratuitas:
 
-- **Envío automático de la petición externa**: en el listado externo, el botón **«Enviar correo automáticamente»** manda el texto desde la cuenta de Google propietaria del script y registra la petición solo si el envío funciona. «Abrir correo» sigue disponible como alternativa. Una cuenta gmail.com admite 100 correos al día.
+- **Envío automático de la petición externa**: en el listado externo, el botón **«Enviar correo automáticamente»** manda el texto desde la cuenta de Google propietaria del script y registra la petición solo si el envío funciona. «Generar correo» sigue disponible como alternativa. Una cuenta gmail.com admite 100 correos al día.
 - **Aviso por Telegram** (opcional): cada correo enviado y las revisiones programadas avisan a un chat de Telegram.
 - **Respaldo en Drive**: mientras Almacén usa la app, cada 30 minutos como máximo y solo si hay cambios, se envía una copia de los datos (catálogo, últimos 1000 movimientos, grupos, entregas, ubicaciones, trabajadores, clasificación y ajustes) y la lista de stock bajo. Se guarda en la carpeta «Tecnomat respaldo» de Drive (`respaldo_actual.json`, `stock_bajo.json`). Una copia fechada semanal conserva las últimas 8 semanas.
 - **Stock mínimo por referencia**: en Almacén → Editar, el campo **«Stock mínimo»** fija el mínimo de esa referencia; vacío, rige el umbral general de Avisos. Una referencia está en stock bajo cuando sus unidades son iguales o inferiores a su mínimo, tanto en los avisos de la app como en los del proxy.
@@ -227,7 +227,21 @@ Una orden o proyecto **no se cierra sola** al entregar material — sigue activa
 - En la pestaña **Hoja de pedido**, la tarjeta **«Revisar pedido»**, bajo la tabla, reúne todo lo de la clasificación: tres pestañas —**Sin clasificar**, **Interno** y **Externo**, con el número de líneas de cada una— separan las líneas, y los paneles solo muestran las del grupo elegido. La tabla de la hoja muestra siempre todas las líneas de la orden. Cada línea lleva tres botones **Interno / Externo / Pequeño**: pulsar uno la asigna y la pasa a su pestaña. Cualquier línea puede **moverse en cualquier momento** pulsando otro destino, sin límite de veces. Al pasar una línea a Externo aparecen los botones **Proveedor / Cliente** (opcionales; volver a pulsar el elegido lo quita); el destino figura en el texto de la petición y en el Excel. Al abrir una orden con líneas sin clasificar se muestra primero esa pestaña.
 - **Aprendizaje**: cada asignación (incluida aceptar una propuesta o mover una línea) se recuerda por referencia y por las palabras con que Taller describe el material (sin distinguir mayúsculas ni tildes, ignorando cantidades y medidas); mover una línea resta la decisión anterior. Hasta que hay 3 decisiones iguales no se propone nada. Solo lo asignado por Almacén enseña al sistema y entra en la copia, la descarga y el envío automático de la petición externa.
 - **Listado interno**: líneas asignadas a Interno y como Pequeño material (estas últimas con la etiqueta «Pequeño material»; botón «Copiar listado interno»). **Listado externo**: líneas asignadas a Externo y petición de material externo (ver abajo). Cada listado se descarga por separado con el botón visible **«Descargar listado interno/externo de esta orden (Excel)»**, que genera un archivo `listado_<interno|externo>_<orden>_<fecha>.xlsx` con las líneas de esa pestaña únicamente (el externo incluye el destino Proveedor/Cliente y la fecha de la petición).
-- **Listado externo**: en la pestaña «Externo», con las líneas asignadas a Externo que aún no se han pedido, se genera un texto listo para copiar («En la orden «…», a fecha dd/mm/aaaa, hacen falta las siguientes unidades de material externo: descripción y cantidad»). **«Copiar texto»** lo lleva al portapapeles y **«Abrir correo»** abre el correo del dispositivo ya redactado, con el asunto y el correo de destino (se escribe una vez y se recuerda).
+- **Correo de material externo**: en la pestaña «Externo» aparece la lista de **todos los listados externos pendientes de pedir**, de todas las órdenes y proyectos, cada uno con su casilla, sus líneas y su **número de plano** (editable ahí mismo). Los listados marcados se unen en un único correo, así que no hace falta preparar uno por uno; «Marcar todos» y «Quitar todos» aceptan o descartan la selección de golpe. El correo no usa la OT como referencia, sino el número de plano:
+
+  ```
+  Buenas tardes, aquí adjunto el listado de materiales que hace falta por suministrar.
+
+  Número de plano: …
+  - artículo — cantidad (Proveedor/Cliente)
+
+  Número de plano: …
+  - …
+
+  Un saludo.
+  ```
+
+  **«Copiar texto»** lo lleva al portapapeles y **«Generar correo»** abre el programa de correo del dispositivo (por ejemplo Outlook) con el asunto, el texto y el destinatario ya rellenos (el correo de destino se escribe una vez y se recuerda). Al usar cualquiera de los dos, las líneas incluidas quedan registradas como pedidas y no se repiten en el siguiente correo. Si algún listado no tiene número de plano, se avisa y el texto indica «(sin indicar)». El número de plano también se guarda al escribirlo en el campo «Plano» de la Hoja de pedido de cada orden.
 - **Peticiones guardadas**: al copiar o abrir el correo, la petición queda guardada con su fecha y orden, y esas líneas dejan de aparecer en el listado, de modo que la siguiente petición solo incluye líneas nuevas y nunca se mezclan fechas ni órdenes. En «Peticiones anteriores de esta orden», **«Copiar»** vuelve a copiar exactamente una petición concreta y **«Anular»** la elimina y devuelve sus líneas a pendientes (por ejemplo, tras copiar por error). Se conservan las últimas 200 peticiones.
 - **Referencias sugeridas**: el sistema también recuerda a qué referencia se asoció cada texto que Taller escribió a mano (sin distinguir mayúsculas, tildes ni singular/plural: «tornillo» y «tornillos» cuentan igual; tolera cambios de orden o palabras sueltas). En la Hoja de pedido, las líneas «sin referencia» parecidas a otras ya asociadas aparecen en el panel **«Referencias sugeridas»** con la referencia propuesta: **Confirmar** la asigna (queda anotado en el chat), **No es** descarta esa propuesta para la línea, y «Confirmar las N referencias sugeridas» lo hace de una vez. Solo lo confirmado enseña al sistema. Si la referencia ya no existe en el stock, no se propone.
 - **Coincidencia con el stock**: un texto cuyas palabras están todas contenidas en la descripción de una única referencia del stock («bridas negras» frente a «Bridas negras 200mm») se propone en «Referencias sugeridas» y solo se asigna al confirmar. Si encaja con varias («cable»), se deja a la IA o a Almacén. La referencia solo se asigna sola cuando el texto coincide exactamente con un código o referencia del stock, o con una asociación ya validada 3 veces o más.
@@ -402,7 +416,7 @@ Gracias a `manifest.json`, `sw.js` y los iconos (súbelos todos junto al `index.
 
 Una vez instalada, abre en pantalla completa y guarda una copia básica en caché para no quedarse en blanco si se corta la conexión un momento.
 
-Cada publicación debe cambiar el valor de `CACHE_NAME` en `sw.js` (por ejemplo, `tecnomat-materiales-v205`); si no cambia, el navegador sigue mostrando una versión anterior.
+Cada publicación debe cambiar el valor de `CACHE_NAME` en `sw.js` (por ejemplo, `tecnomat-materiales-v206`); si no cambia, el navegador sigue mostrando una versión anterior.
 
 Cuando se suben cambios nuevos, aparece un banner — *"Hay una versión nueva disponible"* — con un botón para actualizar. Hasta que no se pulse, sigue con la versión que ya tenía cargada.
 
