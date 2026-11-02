@@ -100,7 +100,7 @@ function consultarGemini(d) {
       method: 'post',
       contentType: 'application/json',
       headers: { 'x-goog-api-key': clave },
-      payload: JSON.stringify({ contents: [{ parts: partes }], generationConfig: { temperature: 0, thinkingConfig: { thinkingLevel: 'low' } } }),
+      payload: JSON.stringify({ contents: [{ parts: partes }], generationConfig: { temperature: 0, responseMimeType: 'application/json', maxOutputTokens: 8192, thinkingConfig: { thinkingLevel: 'low' } } }),
       muteHttpExceptions: true
     });
     try { return JSON.parse(resp.getContentText()); }
