@@ -158,7 +158,7 @@ Sin `emailjsConfig` configurado, los avisos siguen apareciendo como banner dentr
 
 **Qué avisa la app, y por qué canal:**
 - **Stock bajo / bobinas por vencer**: banner al entrar en cualquier sección, y un correo diario (a partir de la hora configurada en Avisos) con el resumen. Un resumen semanal aparte incluye lo que más se ha movido.
-- **Pedido nuevo desde Trabajo o Compras**: al guardar una Hoja de pedido, o cuando Taller envía algo por el chat, Almacén recibe tres cosas — correo, un banner dentro de la app (pulsarlo lleva directo a esa orden), y un pitido + notificación del sistema en cualquier dispositivo con la app abierta. Pulsar **«Enviar»** en el chat equivale a «Guardar y avisar a almacén»: las líneas enviadas quedan marcadas como guardadas, con su fecha y hora, y avisan a Almacén igual que al guardar la hoja.
+- **Pedido nuevo desde Trabajo o Reponer**: al guardar una Hoja de pedido, o cuando Taller envía algo por el chat, Almacén recibe tres cosas — correo, un banner dentro de la app (pulsarlo lleva directo a esa orden), y un pitido + notificación del sistema en cualquier dispositivo con la app abierta. Pulsar **«Enviar»** en el chat equivale a «Guardar y avisar a almacén»: las líneas enviadas quedan marcadas como guardadas, con su fecha y hora, y avisan a Almacén igual que al guardar la hoja.
 - **Sin conexión**: banner en rojo si se corta el internet a media faena, avisando de que los cambios se siguen guardando en el dispositivo pero no se sincronizan hasta que vuelva. Avisa también al recuperarse.
 - **Sonido al escanear**: pitido corto al confirmar un escaneo con éxito (distinto del de "pedido nuevo"), desactivable en Almacén → Avisos.
 
@@ -197,7 +197,7 @@ El archivo `apps-script-proxy.gs` amplía el proxy de Gemini (mismo proyecto de 
 
 ## 5. Roles: Almacén y Taller
 
-Quien entra con la cuenta **`taller@tecnomat.es`** solo ve las pestañas **Trabajo** y **Compras** — Almacén, Resumen y Mantenimiento son exclusivas de Almacén, y tampoco ve el botón "Asociar" en el chat. **Sí puede finalizar/reactivar** una orden o proyecto (con confirmación siempre antes de hacerlo, para evitar toques accidentales), pero no puede eliminarla — eso sigue siendo solo de Almacén. Cualquier otra cuenta autorizada (por ejemplo `almacen@tecnomat.es`) ve todo.
+Quien entra con la cuenta **`taller@tecnomat.es`** solo ve las pestañas **Trabajo** y **Reponer** — Almacén, Resumen y Mantenimiento son exclusivas de Almacén, y tampoco ve el botón "Asociar" en el chat. **Sí puede finalizar/reactivar** una orden o proyecto (con confirmación siempre antes de hacerlo, para evitar toques accidentales), pero no puede eliminarla — eso sigue siendo solo de Almacén. Cualquier otra cuenta autorizada (por ejemplo `almacen@tecnomat.es`) ve todo.
 
 **Esto es una restricción de interfaz**, no de seguridad real — oculta botones y redirige, pero no impide técnicamente que alguien con conocimientos edite datos saltándose la pantalla. Las reglas de seguridad de la sección 3 limitan el acceso a las cuentas autorizadas, pero no distinguen entre Almacén y Taller: una restricción real por rol exigiría reglas por correo en cada base de datos y separar los datos de cada rol.
 
@@ -303,11 +303,11 @@ Permite mostrar el chat de una orden dentro de otra aplicación, como un recuadr
 
 **Seguridad.** El enlace es la llave del chat de esa orden: quien lo tenga puede leerlo y escribir en él, y nada más. **«Regenerar enlace»** (con confirmación) invalida el anterior y copia uno nuevo, que hay que pegar de nuevo en la otra aplicación. La página solo acepta servidores `*.supabase.co`, y el servidor limita a 20 mensajes por minuto y 2000 en total por orden (hay que volver a ejecutar `supabase_chat_externo.sql` para aplicar el tope).
 
-## 8. Compras (antes «Pedido»)
+## 8. Reponer (antes «Pedido»)
 
-En la app se llama **Compras** para no confundirla con la **Hoja de pedido** de cada orden: Compras es reponer el almacén pidiendo a proveedor; la Hoja de pedido es el material que una orden pide al almacén.
+Sirve para que el taller apunte lo que le falta de su propio stock (material que no va ligado a una orden): almacén se lo **entrega** si lo tiene o lo **pide** a proveedor si no. Se llama **Reponer** para no confundirla con la **Hoja de pedido** de cada orden, que es el material que un trabajo concreto pide al almacén.
 
-Sirve para pedir material que falta en el almacén (por ejemplo, para reponer stock desde un proveedor) — no lleva firma, es un listado que se manda por correo. Tiene el mismo chat que Trabajo (con su pestaña "Chat" y "Lista"), pero aquí **se pregunta quién hace el pedido en cada escaneo o mensaje**, y en su caja de texto Enter envía directamente (en el chat de Trabajo Enter baja de línea), no solo una vez — pensado para un dispositivo que se comparte entre varias personas. Cada línea del chat muestra quién pidió esa unidad en concreto.
+No lleva firma: es un listado que se manda por correo al destino configurado en Avisos. Tiene el mismo chat que Trabajo (con su pestaña "Chat" y "Lista"), pero aquí **se pregunta quién hace el pedido en cada escaneo o mensaje**, y en su caja de texto Enter envía directamente (en el chat de Trabajo Enter baja de línea), no solo una vez — pensado para un dispositivo que se comparte entre varias personas. Cada línea del chat muestra quién pidió esa unidad en concreto.
 
 ## 9. Mantenimiento
 
