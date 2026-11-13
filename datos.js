@@ -32,5 +32,14 @@
     return lista;
   }
 
-  raiz.TecnomatDatos = { fusionarPorId, fusionarCatalogo };
+  // Estado de una línea de la hoja de pedido, en palabras del taller. `servida`: la línea ya está en Servido.
+  function estadoLinea(linea, servida) {
+    if (servida) return { clave: "recogido", texto: "Recogido" };
+    if (linea.reservado) return { clave: "listo", texto: "Listo para recoger" };
+    if (linea.escandalloPedido || linea.destino === "proveedor") return { clave: "proveedor", texto: "Pedido a proveedor" };
+    if (linea.guardado) return { clave: "pedido", texto: "Pedido a almacén" };
+    return { clave: "borrador", texto: "Sin enviar" };
+  }
+
+  raiz.TecnomatDatos = { fusionarPorId, fusionarCatalogo, estadoLinea };
 })(globalThis);

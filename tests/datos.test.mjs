@@ -5,7 +5,7 @@ import vm from 'node:vm';
 
 const ctx = vm.createContext({});
 vm.runInContext(readFileSync(new URL('../datos.js', import.meta.url), 'utf8'), ctx);
-const { fusionarPorId, fusionarCatalogo } = ctx.TecnomatDatos;
+const { fusionarPorId, fusionarCatalogo, estadoLinea } = ctx.TecnomatDatos;
 const plano = x => JSON.parse(JSON.stringify(x));
 const ids = l => plano(l).map(x => x.id);
 
@@ -57,4 +57,15 @@ test('catálogo: conserva artículos nuevos de otro dispositivo y respeta los bo
   const local = [{ id: 'i1', qty: 1 }, { id: 'nuevoMio', qty: 0 }];
   const r = ids(fusionarCatalogo(servidor, local, new Set(['i1', 'borrado'])));
   assert.deepEqual(r, ['i1', 'nuevoMio', 'nuevoOtro']);
+});
+
+test('estado de cada línea de la hoja de pedido, en el orden que la vive el taller', () => {
+  const e = (l, s) => estadoLinea(l, s).clave;
+  assert.equal(e({}), 'borrador');
+  assert.equal(e({ guardado: true }), 'pedido');
+  assert.equal(e({ guardado: true, escandalloPedido: 'Pedido' }), 'proveedor');
+  assert.equal(e({ guardado: true, destino: 'proveedor' }), 'proveedor');
+  assert.equal(e({ guardado: true, escandalloPedido: 'Pedido', reservado: true }), 'listo', 'preparado gana a proveedor');
+  assert.equal(e({ reservado: true }, true), 'recogido');
+  assert.equal(estadoLinea({ reservado: true }).texto, 'Listo para recoger');
 });
