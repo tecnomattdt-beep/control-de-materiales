@@ -53,7 +53,9 @@ declare
   resultado jsonb := '[]'::jsonb;
   articulo jsonb;
 begin
-  select value into catalogo from tecnomat_kv where key = clave;
+  -- bloquea la fila: sin esto, dos escaneos simultáneos leen el mismo catálogo y el segundo borra el ajuste del primero
+  insert into tecnomat_kv (key, value) values (clave, '[]'::jsonb) on conflict (key) do nothing;
+  select value into catalogo from tecnomat_kv where key = clave for update;
   if catalogo is null then catalogo := '[]'::jsonb; end if;
 
   for articulo in select * from jsonb_array_elements(catalogo) loop

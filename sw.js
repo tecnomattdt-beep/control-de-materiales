@@ -3,9 +3,8 @@ const APP_SHELL = ['./', './index.html', './manifest.json', './icon-192.png', '.
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache =>
-      Promise.all(APP_SHELL.map(url => fetch(url, {cache:'reload'}).then(resp => cache.put(url, resp))))
-    )
+    // addAll falla si alguna respuesta no es 2xx, así no se guarda en caché una página de error
+    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL.map(url => new Request(url, {cache:'reload'}))))
   );
 });
 
