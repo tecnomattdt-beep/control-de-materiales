@@ -26,8 +26,6 @@
     if (FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey !== "TU_API_KEY" && typeof firebase !== "undefined") {
       firebase.initializeApp(FIREBASE_CONFIG);
       firestore = firebase.firestore();
-      // Lo escrito sin conexión se guarda en el dispositivo y se envía al volver, aunque se cierre la app entretanto
-      firestore.enablePersistence({ synchronizeTabs: true }).catch(() => {});
       firebaseAuth = firebase.auth();
     }
   } catch (_0x522d9f) {
