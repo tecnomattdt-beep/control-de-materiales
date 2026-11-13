@@ -5379,11 +5379,15 @@
     const _0x670645 = _0x546a96.ia.resumen && _0x546a96.ia.resumen.h === _0x1e6539 ? _0x546a96.ia.resumen.items : null;
     const _0x19a3d0 = __iaUso();
     const _0x145208 = (_0xfb71c2, _0x4f0139) => "<p style=\"margin:0 0 6px; font-size:12.5px;\"><b>" + _0xfb71c2 + ":</b> " + _0x1d1ab0(_0x4f0139.length ? _0x4f0139.join("; ") : "—") + "</p>";
-    const _0x5765ad = document.createElement("div");
-    _0x5765ad.className = "panel";
+    const _0x5765ad = document.createElement("details");
+    _0x5765ad.className = "panel plegable";
     _0x5765ad.id = "analisisPanel";
+    _0x5765ad.open = __analisisAbierto;
+    _0x5765ad.addEventListener("toggle", () => {
+      __analisisAbierto = _0x5765ad.open;
+    });
     _0x5765ad.style.marginBottom = "14px";
-    _0x5765ad.innerHTML = "<p class=\"panel-title\">Análisis de actividad (30 días)</p>" + _0x145208("Más consumo", _0x7d28e0.top) + _0x145208("Se agotan en ≤10 días", _0x7d28e0.agotan) + _0x145208("Stock bajo (" + _0x7d28e0.nBajo + ")", _0x7d28e0.bajo) + _0x145208("Salidas anómalas", _0x7d28e0.anomalias) + "<p style=\"margin:0 0 8px; font-size:12.5px;\"><b>Con stock y sin movimiento en 90 días:</b> " + _0x7d28e0.latentes + "</p>" + (_0x670645 ? "<ul id=\"analisisIa\" style=\"margin:8px 0; padding-left:18px; font-size:12.5px;\">" + _0x670645.map(_0xb3af50 => "<li>" + _0x1d1ab0(_0xb3af50) + "</li>").join("") + "</ul>" : "") + "<button type=\"button\" class=\"cam-btn\" id=\"analisisIaBtn\" style=\"width:100%;\"" + (_0x670645 || _0x19a3d0.resumen >= __IA_MAX_RESUMEN_DIA ? " disabled" : "") + ">" + (_0x670645 ? "Recomendaciones de la IA (ya generadas con estos datos)" : "Pedir recomendaciones a la IA (usos de hoy: " + _0x19a3d0.resumen + "/" + __IA_MAX_RESUMEN_DIA + ")") + "</button>";
+    _0x5765ad.innerHTML = "<summary class=\"panel-title\">Análisis de actividad (30 días)</summary>" + _0x145208("Más consumo", _0x7d28e0.top) + _0x145208("Se agotan en ≤10 días", _0x7d28e0.agotan) + _0x145208("Stock bajo (" + _0x7d28e0.nBajo + ")", _0x7d28e0.bajo) + _0x145208("Salidas anómalas", _0x7d28e0.anomalias) + "<p style=\"margin:0 0 8px; font-size:12.5px;\"><b>Con stock y sin movimiento en 90 días:</b> " + _0x7d28e0.latentes + "</p>" + (_0x670645 ? "<ul id=\"analisisIa\" style=\"margin:8px 0; padding-left:18px; font-size:12.5px;\">" + _0x670645.map(_0xb3af50 => "<li>" + _0x1d1ab0(_0xb3af50) + "</li>").join("") + "</ul>" : "") + "<button type=\"button\" class=\"cam-btn\" id=\"analisisIaBtn\" style=\"width:100%;\"" + (_0x670645 || _0x19a3d0.resumen >= __IA_MAX_RESUMEN_DIA ? " disabled" : "") + ">" + (_0x670645 ? "Recomendaciones de la IA (ya generadas con estos datos)" : "Pedir recomendaciones a la IA (usos de hoy: " + _0x19a3d0.resumen + "/" + __IA_MAX_RESUMEN_DIA + ")") + "</button>";
     // Primero las tarjetas de «lo más urgente» (lo que promete el texto de arriba); el análisis y la reposición, después
     _0x14e216.parentElement.appendChild(_0x5765ad);
     $("#analisisIaBtn").addEventListener("click", async () => {
@@ -5411,6 +5415,8 @@
   function __reposicionTexto(_0xb6de0a) {
     return "Reposición de material (" + new Date().toLocaleDateString("es-ES") + "):\n" + _0xb6de0a.map(_0x725a82 => "- " + _0x725a82.code + " · " + _0x725a82.desc + ": pedir " + _0x725a82.cant + " (stock " + _0x725a82.qty + ", mín. " + _0x725a82.min + ")").join("\n");
   }
+  let __reposicionAbierta = false;
+  let __analisisAbierto = false;
   function __reposicionPanel() {
     const _0x1e68ca = document.getElementById("reposicionPanel");
     if (_0x1e68ca) {
@@ -5425,11 +5431,15 @@
       return;
     }
     const _0x51542b = _0x1d1ab0;
-    const _0x8a1de = document.createElement("div");
-    _0x8a1de.className = "panel";
+    const _0x8a1de = document.createElement("details");
+    _0x8a1de.className = "panel plegable";
     _0x8a1de.id = "reposicionPanel";
+    _0x8a1de.open = __reposicionAbierta;
+    _0x8a1de.addEventListener("toggle", () => {
+      __reposicionAbierta = _0x8a1de.open;
+    });
     _0x8a1de.style.marginBottom = "14px";
-    _0x8a1de.innerHTML = "<p class=\"panel-title\">Reposición</p><p style=\"margin:0 0 8px; font-size:12px; color:var(--text-faint);\">Materiales por debajo de su mínimo. La cantidad propuesta lleva el stock al doble del mínimo; se puede cambiar antes de copiar o enviar.</p>" + _0x1498d2.map(_0x44ddaa => {
+    _0x8a1de.innerHTML = "<summary class=\"panel-title\">Reposición · " + _0x1498d2.length + "</summary><p style=\"margin:0 0 8px; font-size:12px; color:var(--text-faint);\">Materiales por debajo de su mínimo. La cantidad propuesta lleva el stock al doble del mínimo; se puede cambiar antes de copiar o enviar.</p>" + _0x1498d2.map(_0x44ddaa => {
       const _0x111e16 = __clasifMinimo(_0x44ddaa);
       return "<label class=\"clasif-rap-item\" style=\"display:flex; align-items:center; gap:8px; margin-bottom:6px;\"><input type=\"checkbox\" aria-label=\"Incluir en la reposición\" data-repo-sel=\"" + _0x51542b(_0x44ddaa.id) + "\" checked><span class=\"clasif-rap-txt\" style=\"flex:1; min-width:0;\">" + _0x51542b(_0x44ddaa.code) + " · " + _0x51542b(__iaCorto(_0x44ddaa.desc || "", 40)) + "<small>stock " + _0x51542b(_0x44ddaa.qty) + " · mín. " + _0x51542b(_0x111e16) + "</small></span><input type=\"number\" min=\"1\" step=\"1\" aria-label=\"Cantidad a reponer\" data-repo-cant value=\"" + Math.max(1, _0x111e16 * 2 - _0x44ddaa.qty) + "\" style=\"width:72px;\"></label>";
     }).join("") + "<div style=\"display:flex; gap:8px; margin-top:8px;\"><button type=\"button\" class=\"cam-btn\" data-repo-copiar style=\"flex:1;\">Copiar lista</button><button type=\"button\" class=\"cam-btn\" data-repo-correo style=\"flex:1;\">Enviar por correo</button></div>";
@@ -5627,9 +5637,27 @@
     if (!_0xbfea13 || !_0x3e9497 || estado.mode !== "montaje" && estado.mode !== "proyecto") {
       return;
     }
+    // Cada guía se puede cerrar con «Entendido» y no vuelve a salir en este dispositivo
+    const __claveGuia = "tecnomat_guia_vista_" + _0x5592da + "_" + _0x2df77d();
+    try {
+      if (localStorage.getItem(__claveGuia)) {
+        return;
+      }
+    } catch (e) {}
     const _0x1983e9 = document.createElement("p");
     _0x1983e9.id = "guiaTrabajo";
-    _0x1983e9.textContent = _0x3e9497;
+    _0x1983e9.textContent = _0x3e9497 + " ";
+    const __entendido = document.createElement("button");
+    __entendido.type = "button";
+    __entendido.className = "cam-btn";
+    __entendido.textContent = "Entendido";
+    __entendido.addEventListener("click", () => {
+      try {
+        localStorage.setItem(__claveGuia, "1");
+      } catch (e) {}
+      _0x1983e9.remove();
+    });
+    _0x1983e9.appendChild(__entendido);
     _0xbfea13.after(_0x1983e9);
   }
   function __escanerPlegable() {
@@ -7334,7 +7362,12 @@
     _0x24d247.id = "herrPanel";
     _0x24d247.style.marginBottom = "14px";
     _0x24d247.innerHTML = "<p class=\"panel-title\">Herramientas</p><div style=\"display:flex; gap:8px; flex-wrap:wrap;\"><button type=\"button\" class=\"btn\" id=\"herrEtqBtn\" style=\"flex:1 1 160px;\">Etiquetas</button><button type=\"button\" class=\"btn\" id=\"herrInvBtn\" style=\"flex:1 1 160px;\">Inventario guiado</button><button type=\"button\" class=\"btn\" id=\"herrMinBtn\" style=\"flex:1 1 160px;\">Mínimos automáticos</button></div><label style=\"display:flex; gap:8px; align-items:center; margin-top:10px; font-size:12.5px;\"><input type=\"checkbox\" id=\"herrSonido\" style=\"width:auto; margin:0;\"" + (estado.settings.sonidoEscaneo === false ? "" : " checked") + ">Pitido al leer un código (cámara continua e inventario)</label>";
-    _0x35c1cf.insertBefore(_0x24d247, _0x35c1cf.firstChild);
+    const __ajustes = document.getElementById("masOpcionesAlmacenBtn");
+    if (__ajustes) {
+      __ajustes.before(_0x24d247);
+    } else {
+      _0x35c1cf.appendChild(_0x24d247);
+    }
     _0x24d247.querySelector("#herrEtqBtn").addEventListener("click", __etqAbrir);
     _0x24d247.querySelector("#herrInvBtn").addEventListener("click", __invAbrir);
     _0x24d247.querySelector("#herrMinBtn").addEventListener("click", __minAbrir);
@@ -10992,7 +11025,7 @@
     const _0x13ac6b = $("#sidePanel");
     if (estado.mode === "almacen") {
       const _0x5e2d34 = estado.catalog.filter(_0x4ecd13 => _0x4ecd13.qty <= 0).length;
-      const _0x3bf112 = estado.movements.slice(0, 10).map(_0xeec882 => "\n        <div class=\"movement-row\">\n          <span class=\"tag-" + _0xeec882.type + "\">" + _0x11c4a1(_0xeec882.type) + "</span>\n          <span class=\"m-code\">" + _0x1d1ab0(_0xeec882.code) + " <span style=\"color:var(--text-faint);\">x" + _0xeec882.qty + "</span></span>\n          <span style=\"color:var(--text-faint); font-size:11px;\">" + _0xeec882.ts + (_0xeec882.usuario ? " · " + _0x1d1ab0(_0xeec882.usuario) : "") + "</span>\n          <span class=\"m-desc\">" + _0x1d1ab0(_0xeec882.desc) + "</span>\n          <span class=\"m-origin\">" + _0x1d1ab0(_0xeec882.origin) + "</span>\n        </div>\n      ").join("");
+      const _0x3bf112 = estado.movements.slice(0, 5).map(_0xeec882 => "\n        <div class=\"movement-row\">\n          <span class=\"tag-" + _0xeec882.type + "\">" + _0x11c4a1(_0xeec882.type) + "</span>\n          <span class=\"m-code\">" + _0x1d1ab0(_0xeec882.code) + " <span style=\"color:var(--text-faint);\">x" + _0xeec882.qty + "</span></span>\n          <span style=\"color:var(--text-faint); font-size:11px;\">" + _0xeec882.ts + (_0xeec882.usuario ? " · " + _0x1d1ab0(_0xeec882.usuario) : "") + "</span>\n          <span class=\"m-desc\">" + _0x1d1ab0(_0xeec882.desc) + "</span>\n          <span class=\"m-origin\">" + _0x1d1ab0(_0xeec882.origin) + "</span>\n        </div>\n      ").join("");
       _0x13ac6b.innerHTML = "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Resumen de stock</p>\n          <div class=\"stat-row\"><span>Referencias en stock</span><span class=\"num\">" + estado.catalog.length + "</span></div>\n          <div class=\"stat-row\"><span>Referencias a 0 o negativo</span><span class=\"num\">" + _0x5e2d34 + "</span></div>\n          <div class=\"stat-row\"><span>Valor total del inventario</span><span class=\"num\">" + estado.catalog.reduce((_0x338635, _0xadcaa0) => _0x338635 + (_0xadcaa0.qty > 0 ? _0xadcaa0.qty * (_0xadcaa0.coste || 0) : 0), 0).toFixed(2) + "€</span></div>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Últimos movimientos</p>\n          " + (_0x3bf112 || "<div style=\"color:var(--text-faint); font-size:12.5px;\">Sin movimientos todavía.</div>") + "\n          " + (estado.movementsArchive.length ? "\n          <p style=\"font-size:11px; color:var(--text-faint); margin-top:8px;\">\n            Histórico más antiguo archivado por mes: " + estado.movementsArchive.slice(0, 3).map(_0x204573 => _0x204573.month + " (" + _0x204573.entradas + " entr. / " + _0x204573.salidas + " sal.)").join(" · ") + (estado.movementsArchive.length > 3 ? "…" : "") + "\n          </p>" : "") + "\n        </div>\n\n        <button class=\"cam-btn\" id=\"masOpcionesAlmacenBtn\" style=\"width:100%;\">" + (_0x39b15b ? "Ocultar ajustes de almacén" : "Ajustes de almacén") + "</button>\n\n        " + (_0x39b15b ? "\n        <div class=\"panel\" style=\"margin-top:14px;\">\n          <p class=\"panel-title\">Exportar / Importar</p>\n          <button class=\"btn primary\" id=\"exportStockBtn\">Exportar stock y movimientos</button>\n          <label class=\"btn\" style=\"text-align:center; display:block;\">\n            Importar catálogo (añade y actualiza, no borra)\n            <input type=\"file\" id=\"catalogFile\" accept=\".xlsx,.xls,.csv\" style=\"display:none;\">\n          </label>\n          <input type=\"text\" id=\"catalogSearch\" placeholder=\"Buscar en el stock…\" value=\"" + _0x1a8b0d + "\" style=\"width:100%; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:9px 10px; border-radius:7px; font-size:13px; margin-top:4px;\">\n        </div>\n\n        <div class=\"panel\" style=\"border-color:var(--danger);\">\n          <p class=\"panel-title\" style=\"color:var(--danger);\">Sobrescribir todo el stock</p>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 8px 0;\">El stock queda igual que el Excel: cantidades exactas, borra lo que no esté.</p>\n          <label class=\"btn ghost-danger\" style=\"text-align:center; display:block;\">\n            Sobrescribir con este Excel\n            <input type=\"file\" id=\"overwriteCatalogFile\" accept=\".xlsx,.xls,.csv\" style=\"display:none;\">\n          </label>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Copia de seguridad</p>\n          <div class=\"backup-row\">\n            <button class=\"btn\" id=\"exportBackupBtn\">Descargar todo</button>\n            <label class=\"btn\" style=\"text-align:center; display:block;\">\n              Restaurar\n              <input type=\"file\" id=\"backupFile\" accept=\".json\" style=\"display:none;\">\n            </label>\n          </div>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Avisos</p>\n          <div class=\"manual-stock-form\" style=\"flex-direction:column;\">\n            <label style=\"font-size:11.5px; color:var(--text-muted);\">Avisar con cuántos días de margen antes de la devolución de una bobina</label>\n            <input type=\"number\" id=\"setBobinaDias\" min=\"0\" value=\"" + estado.settings.bobinaAvisoDias + "\">\n            <label style=\"font-size:11.5px; color:var(--text-muted); margin-top:6px;\">Considerar stock bajo con esta cantidad o menos</label>\n            <input type=\"number\" id=\"setStockUmbral\" min=\"0\" value=\"" + estado.settings.stockBajoUmbral + "\">\n            <label style=\"font-size:11.5px; color:var(--text-muted); margin-top:6px;\">Hora del día (0-23) a partir de la cual se hace la comprobación diaria</label>\n            <input type=\"number\" id=\"setAvisoHora\" min=\"0\" max=\"23\" value=\"" + estado.settings.avisoHora + "\">\n            <label style=\"font-size:11.5px; color:var(--text-muted); margin-top:6px;\">Correo al que quiero que me lleguen los avisos</label>\n            <input type=\"email\" id=\"setEmailDestino\" placeholder=\"tu@email.com\" value=\"" + estado.settings.emailDestino + "\">\n            <label style=\"display:flex; align-items:center; gap:6px; margin-top:8px; font-size:12.5px; color:var(--text-primary);\">\n              <input type=\"checkbox\" id=\"setSonidoEscaneo\" " + (estado.settings.sonidoEscaneo ? "checked" : "") + " style=\"width:16px; height:16px;\"> Pitido al escanear con éxito\n            </label>\n            <button class=\"btn primary\" id=\"saveSettingsBtn\" style=\"margin-top:8px;\">Guardar avisos</button>\n          </div>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Ubicaciones</p>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 8px 0;\">Lista para autocompletar — la ubicación sigue siendo texto libre, esto solo evita erratas.</p>\n          <div class=\"manual-stock-form\" style=\"margin-top:0;\">\n            <input type=\"text\" id=\"nuevaUbicacionInput\" placeholder=\"Nueva ubicación (ej. Pasillo 3 - B2)\">\n            <button class=\"cam-btn\" id=\"addUbicacionBtn\" style=\"flex:none;\">+ Añadir</button>\n          </div>\n          " + (estado.ubicaciones.length ? "\n          <div style=\"margin-top:10px; max-height:160px; overflow-y:auto;\">\n            " + estado.ubicaciones.map(_0x22784c => "\n              <div style=\"display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px dashed var(--border); font-size:12.5px;\">\n                <span>" + _0x1d1ab0(_0x22784c) + "</span>\n                <button class=\"btn-return\" data-ubicacion-del=\"" + _0x1d1ab0(_0x22784c) + "\" style=\"padding:4px 9px; font-size:10.5px; min-height:auto;\">Quitar</button>\n              </div>\n            ").join("") + "\n          </div>" : "<p style=\"font-size:11.5px; color:var(--text-faint); margin-top:8px;\">Todavía no hay ninguna en la lista.</p>") + "\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Lista rápida (Trabajo)</p>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 8px 0;\">Materiales frecuentes para elegir de un vistazo junto al chat de cualquier orden o proyecto." + (supabaseCliente ? "" : " Se podrá configurar cuando se conecte Supabase (ver README).") + "</p>\n          <div class=\"manual-stock-form\" style=\"margin-top:0;" + (supabaseCliente ? "" : " display:none;") + "\">\n            <input type=\"text\" id=\"nuevoRapidoCodigo\" placeholder=\"Código (opcional)\">\n            <input type=\"text\" id=\"nuevoRapidoNombre\" placeholder=\"Nombre a mostrar\">\n            <button class=\"cam-btn\" id=\"addRapidoBtn\" style=\"flex:none;\">+ Añadir</button>\n          </div>\n          " + (estado.materialesRapidos.length ? "\n          <div style=\"margin-top:10px; max-height:160px; overflow-y:auto;\">\n            " + estado.materialesRapidos.map(_0x1f6978 => "\n              <div style=\"display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px dashed var(--border); font-size:12.5px;\">\n                <span>" + _0x1d1ab0(_0x1f6978.nombre) + (_0x1f6978.codigo ? " <span style=\"color:var(--text-faint);\">(" + _0x1d1ab0(_0x1f6978.codigo) + ")</span>" : "") + "</span>\n                <button class=\"btn-return\" data-rapido-del=\"" + _0x1f6978.id + "\" style=\"padding:4px 9px; font-size:10.5px; min-height:auto;\">Quitar</button>\n              </div>\n            ").join("") + "\n          </div>" : "<p style=\"font-size:11.5px; color:var(--text-faint); margin-top:8px;\">Todavía no hay ningún material en la lista.</p>") + "\n        </div>\n\n        " + (hayBackend ? (() => {
         const _0x2d9f54 = estado.catalog.filter(_0xcd95ea => !_0xcd95ea.origenA3);
         return "\n          <div class=\"panel\">\n            <p class=\"panel-title\">Salud de datos frente a A3</p>\n            <div class=\"stat-row\"><span>Artículos confirmados en A3</span><span class=\"num\" style=\"color:var(--success);\">" + (estado.catalog.length - _0x2d9f54.length) + "</span></div>\n            <div class=\"stat-row\"><span>Dados de alta a mano, sin confirmar</span><span class=\"num\" style=\"color:" + (_0x2d9f54.length ? "var(--warning)" : "var(--success)") + ";\">" + _0x2d9f54.length + "</span></div>\n            " + (_0x2d9f54.length ? "\n            <p style=\"font-size:11.5px; color:var(--text-faint); margin:8px 0;\">Su código todavía no ha llegado desde A3 — puede ser un artículo nuevo pendiente de dar de alta allí, un código con una errata, o un duplicado.</p>\n            <div style=\"max-height:180px; overflow-y:auto;\">\n              " + _0x2d9f54.slice(0, 30).map(_0x395629 => "\n                <div style=\"padding:5px 0; border-bottom:1px dashed var(--border); font-size:12px;\">\n                  <span style=\"font-weight:700;\">" + _0x1d1ab0(_0x395629.code) + "</span> — " + _0x1d1ab0(_0x395629.desc) + "\n                </div>\n              ").join("") + "\n              " + (_0x2d9f54.length > 30 ? "<p style=\"font-size:11px; color:var(--text-faint); margin-top:6px;\">… y " + (_0x2d9f54.length - 30) + " más.</p>" : "") + "\n            </div>\n            " : "") + "\n          </div>";
