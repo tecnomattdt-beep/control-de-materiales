@@ -56,7 +56,8 @@ function autenticar(d) {
   const permitidos = lista('USUARIOS_PERMITIDOS');
   if (!clave || !permitidos.length) return '';
   const minuto = Math.floor(Date.now() / 60000);
-  if (parseInt(cache.get('fallos_' + minuto) || '0', 10) >= 30) return '';
+  // Freno ante una avalancha de tokens falsos. Es global (Apps Script no ve la IP): con 30 bastaba un intruso para bloquear a todos
+  if (parseInt(cache.get('fallos_' + minuto) || '0', 10) >= 300) return '';
   let correo = '';
   try {
     const resp = UrlFetchApp.fetch('https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=' + encodeURIComponent(clave), {

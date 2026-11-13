@@ -34,7 +34,7 @@ El objetivo era tener una herramienta de almacén que no necesitara servidor pro
 - Al ser una página estática, los avisos de la propia app (banner, sonido y notificación del sistema) solo se generan con la app abierta. Con la app cerrada solo llegan los avisos que gestiona el proxy de Apps Script (aviso diario de stock bajo, correo de la petición externa, Telegram y push); sin ese proxy, no hay tarea en segundo plano.
 - La lectura de PDF es heurística (busca patrones de texto), no una lectura de tablas real.
 - El pitido de aviso depende de que el navegador permita reproducir audio sin una interacción previa del usuario en esa pestaña — algunos navegadores (sobre todo Safari en iPhone) son más estrictos que otros. Si esto falla en algún dispositivo puntual, la notificación del sistema (si se le dio permiso) sigue llegando igual, ya que no depende de esta restricción.
-- Las firmas de entrega, al ser una imagen, solo se guardan completas las 40 más recientes por orden/proyecto (para no hacer crecer demasiado esa fila); las más antiguas se archivan como resumen (quién, cuándo, cuántas líneas) sin la imagen.
+- Las firmas de entrega, al ser una imagen, solo se guardan completas las 25 más recientes (Firestore no admite documentos de más de 1 MB); las más antiguas se archivan como resumen (quién, cuándo, cuántas líneas) sin la imagen.
 - El logo de la empresa no sale como imagen en los Excel exportados — la librería gratuita usada para generarlos no lo permite, solo el texto "TECNOMAT · Control de materiales".
 
 ## 1. Publicarla en GitHub Pages
