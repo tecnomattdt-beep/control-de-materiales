@@ -80,7 +80,26 @@ Si solo se rellena uno de los dos (Supabase o Firebase), la app funciona con esa
 2. **New project** → nombre, contraseña de la base de datos (guárdala), región más cercana. Espera 1-2 minutos.
 3. Menú lateral → **SQL Editor** → **New query** → pega el contenido de `supabase_setup.sql` (incluido en esta carpeta) → **Run**. Esto crea las tablas, la función de ajuste de stock, y activa el tiempo real.
 4. Menú lateral → **Project Settings** (⚙) → **API** → copia la **Project URL** y la clave **anon public**.
-5. En `index.html`, dentro del adaptador de backend cerca del principio del `<script>`, sustituye `TU_SUPABASE_URL` y `TU_SUPABASE_ANON_KEY` por esos dos valores.
+5. En `app.js`, líneas 2 y 3, sustituye `TU_SUPABASE_URL` y `TU_SUPABASE_ANON_KEY` por esos dos valores.
+
+> **Antes de rellenar el paso 5**, copiar los datos de Firestore a Supabase: la app lee primero de Supabase, y con la tabla vacía empezaría a guardar sobre vacío lo que cada dispositivo tenga cargado.
+
+### Enlace con la app hermana
+
+Tecnomat lee de la app hermana (que usa Supabase) las **OT**, sus **esquemas** y los **trabajadores**. Las dos apps comparten **el mismo proyecto de Supabase**.
+
+El día de conectar:
+1. En ese proyecto, SQL Editor → ejecutar en orden `supabase_setup.sql`, `supabase_chat_externo.sql`, `supabase_seguridad.sql` y `supabase_enlace.sql`.
+2. Que la app hermana rellene las tablas del contrato (detalle al principio de `supabase_enlace.sql`): `ordenes_trabajo` + `orden_materiales`, `tecnomat_esquemas` y `tecnomat_trabajadores`. Si ya guarda las OT en su propia tabla, el final de `supabase_enlace.sql` trae un disparador de ejemplo que las copia.
+3. Crear en Authentication → Users las cuentas de Tecnomat (mismo correo y contraseña que en Firebase) y rellenar el paso 5 de arriba.
+
+Lo que hace Tecnomat entonces:
+- **OT nueva** → se crea su orden/proyecto con el material inicial, aviso en la app y correo. Si llegó con la app cerrada, se crea al abrirla (sin correo, para no mandar uno por cada OT pendiente).
+- **Esquemas** → aparecen en la orden como «Esquemas de la OT», con un botón para abrir cada uno. Solo se aceptan enlaces `https://`.
+- **Trabajadores** → se añaden a la lista de Trabajadores (o se enlazan con uno que ya existía con el mismo nombre). Nunca se borra uno local: tiene ropa y entregas firmadas.
+- Tecnomat **solo lee** esas tablas; la app hermana es la única que escribe en ellas.
+
+Sin Supabase configurado, todo esto queda inactivo y la app funciona igual que antes. Las reglas de esquemas y trabajadores tienen pruebas: `node --test tests/`.
 
 ### Configurar Firebase (necesario para el login)
 
@@ -88,7 +107,7 @@ Si solo se rellena uno de los dos (Supabase o Firebase), la app funciona con esa
 2. **Compilación → Firestore Database → Crear base de datos** (modo de producción, la región más cercana).
 3. **Compilación → Authentication → Comenzar → Correo electrónico/contraseña** → activarlo.
 4. **Configuración del proyecto** (⚙) → pestaña **General** → "Tus apps" → icono web `</>` → registrar la app. Firebase muestra un bloque `firebaseConfig`.
-5. En `index.html`, sustituye el objeto `firebaseConfig` de ejemplo por ese bloque real.
+5. En `app.js`, sustituye el objeto `FIREBASE_CONFIG` (al principio) por ese bloque real.
 6. **Authentication → Users → Add user** para crear las cuentas de acceso (por ejemplo, `taller@tecnomat.es` y la de Almacén).
 
 ### Seguridad

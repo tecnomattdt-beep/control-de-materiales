@@ -1,5 +1,5 @@
 const CACHE_NAME = 'tecnomat-materiales-v226';
-const APP_SHELL = ['./', './index.html', './app.js', './manifest.json', './icon-192.png', './icon-512.png'];
+const APP_SHELL = ['./', './index.html', './enlace.js', './app.js', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(

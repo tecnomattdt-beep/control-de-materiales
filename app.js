@@ -1,8 +1,8 @@
 (function () {
-  const _0x5acf9a = "TU_SUPABASE_URL";
-  const _0x19e6e0 = "TU_SUPABASE_ANON_KEY";
-  const _0xac5a73 = "tecnomat_kv";
-  const _0x23db27 = {
+  const SUPABASE_URL = "TU_SUPABASE_URL";
+  const SUPABASE_ANON_KEY = "TU_SUPABASE_ANON_KEY";
+  const TABLA_KV = "tecnomat_kv";
+  const FIREBASE_CONFIG = {
     apiKey: "AIzaSyDIsRvCzSJeQ0ftK9DhMl8SAVPBlx9IKEc",
     authDomain: "almacenamiento-datos-40e38.firebaseapp.com",
     projectId: "almacenamiento-datos-40e38",
@@ -10,38 +10,38 @@
     messagingSenderId: "901796174695",
     appId: "1:901796174695:web:767991d98b3383c186edc2"
   };
-  const _0x458ece = "tecnomat_materiales";
+  const COLECCION_FIRESTORE = "tecnomat_materiales";
   const __GEMINI_PROXY_URL = "https://script.google.com/macros/s/AKfycbyVLtCqT_TvqFdT16JCbBARBl1dMKCKmWHvZQaZOx7sYz2SUCop5x7wXpzL2JK5jmJh/exec";
-  let _0xf42482 = null;
-  let _0x1f5ca6 = null;
-  let _0x4b4e46 = null;
+  let supabaseCliente = null;
+  let firestore = null;
+  let firebaseAuth = null;
   try {
-    if (_0x5acf9a && _0x5acf9a !== "TU_SUPABASE_URL" && typeof window.supabase !== "undefined") {
-      _0xf42482 = window.supabase.createClient(_0x5acf9a, _0x19e6e0);
+    if (SUPABASE_URL && SUPABASE_URL !== "TU_SUPABASE_URL" && typeof window.supabase !== "undefined") {
+      supabaseCliente = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
   } catch (_0x65916d) {
-    _0xf42482 = null;
+    supabaseCliente = null;
   }
   try {
-    if (_0x23db27.apiKey && _0x23db27.apiKey !== "TU_API_KEY" && typeof firebase !== "undefined") {
-      firebase.initializeApp(_0x23db27);
-      _0x1f5ca6 = firebase.firestore();
-      _0x4b4e46 = firebase.auth();
+    if (FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey !== "TU_API_KEY" && typeof firebase !== "undefined") {
+      firebase.initializeApp(FIREBASE_CONFIG);
+      firestore = firebase.firestore();
+      firebaseAuth = firebase.auth();
     }
   } catch (_0x522d9f) {
-    _0x1f5ca6 = null;
-    _0x4b4e46 = null;
+    firestore = null;
+    firebaseAuth = null;
   }
-  let _0x18a138 = null;
-  if (_0xf42482 || _0x1f5ca6) {
-    _0x18a138 = {
+  let backend = null;
+  if (supabaseCliente || firestore) {
+    backend = {
       async get(_0x63645) {
-        if (_0xf42482) {
+        if (supabaseCliente) {
           try {
             const {
               data: _0x39cecb,
               error: _0xbb65ea
-            } = await _0xf42482.from(_0xac5a73).select("value").eq("key", _0x63645).maybeSingle();
+            } = await supabaseCliente.from(TABLA_KV).select("value").eq("key", _0x63645).maybeSingle();
             if (_0xbb65ea) {
               throw _0xbb65ea;
             }
@@ -50,8 +50,8 @@
             }
           } catch (_0x45ab88) {}
         }
-        if (_0x1f5ca6) {
-          const _0x29cbdf = await _0x1f5ca6.collection(_0x458ece).doc(_0x63645).get();
+        if (firestore) {
+          const _0x29cbdf = await firestore.collection(COLECCION_FIRESTORE).doc(_0x63645).get();
           if (_0x29cbdf.exists) {
             return _0x29cbdf.data().value;
           } else {
@@ -61,11 +61,11 @@
         return null;
       },
       async set(_0x714aa, _0x1c103a) {
-        const _0x220cf7 = await Promise.allSettled([_0xf42482 ? _0xf42482.from(_0xac5a73).upsert({
+        const _0x220cf7 = await Promise.allSettled([supabaseCliente ? supabaseCliente.from(TABLA_KV).upsert({
           key: _0x714aa,
           value: _0x1c103a,
           updated_at: new Date().toISOString()
-        }) : Promise.resolve(null), _0x1f5ca6 ? _0x1f5ca6.collection(_0x458ece).doc(_0x714aa).set({
+        }) : Promise.resolve(null), firestore ? firestore.collection(COLECCION_FIRESTORE).doc(_0x714aa).set({
           value: _0x1c103a,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }) : Promise.resolve(null)]);
@@ -78,25 +78,25 @@
         };
       },
       async delete(_0x164163) {
-        await Promise.allSettled([_0xf42482 ? _0xf42482.from(_0xac5a73).delete().eq("key", _0x164163) : Promise.resolve(), _0x1f5ca6 ? _0x1f5ca6.collection(_0x458ece).doc(_0x164163).delete() : Promise.resolve()]);
+        await Promise.allSettled([supabaseCliente ? supabaseCliente.from(TABLA_KV).delete().eq("key", _0x164163) : Promise.resolve(), firestore ? firestore.collection(COLECCION_FIRESTORE).doc(_0x164163).delete() : Promise.resolve()]);
       },
       watch(_0x527498, _0x2ee85c) {
         const _0x17fd34 = [];
-        if (_0xf42482) {
-          const _0x28c647 = _0xf42482.channel("kv-" + _0x527498).on("postgres_changes", {
+        if (supabaseCliente) {
+          const _0x28c647 = supabaseCliente.channel("kv-" + _0x527498).on("postgres_changes", {
             event: "*",
             schema: "public",
-            table: _0xac5a73,
+            table: TABLA_KV,
             filter: "key=eq." + _0x527498
           }, _0x5489d4 => {
             if (_0x5489d4.new && _0x5489d4.new.value !== undefined) {
               _0x2ee85c(_0x5489d4.new.value);
             }
           }).subscribe();
-          _0x17fd34.push(() => _0xf42482.removeChannel(_0x28c647));
+          _0x17fd34.push(() => supabaseCliente.removeChannel(_0x28c647));
         }
-        if (_0x1f5ca6) {
-          const _0x2df005 = _0x1f5ca6.collection(_0x458ece).doc(_0x527498).onSnapshot(_0x3d9c1d => {
+        if (firestore) {
+          const _0x2df005 = firestore.collection(COLECCION_FIRESTORE).doc(_0x527498).onSnapshot(_0x3d9c1d => {
             if (_0x3d9c1d.exists) {
               _0x2ee85c(_0x3d9c1d.data().value);
             }
@@ -106,10 +106,10 @@
         return () => _0x17fd34.forEach(_0x1163f7 => _0x1163f7());
       },
       async adjustStockAtomic(_0x2c7b83, _0x295d01) {
-        if (_0xf42482) {
+        if (supabaseCliente) {
           const {
             error: _0x49a948
-          } = await _0xf42482.rpc("ajustar_stock", {
+          } = await supabaseCliente.rpc("ajustar_stock", {
             clave: "catalog",
             item_id: _0x2c7b83.id,
             delta: _0x295d01,
@@ -118,13 +118,13 @@
           if (_0x49a948) {
             throw _0x49a948;
           }
-          if (_0x1f5ca6) {
+          if (firestore) {
             try {
               const {
                 data: _0x33defc
-              } = await _0xf42482.from(_0xac5a73).select("value").eq("key", "catalog").maybeSingle();
+              } = await supabaseCliente.from(TABLA_KV).select("value").eq("key", "catalog").maybeSingle();
               if (_0x33defc) {
-                await _0x1f5ca6.collection(_0x458ece).doc("catalog").set({
+                await firestore.collection(COLECCION_FIRESTORE).doc("catalog").set({
                   value: _0x33defc.value,
                   updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
@@ -133,8 +133,8 @@
           }
           return;
         }
-        const _0x274fc4 = _0x1f5ca6.collection(_0x458ece).doc("catalog");
-        await _0x1f5ca6.runTransaction(async _0x9f3282 => {
+        const _0x274fc4 = firestore.collection(COLECCION_FIRESTORE).doc("catalog");
+        await firestore.runTransaction(async _0x9f3282 => {
           const _0x4a36c4 = await _0x9f3282.get(_0x274fc4);
           const _0x5b37bf = _0x4a36c4.exists ? _0x4a36c4.data().value : [];
           const _0x25982b = _0x5b37bf.find(_0x4b5f2b => _0x4b5f2b.id === _0x2c7b83.id);
@@ -150,33 +150,64 @@
         });
       },
       watchOrdenesTrabajo(_0x4b77fb) {
-        if (!_0xf42482) {
+        if (!supabaseCliente) {
           return;
         }
-        return _0xf42482.channel("ordenes-trabajo").on("postgres_changes", {
+        return supabaseCliente.channel("ordenes-trabajo").on("postgres_changes", {
           event: "INSERT",
           schema: "public",
           table: "ordenes_trabajo"
         }, _0xfbf1b3 => _0x4b77fb(_0xfbf1b3.new)).subscribe();
       },
       async getMaterialesDeOrden(_0x2e1d76) {
-        if (!_0xf42482) {
+        if (!supabaseCliente) {
           return [];
         }
         const {
           data: _0x30d4b9,
           error: _0x454226
-        } = await _0xf42482.from("orden_materiales").select("*").eq("orden_id", _0x2e1d76);
+        } = await supabaseCliente.from("orden_materiales").select("*").eq("orden_id", _0x2e1d76);
         if (_0x454226) {
           throw _0x454226;
         }
         return _0x30d4b9 || [];
       },
+      // Enlace con la app hermana (supabase_enlace.sql). Sin Supabase configurado devuelven listas vacías.
+      async getOrdenesActivas() {
+        if (!supabaseCliente) {
+          return [];
+        }
+        const { data, error } = await supabaseCliente.from("ordenes_trabajo").select("*").eq("estado", "activo").order("created_at");
+        if (error) {
+          throw error;
+        }
+        return data || [];
+      },
+      async getEsquemasDeOrden(ordenId) {
+        if (!supabaseCliente) {
+          return [];
+        }
+        const { data, error } = await supabaseCliente.from("tecnomat_esquemas").select("nombre, url").eq("orden_id", ordenId).order("created_at");
+        if (error) {
+          throw error;
+        }
+        return data || [];
+      },
+      async getTrabajadoresExternos() {
+        if (!supabaseCliente) {
+          return [];
+        }
+        const { data, error } = await supabaseCliente.from("tecnomat_trabajadores").select("id, nombre, puesto, activo").eq("activo", true);
+        if (error) {
+          throw error;
+        }
+        return data || [];
+      },
       watchMateriales(_0xf601f4) {
-        if (!_0xf42482) {
+        if (!supabaseCliente) {
           return;
         }
-        return _0xf42482.channel("materiales").on("postgres_changes", {
+        return supabaseCliente.channel("materiales").on("postgres_changes", {
           event: "INSERT",
           schema: "public",
           table: "materiales"
@@ -187,36 +218,36 @@
         }, _0x188f49 => _0xf601f4(_0x188f49.new)).subscribe();
       },
       async getMaterialesActuales() {
-        if (!_0xf42482) {
+        if (!supabaseCliente) {
           return [];
         }
         const {
           data: _0x57eac8,
           error: _0x202158
-        } = await _0xf42482.from("materiales").select("*");
+        } = await supabaseCliente.from("materiales").select("*");
         if (_0x202158) {
           throw _0x202158;
         }
         return _0x57eac8 || [];
       },
       watchMaterialesRapidos(_0x44511c) {
-        if (!_0xf42482) {
+        if (!supabaseCliente) {
           return;
         }
-        return _0xf42482.channel("materiales-rapidos").on("postgres_changes", {
+        return supabaseCliente.channel("materiales-rapidos").on("postgres_changes", {
           event: "*",
           schema: "public",
           table: "materiales_rapidos"
         }, () => _0x44511c()).subscribe();
       },
       async getMaterialesRapidos() {
-        if (!_0xf42482) {
+        if (!supabaseCliente) {
           return [];
         }
         const {
           data: _0x56494f,
           error: _0x3ccc28
-        } = await _0xf42482.from("materiales_rapidos").select("*").order("orden", {
+        } = await supabaseCliente.from("materiales_rapidos").select("*").order("orden", {
           ascending: true
         });
         if (_0x3ccc28) {
@@ -225,12 +256,12 @@
         return _0x56494f || [];
       },
       async addMaterialRapido(_0x96eeb3, _0x11da93, _0x435457) {
-        if (!_0xf42482) {
+        if (!supabaseCliente) {
           throw new Error("Esto necesita Supabase configurado");
         }
         const {
           error: _0x1dca1d
-        } = await _0xf42482.from("materiales_rapidos").insert({
+        } = await supabaseCliente.from("materiales_rapidos").insert({
           codigo: _0x96eeb3 || null,
           nombre: _0x11da93,
           orden: _0x435457 || 0
@@ -240,25 +271,25 @@
         }
       },
       async deleteMaterialRapido(_0x3752ad) {
-        if (!_0xf42482) {
+        if (!supabaseCliente) {
           return;
         }
         const {
           error: _0x4c3a28
-        } = await _0xf42482.from("materiales_rapidos").delete().eq("id", _0x3752ad);
+        } = await supabaseCliente.from("materiales_rapidos").delete().eq("id", _0x3752ad);
         if (_0x4c3a28) {
           throw _0x4c3a28;
         }
       },
       auth: {
         async signIn(_0x36cc69, _0x14f715) {
-          if (!_0x4b4e46) {
+          if (!firebaseAuth) {
             throw new Error("Login no disponible: falta configurar Firebase Authentication.");
           }
-          const __acceso = await _0x4b4e46.signInWithEmailAndPassword(_0x36cc69, _0x14f715);
-          if (_0xf42482) {
+          const __acceso = await firebaseAuth.signInWithEmailAndPassword(_0x36cc69, _0x14f715);
+          if (supabaseCliente) {
             try {
-              await _0xf42482.auth.signInWithPassword({
+              await supabaseCliente.auth.signInWithPassword({
                 email: _0x36cc69,
                 password: _0x14f715
               });
@@ -267,27 +298,27 @@
           return __acceso;
         },
         async signOut() {
-          if (_0xf42482) {
+          if (supabaseCliente) {
             try {
-              await _0xf42482.auth.signOut();
+              await supabaseCliente.auth.signOut();
             } catch (__e) {}
           }
-          if (_0x4b4e46) {
-            await _0x4b4e46.signOut();
+          if (firebaseAuth) {
+            await firebaseAuth.signOut();
           }
         },
         onChange(_0x390c8a) {
-          if (_0x4b4e46) {
-            _0x4b4e46.onAuthStateChanged(_0x390c8a);
+          if (firebaseAuth) {
+            firebaseAuth.onAuthStateChanged(_0x390c8a);
           }
         },
         currentUserEmail() {
-          return _0x4b4e46 && _0x4b4e46.currentUser && _0x4b4e46.currentUser.email || "";
+          return firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.email || "";
         }
       }
     };
   }
-  const _0x5b23b1 = !!_0x18a138;
+  const hayBackend = !!backend;
   const _0x309050 = {
     publicKey: "u_V6OyiI7F3r-7nQT",
     serviceId: "service_aen4ibl",
@@ -304,14 +335,14 @@
   } catch (_0x17a7f7) {
     _0x172e48 = false;
   }
-  function _0x2fa439(_0x46928b, _0x3aeb08) {
-    if (!_0x172e48 || !_0x47d525.settings.emailDestino) {
+  function enviarCorreoAviso(_0x46928b, _0x3aeb08) {
+    if (!_0x172e48 || !estado.settings.emailDestino) {
       return;
     }
     emailjs.send(_0x309050.serviceId, _0x309050.templateId, {
       subject: _0x46928b,
       message: _0x3aeb08,
-      to_email: _0x47d525.settings.emailDestino
+      to_email: estado.settings.emailDestino
     }).catch(function (_0x27ad4a) {
       _0x279f78("Aviso de pedido: no se pudo enviar el correo — " + (_0x27ad4a && _0x27ad4a.text ? _0x27ad4a.text : _0x27ad4a));
     });
@@ -321,7 +352,7 @@
     Notification.requestPermission();
   }
   function _0x1564f0() {
-    if (!_0x47d525.settings.sonidoEscaneo) {
+    if (!estado.settings.sonidoEscaneo) {
       return;
     }
     try {
@@ -394,10 +425,10 @@
     } catch (_0x1b4811) {}
   }
   function _0x2df77d() {
-    if (!_0x5b23b1) {
+    if (!hayBackend) {
       return "almacen";
     }
-    const _0x589ba4 = _0x18a138.auth.currentUserEmail().toLowerCase();
+    const _0x589ba4 = backend.auth.currentUserEmail().toLowerCase();
     if (!_0x589ba4) {
       return "almacen";
     }
@@ -406,9 +437,9 @@
     }
     return "almacen";
   }
-  function _0x4496b3() {
-    if (_0x5b23b1) {
-      return _0x18a138.auth.currentUserEmail();
+  function usuarioActual() {
+    if (hayBackend) {
+      return backend.auth.currentUserEmail();
     } else {
       return "";
     }
@@ -433,7 +464,7 @@
       _0x28242e.innerHTML = (_0x500d0f ? "<button class=\"cam-btn\" id=\"logoutBtn\">" + _0x500d0f.email + " · Cerrar sesión</button>" : "") + "<span id=\"temaToggleArea\"></span><span id=\"ayudaBtnArea\"></span>";
       const _0x3c9f14 = document.getElementById("logoutBtn");
       if (_0x3c9f14) {
-        _0x3c9f14.addEventListener("click", () => _0x18a138.auth.signOut());
+        _0x3c9f14.addEventListener("click", () => backend.auth.signOut());
       }
       _0x164745();
       _0x32e8d7();
@@ -560,18 +591,18 @@
       _0x57f7e7();
     }
   }
-  if (_0x5b23b1) {
+  if (hayBackend) {
     const _0x3d2891 = document.getElementById("loginForm");
     _0x3d2891.addEventListener("submit", function (_0x1341b0) {
       _0x1341b0.preventDefault();
       const _0xfc6116 = document.getElementById("loginEmail").value.trim();
       const _0x1be047 = document.getElementById("loginPassword").value;
       _0x4cacf5("Entrando…");
-      _0x18a138.auth.signIn(_0xfc6116, _0x1be047).catch(function (_0x49dad8) {
+      backend.auth.signIn(_0xfc6116, _0x1be047).catch(function (_0x49dad8) {
         _0x4cacf5("No se pudo iniciar sesión: " + _0x49dad8.message);
       });
     });
-    _0x18a138.auth.onChange(function (_0x19d0e3) {
+    backend.auth.onChange(function (_0x19d0e3) {
       if (_0x19d0e3) {
         _0x5e4b53(_0x19d0e3);
         _0x5c6639();
@@ -590,7 +621,7 @@
     _0x453aa4();
     _0x5c6639();
   }
-  let _0x47d525 = {
+  let estado = {
     mode: "resumen",
     catalog: [],
     movements: [],
@@ -660,11 +691,11 @@
     montaje: "Orden",
     proyecto: "Proyecto"
   };
-  const _0x231ff7 = _0x542141 => document.querySelector(_0x542141);
-  const _0x588d17 = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const $ = _0x542141 => document.querySelector(_0x542141);
+  const nuevoId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   let _0xff8226 = null;
   function _0x1b0734(_0x347d91) {
-    const _0x855375 = _0x231ff7("#appDialogOverlay");
+    const _0x855375 = $("#appDialogOverlay");
     if (_0x855375) {
       _0x855375.style.display = "none";
     }
@@ -676,7 +707,7 @@
   }
   function _0x2cc777(_0x28a00a) {
     return new Promise(_0xfdea51 => {
-      const _0x53ffba = _0x231ff7("#appDialogOverlay");
+      const _0x53ffba = $("#appDialogOverlay");
       if (!_0x53ffba) {
         _0xfdea51(window.confirm(_0x28a00a));
         return;
@@ -685,20 +716,20 @@
         _0x1b0734(false);
       }
       _0xff8226 = _0xfdea51;
-      _0x231ff7("#appDialogMsg").textContent = _0x28a00a;
-      const _0x29dd2a = _0x231ff7("#appDialogInput");
+      $("#appDialogMsg").textContent = _0x28a00a;
+      const _0x29dd2a = $("#appDialogInput");
       _0x29dd2a.style.display = "none";
       _0x29dd2a.value = "";
-      const _0x5256f0 = _0x231ff7("#appDialogCancelBtn");
+      const _0x5256f0 = $("#appDialogCancelBtn");
       _0x5256f0.style.display = "";
       _0x53ffba.style.display = "flex";
-      _0x231ff7("#appDialogOkBtn").onclick = () => _0x1b0734(true);
+      $("#appDialogOkBtn").onclick = () => _0x1b0734(true);
       _0x5256f0.onclick = () => _0x1b0734(false);
     });
   }
   function _0x3b375f(_0x4059c2, _0x577c6a) {
     return new Promise(_0x3871b7 => {
-      const _0x2c02c0 = _0x231ff7("#appDialogOverlay");
+      const _0x2c02c0 = $("#appDialogOverlay");
       if (!_0x2c02c0) {
         _0x3871b7(window.prompt(_0x4059c2, _0x577c6a));
         return;
@@ -707,11 +738,11 @@
         _0x1b0734(null);
       }
       _0xff8226 = _0x3871b7;
-      _0x231ff7("#appDialogMsg").textContent = _0x4059c2;
-      const _0x200b9f = _0x231ff7("#appDialogInput");
+      $("#appDialogMsg").textContent = _0x4059c2;
+      const _0x200b9f = $("#appDialogInput");
       _0x200b9f.style.display = "";
       _0x200b9f.value = _0x577c6a != null ? String(_0x577c6a) : "";
-      _0x231ff7("#appDialogCancelBtn").style.display = "";
+      $("#appDialogCancelBtn").style.display = "";
       _0x2c02c0.style.display = "flex";
       setTimeout(() => {
         _0x200b9f.focus();
@@ -720,14 +751,14 @@
       _0x200b9f.onkeydown = _0x45257b => {
         if (_0x45257b.key === "Enter") {
           _0x45257b.preventDefault();
-          _0x231ff7("#appDialogOkBtn").click();
+          $("#appDialogOkBtn").click();
         }
       };
-      _0x231ff7("#appDialogOkBtn").onclick = () => _0x1b0734(_0x200b9f.value);
-      _0x231ff7("#appDialogCancelBtn").onclick = () => _0x1b0734(null);
+      $("#appDialogOkBtn").onclick = () => _0x1b0734(_0x200b9f.value);
+      $("#appDialogCancelBtn").onclick = () => _0x1b0734(null);
     });
   }
-  function _0x2b3e8c() {
+  function grupoVacio() {
     return {
       servido: [],
       devuelto: [],
@@ -740,8 +771,8 @@
       materialesFaltantes: []
     };
   }
-  const _0x347a69 = () => new Date().toLocaleString("es-ES");
-  const _0x1e8f19 = _0xde68be => _0xde68be.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const fechaHoraTexto = () => new Date().toLocaleString("es-ES");
+  const aSlug = _0xde68be => _0xde68be.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-");
   const _0x1d1ab0 = _0x4a4f5c => String(_0x4a4f5c == null ? "" : _0x4a4f5c).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   const _0x3edff0 = {
     editar: "<path d=\"M11 4H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-7\"/><path d=\"M14.5 2.5a1.5 1.5 0 0 1 2 2L10 11l-3 1 1-3 6.5-6.5Z\"/>",
@@ -787,13 +818,13 @@
     return _0x513e2d;
   }
   function _0x279f78(_0xbb0204, _0x49625e) {
-    const _0x55e3f3 = _0x231ff7("#statusBanner");
+    const _0x55e3f3 = $("#statusBanner");
     const _0x43495f = /^(No se pu|No he |Ya no hay|Falta |Indica |Escribe |Rellena |Configura |Selecciona |El .*no puede|El pedido está vacío|La solicitud está vacía|La orden\/proyecto|Ese código no existe|Solo quedan|Formato no soportado|Tu navegador no soporta|Esa ubicación ya está|Error )/i.test(_0xbb0204);
     _0x55e3f3.className = "status-banner" + (_0x43495f ? " error" : "");
     _0x55e3f3.innerHTML = _0x1d1ab0(_0xbb0204) + (_0x49625e ? " <button id=\"undoBtn\" class=\"btn-return\" style=\"margin-left:8px; padding:3px 9px; font-size:11px;\">Deshacer</button>" : "");
     _0x55e3f3.style.display = "block";
     if (_0x49625e) {
-      const _0x548f30 = _0x231ff7("#undoBtn");
+      const _0x548f30 = $("#undoBtn");
       if (_0x548f30) {
         _0x548f30.addEventListener("click", () => {
           _0x55e3f3.style.display = "none";
@@ -807,7 +838,7 @@
     }, 8000);
   }
   function _0x179b09() {
-    const _0x2934c3 = _0x231ff7("#offlineBanner");
+    const _0x2934c3 = $("#offlineBanner");
     if (!_0x2934c3) {
       return;
     }
@@ -835,7 +866,7 @@
     if (!_0x266ff9) {
       return;
     }
-    if (_0x5b23b1) {
+    if (hayBackend) {
       _0x266ff9.innerHTML = "<span class=\"autosave-dot\"></span> Guardado en la nube (Supabase) — compartido entre todos los dispositivos.";
     } else if (_0x14aabf) {
       _0x266ff9.innerHTML = "<span class=\"autosave-dot\"></span> Todo se guarda automáticamente — stock, montaje y proyectos.";
@@ -845,9 +876,9 @@
   })();
   async function _0x31ceb4(_0x53c567) {
     try {
-      if (_0x5b23b1) {
+      if (hayBackend) {
         try {
-          return await _0x18a138.get(_0x53c567);
+          return await backend.get(_0x53c567);
         } catch (_0xfab949) {
           const _0x5a52a1 = localStorage.getItem(_0x5b358b + _0x53c567);
           if (_0x5a52a1) {
@@ -875,11 +906,11 @@
       return null;
     }
   }
-  async function _0x1968be(_0x1f6b21, _0xf76f02) {
+  async function guardar(_0x1f6b21, _0xf76f02) {
     try {
-      if (_0x5b23b1) {
+      if (hayBackend) {
         try {
-          return await _0x18a138.set(_0x1f6b21, _0xf76f02);
+          return await backend.set(_0x1f6b21, _0xf76f02);
         } catch (_0x47d33f) {
           localStorage.setItem(_0x5b358b + _0x1f6b21, JSON.stringify(_0xf76f02));
           _0x279f78("Sin conexión con el servidor — \"" + _0x1f6b21 + "\" se ha guardado en este dispositivo y se sincronizará cuando vuelva.");
@@ -908,8 +939,8 @@
   }
   async function _0x5390a2(_0x4a7153) {
     try {
-      if (_0x5b23b1) {
-        await _0x18a138.delete(_0x4a7153);
+      if (hayBackend) {
+        await backend.delete(_0x4a7153);
         return;
       }
       if (_0x14aabf) {
@@ -922,8 +953,8 @@
   async function _0x5c6639() {
     const [_0x262bd3, _0xea2297, _0x1a2d48, _0x34c9a2, _0x4509f8, _0x17a9ad, _0x4505ef, _0x1838a1, _0x1063d2, _0x993dc3, _0x120b29, _0xe26337, _0x262efb, _0x457b08, _0x5bd3f0, _0x3712ce, _0x2f3347, _0x550237, _0x266294, _0x44019a, _0x6bec81, __trabajadoresRaw, __clasifRaw] = await Promise.all([_0x31ceb4("catalog"), _0x31ceb4("movements"), _0x31ceb4("groups_montaje"), _0x31ceb4("groups_proyecto"), _0x31ceb4("lists"), _0x31ceb4("projects"), _0x31ceb4("app_state"), _0x31ceb4("bobinas"), _0x31ceb4("settings"), _0x31ceb4("alerts_state"), _0x31ceb4("pedido_items"), _0x31ceb4("movements_archive"), _0x31ceb4("deliveries"), _0x31ceb4("notifications"), _0x31ceb4("ubicaciones"), _0x31ceb4("deliveries_archive"), _0x31ceb4("pedido_chat"), _0x31ceb4("pedido_requester"), _0x31ceb4("vehiculos"), _0x31ceb4("tareas_mantenimiento"), _0x31ceb4("ocr_aprendizaje"), _0x31ceb4("trabajadores"), _0x31ceb4("clasificacion")]);
     if (_0x262bd3) {
-      _0x47d525.catalog = _0x262bd3.map(_0xb6fc8b => ({
-        id: _0xb6fc8b.id || _0x588d17(),
+      estado.catalog = _0x262bd3.map(_0xb6fc8b => ({
+        id: _0xb6fc8b.id || nuevoId(),
         code: _0xb6fc8b.code,
         desc: _0xb6fc8b.desc,
         qty: typeof _0xb6fc8b.qty === "number" ? _0xb6fc8b.qty : 0,
@@ -936,120 +967,120 @@
       }));
     }
     if (_0xea2297) {
-      _0x47d525.movements = _0xea2297;
+      estado.movements = _0xea2297;
     }
     if (_0xe26337) {
-      _0x47d525.movementsArchive = _0xe26337;
+      estado.movementsArchive = _0xe26337;
     }
     if (_0x1838a1) {
-      _0x47d525.bobinas = _0x1838a1;
+      estado.bobinas = _0x1838a1;
     }
     if (_0x120b29) {
-      _0x47d525.pedidoItems = _0x120b29;
+      estado.pedidoItems = _0x120b29;
     }
     if (_0x2f3347) {
-      _0x47d525.pedidoChat = _0x2f3347;
+      estado.pedidoChat = _0x2f3347;
     }
     if (_0x550237) {
-      _0x47d525.pedidoRequesterName = _0x550237;
+      estado.pedidoRequesterName = _0x550237;
     }
     if (_0x266294) {
-      _0x47d525.vehiculos = _0x266294;
+      estado.vehiculos = _0x266294;
     }
     if (_0x44019a) {
-      _0x47d525.tareasMantenimiento = _0x44019a;
+      estado.tareasMantenimiento = _0x44019a;
     }
     if (_0x6bec81) {
-      _0x47d525.ocrAprendizaje = _0x6bec81;
+      estado.ocrAprendizaje = _0x6bec81;
     }
     if (__trabajadoresRaw) {
-      _0x47d525.trabajadores = __trabajadoresRaw;
+      estado.trabajadores = __trabajadoresRaw;
     }
     if (__clasifRaw) {
-      _0x47d525.clasificacion = __clasifRaw;
+      estado.clasificacion = __clasifRaw;
     }
-    if (_0x47d525.vehiculos.length && !_0x47d525.vehiculoActualId) {
-      _0x47d525.vehiculoActualId = _0x47d525.vehiculos[0].id;
+    if (estado.vehiculos.length && !estado.vehiculoActualId) {
+      estado.vehiculoActualId = estado.vehiculos[0].id;
     }
     if (_0x262efb) {
-      _0x47d525.deliveries = _0x262efb;
+      estado.deliveries = _0x262efb;
     }
     if (_0x457b08) {
-      _0x47d525.notifications = _0x457b08;
+      estado.notifications = _0x457b08;
     }
     if (_0x5bd3f0) {
-      _0x47d525.ubicaciones = _0x5bd3f0;
+      estado.ubicaciones = _0x5bd3f0;
     }
     if (_0x3712ce) {
-      _0x47d525.deliveriesArchive = _0x3712ce;
+      estado.deliveriesArchive = _0x3712ce;
     }
-    _0x47d525.notifications.forEach(_0x185901 => _0x1f4699.add(_0x185901.id));
+    estado.notifications.forEach(_0x185901 => _0x1f4699.add(_0x185901.id));
     if (_0x1063d2) {
-      _0x47d525.settings = Object.assign({}, _0x47d525.settings, _0x1063d2);
+      estado.settings = Object.assign({}, estado.settings, _0x1063d2);
     }
     if (_0x993dc3) {
-      _0x47d525.alerts = _0x993dc3;
+      estado.alerts = _0x993dc3;
     }
     if (_0x1a2d48) {
-      _0x47d525.groups.montaje = _0x1a2d48;
+      estado.groups.montaje = _0x1a2d48;
     }
     if (_0x34c9a2) {
-      _0x47d525.groups.proyecto = _0x34c9a2;
+      estado.groups.proyecto = _0x34c9a2;
     } else if (_0x17a9ad) {
-      _0x47d525.groups.proyecto = _0x17a9ad.map(_0x1f0639 => typeof _0x1f0639 === "string" ? {
+      estado.groups.proyecto = _0x17a9ad.map(_0x1f0639 => typeof _0x1f0639 === "string" ? {
         name: _0x1f0639,
         status: "activo"
       } : {
         name: _0x1f0639.name,
         status: _0x1f0639.status || "activo"
       });
-      _0x5cfc4b("proyecto");
+      guardarListaGrupos("proyecto");
     }
     if (_0x4505ef) {
-      _0x47d525.mode = "resumen";
-      _0x47d525.current.montaje = _0x4505ef.currentMontajeOrder || null;
-      _0x47d525.current.proyecto = _0x4505ef.currentProject || null;
+      estado.mode = "resumen";
+      estado.current.montaje = _0x4505ef.currentMontajeOrder || null;
+      estado.current.proyecto = _0x4505ef.currentProject || null;
       if (_0x4505ef.vehiculoActualId) {
-        _0x47d525.vehiculoActualId = _0x4505ef.vehiculoActualId;
+        estado.vehiculoActualId = _0x4505ef.vehiculoActualId;
       }
     }
     if (!_0x1a2d48 && _0x4509f8 && _0x4509f8.montaje && (_0x4509f8.montaje.servido.length || _0x4509f8.montaje.devuelto.length)) {
       const _0x1d4585 = _0x4509f8.montaje;
-      _0x47d525.groups.montaje = [{
+      estado.groups.montaje = [{
         name: "General",
         status: "activo"
       }];
-      _0x47d525.groupData["montaje::General"] = Object.assign(_0x2b3e8c(), _0x1d4585);
-      _0x5cfc4b("montaje");
-      _0x1968be("group_montaje_" + _0x1e8f19("General"), _0x1d4585);
-      if (!_0x47d525.current.montaje) {
-        _0x47d525.current.montaje = "General";
+      estado.groupData["montaje::General"] = Object.assign(grupoVacio(), _0x1d4585);
+      guardarListaGrupos("montaje");
+      guardar("group_montaje_" + aSlug("General"), _0x1d4585);
+      if (!estado.current.montaje) {
+        estado.current.montaje = "General";
       }
     }
-    for (const _0x5597e6 of _0x47d525.groups.proyecto) {
-      if (!_0x47d525.groupData["proyecto::" + _0x5597e6.name]) {
-        const _0x52832c = await _0x31ceb4("project_" + _0x1e8f19(_0x5597e6.name));
+    for (const _0x5597e6 of estado.groups.proyecto) {
+      if (!estado.groupData["proyecto::" + _0x5597e6.name]) {
+        const _0x52832c = await _0x31ceb4("project_" + aSlug(_0x5597e6.name));
         if (_0x52832c) {
-          _0x47d525.groupData["proyecto::" + _0x5597e6.name] = Object.assign(_0x2b3e8c(), _0x52832c);
-          _0x5478d9("proyecto", _0x5597e6.name);
+          estado.groupData["proyecto::" + _0x5597e6.name] = Object.assign(grupoVacio(), _0x52832c);
+          guardarGrupo("proyecto", _0x5597e6.name);
         }
       }
     }
-    if (_0x47d525.current.montaje) {
-      const _0x2b6339 = "montaje::" + _0x47d525.current.montaje;
-      if (!_0x47d525.groupData[_0x2b6339]) {
-        const _0x29b815 = await _0x31ceb4("group_montaje_" + _0x1e8f19(_0x47d525.current.montaje));
-        _0x47d525.groupData[_0x2b6339] = _0x29b815 ? Object.assign(_0x2b3e8c(), _0x29b815) : _0x2b3e8c();
+    if (estado.current.montaje) {
+      const _0x2b6339 = "montaje::" + estado.current.montaje;
+      if (!estado.groupData[_0x2b6339]) {
+        const _0x29b815 = await _0x31ceb4("group_montaje_" + aSlug(estado.current.montaje));
+        estado.groupData[_0x2b6339] = _0x29b815 ? Object.assign(grupoVacio(), _0x29b815) : grupoVacio();
       }
     }
-    if (_0x47d525.current.proyecto) {
-      const _0x35f2ec = "proyecto::" + _0x47d525.current.proyecto;
-      if (!_0x47d525.groupData[_0x35f2ec]) {
-        const _0x58dd8b = await _0x31ceb4("group_proyecto_" + _0x1e8f19(_0x47d525.current.proyecto));
-        _0x47d525.groupData[_0x35f2ec] = _0x58dd8b ? Object.assign(_0x2b3e8c(), _0x58dd8b) : _0x2b3e8c();
+    if (estado.current.proyecto) {
+      const _0x35f2ec = "proyecto::" + estado.current.proyecto;
+      if (!estado.groupData[_0x35f2ec]) {
+        const _0x58dd8b = await _0x31ceb4("group_proyecto_" + aSlug(estado.current.proyecto));
+        estado.groupData[_0x35f2ec] = _0x58dd8b ? Object.assign(grupoVacio(), _0x58dd8b) : grupoVacio();
       }
     }
-    _0x474249();
+    render();
     _0x5d7cfc();
     _0x4b1425();
     setInterval(() => {
@@ -1062,7 +1093,7 @@
   const _0x1512ce = _0x5cfc5(() => {
     let __firmaRealtime;
     try {
-      __firmaRealtime = JSON.stringify(_0x47d525);
+      __firmaRealtime = JSON.stringify(estado);
     } catch {
       __firmaRealtime = null;
     }
@@ -1072,27 +1103,27 @@
     if (__firmaRealtime !== null) {
       _0x1512ce.__ultimaFirma = __firmaRealtime;
     }
-    _0x474249();
+    render();
   }, 80);
-  function _0xc1f99(_0x2026ae, _0x1239bd) {
-    if (!_0x5b23b1) {
+  function escuchar(_0x2026ae, _0x1239bd) {
+    if (!hayBackend) {
       return;
     }
     if (_0xfe86c7[_0x2026ae]) {
       _0xfe86c7[_0x2026ae]();
     }
-    _0xfe86c7[_0x2026ae] = _0x18a138.watch(_0x2026ae, _0x5df280 => {
+    _0xfe86c7[_0x2026ae] = backend.watch(_0x2026ae, _0x5df280 => {
       _0x1239bd(_0x5df280);
       _0x1512ce();
     });
   }
   function _0x1314ff() {
-    if (!_0x5b23b1) {
+    if (!hayBackend) {
       return;
     }
-    _0xc1f99("catalog", _0x117fb8 => {
-      _0x47d525.catalog = _0x117fb8.map(_0x8a84b1 => ({
-        id: _0x8a84b1.id || _0x588d17(),
+    escuchar("catalog", _0x117fb8 => {
+      estado.catalog = _0x117fb8.map(_0x8a84b1 => ({
+        id: _0x8a84b1.id || nuevoId(),
         code: _0x8a84b1.code,
         desc: _0x8a84b1.desc,
         qty: typeof _0x8a84b1.qty === "number" ? _0x8a84b1.qty : 0,
@@ -1104,62 +1135,63 @@
         coste: typeof _0x8a84b1.coste === "number" ? _0x8a84b1.coste : 0
       }));
     });
-    _0xc1f99("movements", _0x8b2fa5 => {
-      _0x47d525.movements = _0x8b2fa5;
+    escuchar("movements", _0x8b2fa5 => {
+      estado.movements = _0x8b2fa5;
     });
-    _0xc1f99("bobinas", _0xc2f9cd => {
-      _0x47d525.bobinas = _0xc2f9cd;
+    escuchar("bobinas", _0xc2f9cd => {
+      estado.bobinas = _0xc2f9cd;
     });
-    _0xc1f99("settings", _0x47fae3 => {
-      _0x47d525.settings = Object.assign({}, _0x47d525.settings, _0x47fae3);
+    escuchar("settings", _0x47fae3 => {
+      estado.settings = Object.assign({}, estado.settings, _0x47fae3);
     });
-    _0xc1f99("pedido_items", _0x5a6893 => {
-      _0x47d525.pedidoItems = _0x5a6893;
+    escuchar("pedido_items", _0x5a6893 => {
+      estado.pedidoItems = _0x5a6893;
     });
-    _0xc1f99("notifications", _0x3346db => {
-      _0x47d525.notifications = _0x3346db;
+    escuchar("notifications", _0x3346db => {
+      estado.notifications = _0x3346db;
     });
     _0x4efabf();
-    if (_0x18a138.watchOrdenesTrabajo) {
-      _0x18a138.watchOrdenesTrabajo(_0x192438 => _0x45817f(_0x192438));
+    if (backend.watchOrdenesTrabajo) {
+      backend.watchOrdenesTrabajo(_0x192438 => recibirOrdenTrabajo(_0x192438));
     }
-    if (_0x18a138.watchMateriales) {
-      _0x18a138.watchMateriales(_0xa63053 => _0x59839a(_0xa63053));
+    sincronizarEnlace();
+    if (backend.watchMateriales) {
+      backend.watchMateriales(_0xa63053 => recibirMaterialA3(_0xa63053));
     }
-    if (_0x18a138.getMaterialesActuales) {
-      _0x18a138.getMaterialesActuales().then(_0x2d2f54 => {
-        _0x2d2f54.forEach(_0x1f9362 => _0x59839a(_0x1f9362));
+    if (backend.getMaterialesActuales) {
+      backend.getMaterialesActuales().then(_0x2d2f54 => {
+        _0x2d2f54.forEach(_0x1f9362 => recibirMaterialA3(_0x1f9362));
       }).catch(_0x1d5c5e => {});
     }
     const _0x2621d2 = () => {
-      if (!_0x18a138.getMaterialesRapidos) {
+      if (!backend.getMaterialesRapidos) {
         return;
       }
-      _0x18a138.getMaterialesRapidos().then(_0x3aaecc => {
-        _0x47d525.materialesRapidos = _0x3aaecc;
-        _0x474249();
+      backend.getMaterialesRapidos().then(_0x3aaecc => {
+        estado.materialesRapidos = _0x3aaecc;
+        render();
       }).catch(_0xf5808 => {});
     };
     _0x2621d2();
-    if (_0x18a138.watchMaterialesRapidos) {
-      _0x18a138.watchMaterialesRapidos(_0x2621d2);
+    if (backend.watchMaterialesRapidos) {
+      backend.watchMaterialesRapidos(_0x2621d2);
     }
   }
-  function _0x59839a(_0x2050de) {
+  function recibirMaterialA3(_0x2050de) {
     const _0x3fd4eb = (_0x2050de.codigo_articulo || "").trim();
     if (!_0x3fd4eb) {
       return;
     }
-    const _0x3ce1df = _0x4746f7(_0x3fd4eb);
+    const _0x3ce1df = buscarPorCodigo(_0x3fd4eb);
     if (_0x3ce1df) {
       if (_0x2050de.descripcion) {
         _0x3ce1df.desc = _0x2050de.descripcion;
       }
       _0x3ce1df.origenA3 = true;
-      _0x4bebe2();
+      guardarCatalogo();
     } else {
-      _0x47d525.catalog.push({
-        id: _0x588d17(),
+      estado.catalog.push({
+        id: nuevoId(),
         code: _0x3fd4eb,
         desc: _0x2050de.descripcion || _0x3fd4eb,
         qty: 0,
@@ -1171,30 +1203,35 @@
         coste: 0,
         origenA3: true
       });
-      _0x4bebe2();
+      guardarCatalogo();
     }
-    _0x474249();
+    render();
   }
-  async function _0x45817f(_0x5f8196) {
+  // opciones.sinCorreo: OT recuperada al abrir la app (no se manda un correo por cada una)
+  async function recibirOrdenTrabajo(_0x5f8196, opciones = {}) {
     const _0x25b041 = _0x5f8196.tipo_orden === "proyecto" ? "proyecto" : "montaje";
-    if (_0x297402(_0x25b041, _0x5f8196.nombre)) {
+    if (buscarGrupo(_0x25b041, _0x5f8196.nombre)) {
       return;
     }
-    _0x47d525.groups[_0x25b041].push({
+    const __grupoNuevo = {
       name: _0x5f8196.nombre,
       status: _0x5f8196.estado || "activo",
-      tipo: _0x5f8196.interno_externo || ""
-    });
-    _0x5cfc4b(_0x25b041);
+      tipo: _0x5f8196.interno_externo || "",
+      otId: _0x5f8196.id || null,
+      esquemas: []
+    };
+    estado.groups[_0x25b041].push(__grupoNuevo);
+    guardarListaGrupos(_0x25b041);
+    await actualizarEsquemas(_0x25b041, __grupoNuevo);
     let _0x1e1a4b = [];
     try {
-      _0x1e1a4b = await _0x18a138.getMaterialesDeOrden(_0x5f8196.id);
+      _0x1e1a4b = await backend.getMaterialesDeOrden(_0x5f8196.id);
     } catch (_0x25b6e8) {}
     const _0x5573f2 = _0x1e1a4b.map(_0x11124a => {
-      const _0xe21b6d = _0x4746f7(_0x11124a.codigo);
+      const _0xe21b6d = buscarPorCodigo(_0x11124a.codigo);
       if (_0xe21b6d) {
         return {
-          id: _0x588d17(),
+          id: nuevoId(),
           itemId: _0xe21b6d.id,
           code: _0xe21b6d.code,
           desc: _0xe21b6d.desc,
@@ -1205,7 +1242,7 @@
         };
       } else {
         return {
-          id: _0x588d17(),
+          id: nuevoId(),
           itemId: null,
           code: "",
           desc: "",
@@ -1217,65 +1254,105 @@
         };
       }
     });
-    const _0x4d0dd2 = _0x2b3e8c();
+    const _0x4d0dd2 = grupoVacio();
     _0x4d0dd2.pendiente.requesterName = _0x5f8196.solicitante || "";
     _0x4d0dd2.pendiente.items = _0x5573f2;
-    _0x356c43(_0x4d0dd2.chat, "Recibida desde otra app" + (_0x5f8196.solicitante ? " · pedido por " + _0x5f8196.solicitante : "") + " · " + _0x5573f2.length + " línea(s) de material");
-    _0x47d525.groupData[_0x25b041 + "::" + _0x5f8196.nombre] = _0x4d0dd2;
-    _0x5478d9(_0x25b041, _0x5f8196.nombre);
-    _0x2fa439("Nueva OT recibida — " + _0x5f8196.nombre, "Se ha recibido automáticamente desde otra app.\n\nPedido por: " + (_0x5f8196.solicitante || "sin especificar") + "\nLíneas: " + _0x5573f2.length);
-    _0x47d525.notifications.unshift({
-      id: _0x588d17(),
+    anadirMensajeChat(_0x4d0dd2.chat, "Recibida desde otra app" + (_0x5f8196.solicitante ? " · pedido por " + _0x5f8196.solicitante : "") + " · " + _0x5573f2.length + " línea(s) de material");
+    estado.groupData[_0x25b041 + "::" + _0x5f8196.nombre] = _0x4d0dd2;
+    guardarGrupo(_0x25b041, _0x5f8196.nombre);
+    if (!opciones.sinCorreo) enviarCorreoAviso("Nueva OT recibida — " + _0x5f8196.nombre, "Se ha recibido automáticamente desde otra app.\n\nPedido por: " + (_0x5f8196.solicitante || "sin especificar") + "\nLíneas: " + _0x5573f2.length);
+    estado.notifications.unshift({
+      id: nuevoId(),
       groupKind: _0x25b041,
       groupName: _0x5f8196.nombre,
       requesterName: _0x5f8196.solicitante || "sin especificar",
       tipo: _0x5f8196.interno_externo || "",
       lineas: _0x5573f2.length,
-      ts: _0x347a69(),
+      ts: fechaHoraTexto(),
       tsMs: Date.now(),
       leida: false
     });
-    _0xc28b67();
-    _0x474249();
+    guardarAvisos();
+    render();
+  }
+  async function actualizarEsquemas(tipo, grupo) {
+    if (!grupo.otId) {
+      return;
+    }
+    try {
+      const esquemas = TecnomatEnlace.esquemasSeguros(await backend.getEsquemasDeOrden(grupo.otId));
+      if (JSON.stringify(esquemas) !== JSON.stringify(grupo.esquemas || [])) {
+        grupo.esquemas = esquemas;
+        guardarListaGrupos(tipo);
+        render();
+      }
+    } catch (e) {}
+  }
+  // Al abrir la app: OT que llegaron con la app cerrada (el aviso en tiempo real solo ve las nuevas),
+  // esquemas al día y trabajadores de la app hermana. Sin Supabase no hace nada.
+  async function sincronizarEnlace() {
+    try {
+      for (const ot of await backend.getOrdenesActivas()) {
+        const tipo = ot.tipo_orden === "proyecto" ? "proyecto" : "montaje";
+        const grupo = buscarGrupo(tipo, ot.nombre);
+        if (!grupo) {
+          await recibirOrdenTrabajo(ot, { sinCorreo: true });
+        } else {
+          if (!grupo.otId) {
+            grupo.otId = ot.id;
+            guardarListaGrupos(tipo);
+          }
+          await actualizarEsquemas(tipo, grupo);
+        }
+      }
+    } catch (e) {}
+    try {
+      const { lista, cambiado } = TecnomatEnlace.fusionarTrabajadores(estado.trabajadores, await backend.getTrabajadoresExternos(), nuevoId);
+      if (cambiado) {
+        estado.trabajadores = lista;
+        __guardarTrabajadores();
+        render();
+      }
+    } catch (e) {}
   }
   function _0x4efabf() {
-    if (!_0x5b23b1) {
+    if (!hayBackend) {
       return;
     }
     ["montaje", "proyecto"].forEach(_0x3cd23c => {
-      const _0x4e0ced = _0x47d525.current[_0x3cd23c];
+      const _0x4e0ced = estado.current[_0x3cd23c];
       if (!_0x4e0ced) {
         return;
       }
-      _0xc1f99("group_" + _0x3cd23c + "_" + _0x1e8f19(_0x4e0ced), _0x49e120 => {
-        const _0x15ad47 = Object.assign(_0x2b3e8c(), _0x49e120);
+      escuchar("group_" + _0x3cd23c + "_" + aSlug(_0x4e0ced), _0x49e120 => {
+        const _0x15ad47 = Object.assign(grupoVacio(), _0x49e120);
         const _0x534093 = _0x3cd23c + "::" + _0x4e0ced;
-        if (_0x47d525.groupData[_0x534093]) {
-          Object.assign(_0x47d525.groupData[_0x534093], _0x15ad47);
+        if (estado.groupData[_0x534093]) {
+          Object.assign(estado.groupData[_0x534093], _0x15ad47);
         } else {
-          _0x47d525.groupData[_0x534093] = _0x15ad47;
+          estado.groupData[_0x534093] = _0x15ad47;
         }
       });
     });
   }
   function _0x430fb2() {
-    _0x1968be("app_state", {
-      mode: _0x47d525.mode,
-      currentMontajeOrder: _0x47d525.current.montaje,
-      currentProject: _0x47d525.current.proyecto,
-      vehiculoActualId: _0x47d525.vehiculoActualId
+    guardar("app_state", {
+      mode: estado.mode,
+      currentMontajeOrder: estado.current.montaje,
+      currentProject: estado.current.proyecto,
+      vehiculoActualId: estado.vehiculoActualId
     });
   }
-  function _0x4bebe2() {
-    _0x1968be("catalog", _0x47d525.catalog);
+  function guardarCatalogo() {
+    guardar("catalog", estado.catalog);
   }
   function _0x240f8a() {
-    if (_0x47d525.movements.length > 600) {
-      const _0x6524ad = _0x47d525.movements.slice(500);
-      _0x47d525.movements = _0x47d525.movements.slice(0, 500);
+    if (estado.movements.length > 600) {
+      const _0x6524ad = estado.movements.slice(500);
+      estado.movements = estado.movements.slice(0, 500);
       _0xbba8cb(_0x6524ad);
     }
-    _0x1968be("movements", _0x47d525.movements);
+    guardar("movements", estado.movements);
   }
   async function _0xbba8cb(_0x180cf0) {
     const _0x4cc5e7 = {};
@@ -1309,32 +1386,32 @@
       }
     });
     _0x18c7a6.sort((_0x1435e7, _0x487160) => _0x487160.month.localeCompare(_0x1435e7.month));
-    _0x47d525.movementsArchive = _0x18c7a6;
-    _0x1968be("movements_archive", _0x18c7a6);
+    estado.movementsArchive = _0x18c7a6;
+    guardar("movements_archive", _0x18c7a6);
   }
-  function _0x5cfc4b(_0x2bb54b) {
-    _0x1968be("groups_" + _0x2bb54b, _0x47d525.groups[_0x2bb54b]);
+  function guardarListaGrupos(_0x2bb54b) {
+    guardar("groups_" + _0x2bb54b, estado.groups[_0x2bb54b]);
   }
-  function _0x5478d9(_0x22ca02, _0x9ffa21) {
-    _0x1968be("group_" + _0x22ca02 + "_" + _0x1e8f19(_0x9ffa21), _0x47d525.groupData[_0x22ca02 + "::" + _0x9ffa21]);
+  function guardarGrupo(_0x22ca02, _0x9ffa21) {
+    guardar("group_" + _0x22ca02 + "_" + aSlug(_0x9ffa21), estado.groupData[_0x22ca02 + "::" + _0x9ffa21]);
   }
   function _0x217fa8() {
-    _0x1968be("bobinas", _0x47d525.bobinas);
+    guardar("bobinas", estado.bobinas);
   }
   function _0x253c4d() {
-    _0x1968be("pedido_items", _0x47d525.pedidoItems);
+    guardar("pedido_items", estado.pedidoItems);
   }
   function _0x18fe55() {
-    _0x1968be("pedido_requester", _0x47d525.pedidoRequesterName);
+    guardar("pedido_requester", estado.pedidoRequesterName);
   }
   function _0x932e35() {
-    _0x1968be("vehiculos", _0x47d525.vehiculos);
+    guardar("vehiculos", estado.vehiculos);
   }
   function _0x3e790f() {
-    _0x1968be("tareas_mantenimiento", _0x47d525.tareasMantenimiento);
+    guardar("tareas_mantenimiento", estado.tareasMantenimiento);
   }
   function _0x56ccc4() {
-    _0x1968be("ocr_aprendizaje", _0x47d525.ocrAprendizaje);
+    guardar("ocr_aprendizaje", estado.ocrAprendizaje);
   }
   const _0x1d5219 = 86400000;
   function _0x57b7e7(_0x2eba06, _0x50699b) {
@@ -1379,17 +1456,17 @@
     return new Date().toISOString().slice(0, 10);
   }
   function _0x267a5a() {
-    return _0x47d525.vehiculos.find(_0x5d959b => _0x5d959b.id === _0x47d525.vehiculoActualId) || null;
+    return estado.vehiculos.find(_0x5d959b => _0x5d959b.id === estado.vehiculoActualId) || null;
   }
   function _0x4f0ebd(_0x2636e5) {
-    return _0x47d525.tareasMantenimiento.filter(_0x147836 => _0x147836.vehiculoId === _0x2636e5);
+    return estado.tareasMantenimiento.filter(_0x147836 => _0x147836.vehiculoId === _0x2636e5);
   }
   async function _0x30b7a6() {
     const _0x5ba962 = await _0x3b375f("¿Quién hace este pedido? (obligatorio)");
     if (!_0x5ba962 || !_0x5ba962.trim()) {
       return false;
     }
-    _0x47d525.pedidoRequesterName = _0x5ba962.trim();
+    estado.pedidoRequesterName = _0x5ba962.trim();
     _0x18fe55();
     return true;
   }
@@ -1405,15 +1482,15 @@
     return true;
   }
   function _0x2fa0b5() {
-    _0x1968be("pedido_chat", _0x47d525.pedidoChat.slice(-200));
+    guardar("pedido_chat", estado.pedidoChat.slice(-200));
   }
-  function _0x356c43(_0x178b04, _0x123dde) {
+  function anadirMensajeChat(_0x178b04, _0x123dde) {
     _0x178b04.push({
-      id: _0x588d17(),
+      id: nuevoId(),
       texto: _0x123dde,
-      ts: _0x347a69(),
+      ts: fechaHoraTexto(),
       tsMs: Date.now(),
-      usuario: _0x4496b3()
+      usuario: usuarioActual()
     });
     if (_0x178b04.length > 300) {
       _0x178b04.splice(0, _0x178b04.length - 300);
@@ -1436,12 +1513,12 @@
     }).join("") + "</div>";
   }
   function _0x529094() {
-    if (_0x47d525.deliveries.length > 50) {
-      const _0x34a3aa = _0x47d525.deliveries.slice(40);
-      _0x47d525.deliveries = _0x47d525.deliveries.slice(0, 40);
+    if (estado.deliveries.length > 50) {
+      const _0x34a3aa = estado.deliveries.slice(40);
+      estado.deliveries = estado.deliveries.slice(0, 40);
       _0x167040(_0x34a3aa);
     }
-    _0x1968be("deliveries", _0x47d525.deliveries);
+    guardar("deliveries", estado.deliveries);
   }
   async function _0x167040(_0x4f9e48) {
     const _0x53d81a = _0x4f9e48.map(_0x3e664a => ({
@@ -1456,22 +1533,22 @@
     }));
     const _0x413d06 = (await _0x31ceb4("deliveries_archive")) || [];
     const _0x56bff6 = _0x413d06.concat(_0x53d81a).sort((_0x510ef9, _0x3ff94a) => (_0x3ff94a.tsMs || 0) - (_0x510ef9.tsMs || 0));
-    _0x47d525.deliveriesArchive = _0x56bff6;
-    _0x1968be("deliveries_archive", _0x56bff6);
+    estado.deliveriesArchive = _0x56bff6;
+    guardar("deliveries_archive", _0x56bff6);
   }
-  function _0xc28b67() {
-    _0x1968be("notifications", _0x47d525.notifications.slice(0, 100));
+  function guardarAvisos() {
+    guardar("notifications", estado.notifications.slice(0, 100));
   }
   function _0x18572f() {
-    _0x1968be("ubicaciones", _0x47d525.ubicaciones);
+    guardar("ubicaciones", estado.ubicaciones);
   }
   async function _0x48754b() {
-    if (!_0x18a138.getMaterialesRapidos) {
+    if (!backend.getMaterialesRapidos) {
       return;
     }
     try {
-      _0x47d525.materialesRapidos = await _0x18a138.getMaterialesRapidos();
-      _0x474249();
+      estado.materialesRapidos = await backend.getMaterialesRapidos();
+      render();
     } catch (_0x30b6eb) {}
   }
   async function _0x1bf731(_0x3f384f, _0x594734) {
@@ -1480,12 +1557,12 @@
       _0x279f78("Escribe un nombre para el material.");
       return;
     }
-    if (!_0x18a138.addMaterialRapido) {
+    if (!backend.addMaterialRapido) {
       _0x279f78("Esto necesita Supabase configurado — ver README.");
       return;
     }
     try {
-      await _0x18a138.addMaterialRapido(_0x3f384f.trim(), _0x594734, _0x47d525.materialesRapidos.length);
+      await backend.addMaterialRapido(_0x3f384f.trim(), _0x594734, estado.materialesRapidos.length);
       await _0x48754b();
       _0x279f78("Añadido a la lista rápida.");
     } catch (_0xfcb7e7) {
@@ -1496,11 +1573,11 @@
     if (!(await _0x2cc777("¿Quitar este material de la lista rápida?"))) {
       return;
     }
-    if (!_0x18a138.deleteMaterialRapido) {
+    if (!backend.deleteMaterialRapido) {
       return;
     }
     try {
-      await _0x18a138.deleteMaterialRapido(_0x1f9bd9);
+      await backend.deleteMaterialRapido(_0x1f9bd9);
       await _0x48754b();
     } catch (_0x5dd464) {
       _0x279f78("No se pudo quitar: " + _0x5dd464.message);
@@ -1511,30 +1588,30 @@
     if (!_0x7e0897) {
       return;
     }
-    if (_0x47d525.ubicaciones.some(_0x47e6a5 => _0x47e6a5.toLowerCase() === _0x7e0897.toLowerCase())) {
+    if (estado.ubicaciones.some(_0x47e6a5 => _0x47e6a5.toLowerCase() === _0x7e0897.toLowerCase())) {
       _0x279f78("Esa ubicación ya está en la lista.");
       return;
     }
-    _0x47d525.ubicaciones.push(_0x7e0897);
-    _0x47d525.ubicaciones.sort((_0x4c2cdb, _0x547e0d) => _0x4c2cdb.localeCompare(_0x547e0d));
+    estado.ubicaciones.push(_0x7e0897);
+    estado.ubicaciones.sort((_0x4c2cdb, _0x547e0d) => _0x4c2cdb.localeCompare(_0x547e0d));
     _0x18572f();
-    _0x474249();
+    render();
   }
   async function _0x401198(_0x4d4d0b) {
     if (!(await _0x2cc777("¿Quitar \"" + _0x4d4d0b + "\" de la lista de ubicaciones? Los materiales que ya la tengan puesta no se tocan, solo deja de aparecer para autocompletar."))) {
       return;
     }
-    _0x47d525.ubicaciones = _0x47d525.ubicaciones.filter(_0x59384f => _0x59384f !== _0x4d4d0b);
+    estado.ubicaciones = estado.ubicaciones.filter(_0x59384f => _0x59384f !== _0x4d4d0b);
     _0x18572f();
-    _0x474249();
+    render();
   }
   function _0x3131a5() {
-    if (!_0x47d525.deliveries.length) {
+    if (!estado.deliveries.length) {
       _0x279f78("Todavía no hay entregas firmadas.");
       return;
     }
     const _0x2444f7 = [];
-    _0x47d525.deliveries.forEach(_0x19211d => {
+    estado.deliveries.forEach(_0x19211d => {
       _0x19211d.items.forEach(_0x29b13b => {
         _0x2444f7.push({
           Fecha: _0x19211d.ts,
@@ -1559,45 +1636,45 @@
     XLSX.writeFile(_0x41397d, "entregas_firmadas_" + Date.now() + ".xlsx");
   }
   function _0x37360d() {
-    _0x1968be("settings", _0x47d525.settings);
+    guardar("settings", estado.settings);
   }
   function _0x5a6d71() {
-    _0x1968be("alerts_state", _0x47d525.alerts);
+    guardar("alerts_state", estado.alerts);
   }
   function _0x1ea037() {
-    if (_0x47d525.mode === "montaje" || _0x47d525.mode === "proyecto") {
-      const _0x46a326 = _0x47d525.current[_0x47d525.mode];
+    if (estado.mode === "montaje" || estado.mode === "proyecto") {
+      const _0x46a326 = estado.current[estado.mode];
       if (!_0x46a326) {
         return null;
       }
-      return _0x47d525.groupData[_0x47d525.mode + "::" + _0x46a326] || null;
+      return estado.groupData[estado.mode + "::" + _0x46a326] || null;
     }
     return null;
   }
   function _0x29f0a4() {
-    const _0xf54fd2 = _0x47d525.current[_0x47d525.mode];
+    const _0xf54fd2 = estado.current[estado.mode];
     if (_0xf54fd2) {
-      _0x5478d9(_0x47d525.mode, _0xf54fd2);
+      guardarGrupo(estado.mode, _0xf54fd2);
     }
   }
   function _0x10a3a1() {
-    if (_0x47d525.mode === "montaje") {
-      return "Montaje/Venta: " + (_0x47d525.current.montaje || "");
+    if (estado.mode === "montaje") {
+      return "Montaje/Venta: " + (estado.current.montaje || "");
     }
-    if (_0x47d525.mode === "proyecto") {
-      return "Proyecto: " + (_0x47d525.current.proyecto || "");
+    if (estado.mode === "proyecto") {
+      return "Proyecto: " + (estado.current.proyecto || "");
     }
     return "Almacén";
   }
-  function _0x4746f7(_0xc778f7) {
-    return _0x47d525.catalog.find(_0x179bbc => _0x179bbc.code.toLowerCase() === _0xc778f7.toLowerCase());
+  function buscarPorCodigo(_0xc778f7) {
+    return estado.catalog.find(_0x179bbc => _0x179bbc.code.toLowerCase() === _0xc778f7.toLowerCase());
   }
   function _0xdcb31c(_0x59f809) {
-    return _0x47d525.catalog.filter(_0x23f327 => _0x23f327.code.toLowerCase() === _0x59f809.toLowerCase());
+    return estado.catalog.filter(_0x23f327 => _0x23f327.code.toLowerCase() === _0x59f809.toLowerCase());
   }
   function _0x12054f(_0x56b120, _0x27d5d8, _0x2b7c01, _0x1953ed, _0x4fa1e6) {
     const _0x38ae4c = {
-      id: _0x588d17(),
+      id: nuevoId(),
       code: _0x56b120,
       desc: _0x27d5d8,
       qty: 0,
@@ -1607,33 +1684,33 @@
       marca: "",
       referencia: _0x4fa1e6 || ""
     };
-    _0x47d525.catalog.push(_0x38ae4c);
-    _0x4bebe2();
+    estado.catalog.push(_0x38ae4c);
+    guardarCatalogo();
     return _0x38ae4c;
   }
   function _0x1d4277(_0x8de593, _0x12b1fc, _0x1bb957, _0x536686) {
     const _0x549810 = _0x1bb957 === "entrada" ? _0x12b1fc : -_0x12b1fc;
     _0x8de593.qty += _0x549810;
-    _0x47d525.movements.unshift({
-      id: _0x588d17(),
+    estado.movements.unshift({
+      id: nuevoId(),
       code: _0x8de593.code,
       desc: _0x8de593.desc,
       qty: _0x12b1fc,
       type: _0x1bb957,
       origin: _0x536686,
-      ts: _0x347a69(),
+      ts: fechaHoraTexto(),
       tsMs: Date.now(),
-      usuario: _0x4496b3()
+      usuario: usuarioActual()
     });
     _0x240f8a();
-    if (_0x5b23b1) {
-      _0x18a138.adjustStockAtomic(_0x8de593, _0x549810).catch(_0x28a2d0 => _0x279f78("No se pudo sincronizar el stock: " + _0x28a2d0.message));
+    if (hayBackend) {
+      backend.adjustStockAtomic(_0x8de593, _0x549810).catch(_0x28a2d0 => _0x279f78("No se pudo sincronizar el stock: " + _0x28a2d0.message));
     } else {
-      _0x4bebe2();
+      guardarCatalogo();
     }
   }
   async function _0x4fac24(_0x3e59b5) {
-    const _0x39adc4 = _0x47d525.catalog.find(_0x255dc6 => _0x255dc6.id === _0x3e59b5);
+    const _0x39adc4 = estado.catalog.find(_0x255dc6 => _0x255dc6.id === _0x3e59b5);
     if (!_0x39adc4) {
       return;
     }
@@ -1647,10 +1724,10 @@
       return;
     }
     _0x1d4277(_0x39adc4, Math.abs(_0x1a6ca7), _0x1a6ca7 > 0 ? "entrada" : "salida", "Almacén (ajuste manual de cantidad)");
-    _0x474249();
+    render();
   }
   async function _0x291d0f(_0x3af321) {
-    const _0xbf5205 = _0x47d525.catalog.find(_0x59c1fc => _0x59c1fc.id === _0x3af321);
+    const _0xbf5205 = estado.catalog.find(_0x59c1fc => _0x59c1fc.id === _0x3af321);
     if (!_0xbf5205) {
       return;
     }
@@ -1667,8 +1744,8 @@
       const _0x42dd40 = _0x23f5f6.find(_0x3ad338 => _0x3ad338.toLowerCase() === _0x840297.toLowerCase());
       _0xbf5205.categoria = _0x24456f || _0x42dd40 || _0x840297;
     }
-    _0x4bebe2();
-    _0x474249();
+    guardarCatalogo();
+    render();
   }
   let _0x16ea10 = null;
   function _0x243f07(_0x46b0d8) {
@@ -1677,56 +1754,56 @@
   }
   function _0x34a315() {
     _0x16ea10 = null;
-    _0x231ff7("#editItemOverlay").style.display = "none";
+    $("#editItemOverlay").style.display = "none";
   }
   function _0x433216() {
-    const _0x554368 = _0x231ff7("#editItemOverlay");
-    const _0x298adb = _0x47d525.catalog.find(_0x27809a => _0x27809a.id === _0x16ea10);
+    const _0x554368 = $("#editItemOverlay");
+    const _0x298adb = estado.catalog.find(_0x27809a => _0x27809a.id === _0x16ea10);
     if (!_0x298adb) {
       _0x554368.style.display = "none";
       return;
     }
-    const _0x4d3721 = _0x231ff7("#editItemCard");
+    const _0x4d3721 = $("#editItemCard");
     _0x4d3721.innerHTML = "\n      <p class=\"panel-title\">Editar " + _0x1d1ab0(_0x298adb.code) + "</p>\n      <div class=\"manual-stock-form\" style=\"margin-top:0; flex-direction:column;\">\n        <input type=\"text\" id=\"editArticulo\" placeholder=\"Artículo\" value=\"" + _0x1d1ab0(_0x298adb.desc) + "\" style=\"width:100%;\">\n        <input type=\"text\" id=\"editReferencia\" placeholder=\"Referencia (opcional)\" value=\"" + _0x1d1ab0(_0x298adb.referencia || "") + "\" style=\"width:100%;\">\n        <input type=\"text\" id=\"editUbicacion\" placeholder=\"Ubicación\" value=\"" + _0x1d1ab0(_0x298adb.location || "") + "\" list=\"ubicacionesList\" style=\"width:100%;\">\n        <select id=\"editCategoria\" style=\"width:100%;\">\n          <option value=\"\">Sin categoría</option>\n          " + _0x23f5f6.map(_0x361584 => "<option value=\"" + _0x1d1ab0(_0x361584) + "\" " + (_0x298adb.categoria === _0x361584 ? "selected" : "") + ">" + _0x1d1ab0(_0x361584) + "</option>").join("") + "\n        </select>\n        <input type=\"number\" id=\"editCoste\" placeholder=\"Coste por unidad (€)\" value=\"" + (_0x298adb.coste || 0) + "\" min=\"0\" step=\"0.01\" style=\"width:100%;\">\n        <textarea id=\"editSpecs\" placeholder=\"Características (opcional)\" style=\"width:100%; min-height:60px; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:9px 10px; border-radius:7px; font-size:13px; font-family:inherit;\">" + _0x1d1ab0(_0x298adb.specs || "") + "</textarea>\n      </div>\n      <div class=\"backup-row\" style=\"margin-top:12px;\">\n        <button class=\"btn primary\" id=\"saveEditItemBtn\" style=\"width:auto; flex:1;\">" + _0x56ae2b("guardar") + "Guardar</button>\n        <button class=\"cam-btn\" id=\"cancelEditItemBtn\" style=\"flex:none;\">Cancelar</button>\n      </div>\n      <div class=\"scanner-row\" style=\"margin-top:10px; padding-top:10px; border-top:1px dashed var(--border);\">\n        <button class=\"cam-btn\" id=\"editItemEtiquetaBtn\" style=\"flex:1; padding:8px 10px; font-size:12px; min-height:auto;\">Imprimir etiqueta</button>\n        <button class=\"cam-btn\" id=\"editItemDupBtn\" style=\"flex:1; padding:8px 10px; font-size:12px; min-height:auto;\">+ Otra referencia</button>\n        <button class=\"btn-return\" id=\"editItemDelBtn\" style=\"flex:1; padding:8px 10px; font-size:12px; min-height:auto;\">" + _0x56ae2b("eliminar") + "Eliminar</button>\n      </div>\n    ";
     _0x554368.style.display = "flex";
-    _0x231ff7("#saveEditItemBtn").addEventListener("click", _0x12cde8);
-    _0x231ff7("#cancelEditItemBtn").addEventListener("click", _0x34a315);
-    _0x231ff7("#editItemEtiquetaBtn").addEventListener("click", () => __etiquetaRapida(_0x298adb.id));
-    _0x231ff7("#editItemDupBtn").addEventListener("click", () => {
+    $("#saveEditItemBtn").addEventListener("click", _0x12cde8);
+    $("#cancelEditItemBtn").addEventListener("click", _0x34a315);
+    $("#editItemEtiquetaBtn").addEventListener("click", () => __etiquetaRapida(_0x298adb.id));
+    $("#editItemDupBtn").addEventListener("click", () => {
       _0x34a315();
       _0x1dfbd0 = null;
       _0x24edec = {
         code: _0x298adb.code
       };
       _0x279f78("Rellena la nueva referencia para el código \"" + _0x298adb.code + "\" justo arriba, junto al escáner.");
-      _0x474249();
+      render();
     });
-    _0x231ff7("#editItemDelBtn").addEventListener("click", () => {
+    $("#editItemDelBtn").addEventListener("click", () => {
       _0x34a315();
       _0x323ac8(_0x298adb.id);
     });
-    _0x231ff7("#editArticulo").focus();
+    $("#editArticulo").focus();
   }
   function _0x12cde8() {
-    const _0x171a74 = _0x47d525.catalog.find(_0x2b83a2 => _0x2b83a2.id === _0x16ea10);
+    const _0x171a74 = estado.catalog.find(_0x2b83a2 => _0x2b83a2.id === _0x16ea10);
     if (!_0x171a74) {
       return;
     }
-    const _0x449ce0 = _0x231ff7("#editArticulo").value.trim();
+    const _0x449ce0 = $("#editArticulo").value.trim();
     if (!_0x449ce0) {
       _0x279f78("El artículo no puede quedar vacío.");
       return;
     }
     _0x171a74.desc = _0x449ce0;
-    _0x171a74.referencia = _0x231ff7("#editReferencia").value.trim();
-    _0x171a74.location = _0x231ff7("#editUbicacion").value.trim();
-    _0x171a74.categoria = _0x231ff7("#editCategoria").value;
-    const _0x1d2afd = parseFloat(_0x231ff7("#editCoste").value);
+    _0x171a74.referencia = $("#editReferencia").value.trim();
+    _0x171a74.location = $("#editUbicacion").value.trim();
+    _0x171a74.categoria = $("#editCategoria").value;
+    const _0x1d2afd = parseFloat($("#editCoste").value);
     _0x171a74.coste = isNaN(_0x1d2afd) ? 0 : Math.max(0, _0x1d2afd);
-    _0x171a74.specs = _0x231ff7("#editSpecs").value.trim();
-    _0x4bebe2();
+    _0x171a74.specs = $("#editSpecs").value.trim();
+    guardarCatalogo();
     _0x34a315();
-    _0x474249();
+    render();
   }
   let _0xd99011 = null;
   function _0x46a074() {
@@ -1763,7 +1840,7 @@
     return _0x3754f2;
   }
   async function _0x323ac8(_0x183bc5) {
-    const _0x48c987 = _0x47d525.catalog.find(_0x4d9fe9 => _0x4d9fe9.id === _0x183bc5);
+    const _0x48c987 = estado.catalog.find(_0x4d9fe9 => _0x4d9fe9.id === _0x183bc5);
     if (!_0x48c987) {
       return;
     }
@@ -1771,21 +1848,21 @@
     if (!(await _0x2cc777(_0x197090))) {
       return;
     }
-    _0x47d525.movements.unshift({
-      id: _0x588d17(),
+    estado.movements.unshift({
+      id: nuevoId(),
       code: _0x48c987.code,
       desc: _0x48c987.desc,
       qty: _0x48c987.qty,
       type: "eliminado",
       origin: "Almacén (referencia eliminada)",
-      ts: _0x347a69(),
+      ts: fechaHoraTexto(),
       tsMs: Date.now(),
-      usuario: _0x4496b3()
+      usuario: usuarioActual()
     });
     _0x240f8a();
-    _0x47d525.catalog = _0x47d525.catalog.filter(_0x15ffdf => _0x15ffdf.id !== _0x183bc5);
-    _0x4bebe2();
-    _0x474249();
+    estado.catalog = estado.catalog.filter(_0x15ffdf => _0x15ffdf.id !== _0x183bc5);
+    guardarCatalogo();
+    render();
   }
   function _0x3af2da(_0xa3199e, _0x521b7f, _0x41925f, _0x41263d) {
     _0xa3199e = _0xa3199e.trim();
@@ -1795,110 +1872,110 @@
       _0x279f78("Rellena código, referencia, matrícula y fecha de devolución.");
       return;
     }
-    _0x47d525.bobinas.push({
-      id: _0x588d17(),
+    estado.bobinas.push({
+      id: nuevoId(),
       codigo: _0xa3199e,
       desc: _0x521b7f,
       matricula: _0x41925f,
       expira: _0x41263d,
-      createdAt: _0x347a69()
+      createdAt: fechaHoraTexto()
     });
     _0x217fa8();
-    if (!_0x4746f7(_0xa3199e)) {
-      _0x47d525.catalog.push({
-        id: _0x588d17(),
+    if (!buscarPorCodigo(_0xa3199e)) {
+      estado.catalog.push({
+        id: nuevoId(),
         code: _0xa3199e,
         desc: _0x521b7f,
         qty: 0,
         location: ""
       });
-      _0x4bebe2();
+      guardarCatalogo();
     }
-    _0x474249();
+    render();
   }
   async function _0x5d5280(_0x1886f4) {
     if (!(await _0x2cc777("¿Eliminar esta bobina del registro?"))) {
       return;
     }
-    _0x47d525.bobinas = _0x47d525.bobinas.filter(_0x4942cf => _0x4942cf.id !== _0x1886f4);
+    estado.bobinas = estado.bobinas.filter(_0x4942cf => _0x4942cf.id !== _0x1886f4);
     _0x217fa8();
-    _0x474249();
+    render();
   }
   function _0x57856f(_0x31a757, _0x33d8a6) {
-    const _0x3c0e03 = _0x47d525.pedidoItems.find(_0xe28dda => _0xe28dda.itemId ? _0xe28dda.itemId === _0x31a757.id : _0xe28dda.code.toLowerCase() === _0x31a757.code.toLowerCase());
+    const _0x3c0e03 = estado.pedidoItems.find(_0xe28dda => _0xe28dda.itemId ? _0xe28dda.itemId === _0x31a757.id : _0xe28dda.code.toLowerCase() === _0x31a757.code.toLowerCase());
     if (_0x3c0e03) {
       _0x3c0e03.qty += _0x33d8a6;
       if (!_0x3c0e03.itemId) {
         _0x3c0e03.itemId = _0x31a757.id;
       }
     } else {
-      _0x47d525.pedidoItems.push({
-        id: _0x588d17(),
+      estado.pedidoItems.push({
+        id: nuevoId(),
         itemId: _0x31a757.id,
         code: _0x31a757.code,
         desc: _0x31a757.desc,
         qty: _0x33d8a6
       });
     }
-    _0x356c43(_0x47d525.pedidoChat, "Escaneado: " + _0x31a757.code + " — " + _0x31a757.desc + " · " + _0x33d8a6 + " uds (pide: " + _0x47d525.pedidoRequesterName + ")");
+    anadirMensajeChat(estado.pedidoChat, "Escaneado: " + _0x31a757.code + " — " + _0x31a757.desc + " · " + _0x33d8a6 + " uds (pide: " + estado.pedidoRequesterName + ")");
     _0x2fa0b5();
     _0x253c4d();
-    _0x474249();
+    render();
   }
   async function _0x36610a() {
     if (!(await _0x30b7a6())) {
       return;
     }
-    const _0xe16a60 = _0x231ff7("#chatMensajeInput");
-    const _0x4f28d5 = _0x231ff7("#chatCantidadInput");
+    const _0xe16a60 = $("#chatMensajeInput");
+    const _0x4f28d5 = $("#chatCantidadInput");
     const _0x3469f0 = _0xe16a60.value.trim();
     if (!_0x3469f0) {
       _0x279f78("Escribe qué hace falta antes de enviar.");
       return;
     }
     const _0x2c79f7 = Math.max(1, parseInt(_0x4f28d5.value, 10) || 1);
-    _0x47d525.pedidoItems.push({
-      id: _0x588d17(),
+    estado.pedidoItems.push({
+      id: nuevoId(),
       itemId: null,
       code: "",
       desc: _0x3469f0,
       qty: _0x2c79f7
     });
-    _0x356c43(_0x47d525.pedidoChat, "Pedido: " + _0x3469f0 + " · " + _0x2c79f7 + " uds (pide: " + _0x47d525.pedidoRequesterName + ")");
+    anadirMensajeChat(estado.pedidoChat, "Pedido: " + _0x3469f0 + " · " + _0x2c79f7 + " uds (pide: " + estado.pedidoRequesterName + ")");
     __clasifLimpiarChat();
     _0x2fa0b5();
     _0x253c4d();
-    _0x474249();
+    render();
   }
   function _0x10dfbf(_0x2f08e8) {
-    const _0x4708ef = _0x47d525.pedidoItems.find(_0x303427 => _0x303427.id === _0x2f08e8);
-    _0x47d525.pedidoItems = _0x47d525.pedidoItems.filter(_0xa123a8 => _0xa123a8.id !== _0x2f08e8);
+    const _0x4708ef = estado.pedidoItems.find(_0x303427 => _0x303427.id === _0x2f08e8);
+    estado.pedidoItems = estado.pedidoItems.filter(_0xa123a8 => _0xa123a8.id !== _0x2f08e8);
     if (_0x4708ef) {
-      _0x356c43(_0x47d525.pedidoChat, "Quitado del pedido: " + _0x4708ef.code + " — " + _0x4708ef.desc);
+      anadirMensajeChat(estado.pedidoChat, "Quitado del pedido: " + _0x4708ef.code + " — " + _0x4708ef.desc);
     }
     _0x2fa0b5();
     _0x253c4d();
-    _0x474249();
+    render();
   }
   async function _0x26d93b() {
-    if (!_0x47d525.pedidoItems.length) {
+    if (!estado.pedidoItems.length) {
       return;
     }
     if (!(await _0x2cc777("¿Vaciar el pedido? Se perderá el listado actual."))) {
       return;
     }
-    _0x47d525.pedidoItems = [];
-    _0x356c43(_0x47d525.pedidoChat, "Pedido vaciado");
+    estado.pedidoItems = [];
+    anadirMensajeChat(estado.pedidoChat, "Pedido vaciado");
     _0x2fa0b5();
     _0x253c4d();
-    _0x474249();
+    render();
   }
   async function _0x59a0b6() {
-    if (!_0x47d525.pedidoItems.length) {
+    if (!estado.pedidoItems.length) {
       _0x279f78("El pedido está vacío, añade algún material primero.");
       return;
     }
-    if (!_0x172e48 || !_0x47d525.settings.emailDestino) {
+    if (!_0x172e48 || !estado.settings.emailDestino) {
       _0x279f78("Configura el correo de EmailJS y el email de destino (en Almacén → Avisos) antes de poder enviar el pedido.");
       return;
     }
@@ -1906,14 +1983,14 @@
       return;
     }
     let _0x4f080c = "Pedido de materiales solicitado:\n\n";
-    _0x47d525.pedidoItems.forEach(_0xfa5d2e => {
+    estado.pedidoItems.forEach(_0xfa5d2e => {
       _0x4f080c += "- " + _0xfa5d2e.code + " · " + _0xfa5d2e.desc + " · " + _0xfa5d2e.qty + " uds\n";
     });
-    _0x2fa439("Pedido de materiales", _0x4f080c);
-    _0x47d525.pedidoItems = [];
+    enviarCorreoAviso("Pedido de materiales", _0x4f080c);
+    estado.pedidoItems = [];
     _0x253c4d();
     _0x279f78("Pedido enviado por correo.");
-    _0x474249();
+    render();
   }
   function _0x1e1e26() {
     const _0x3e2c92 = _0x1ea037();
@@ -1922,35 +1999,35 @@
     }
     _0x3e2c92.pendiente.items.forEach(_0x341cc5 => {
       _0x341cc5.guardado = true;
-      _0x341cc5.fechaGuardado = _0x347a69();
+      _0x341cc5.fechaGuardado = fechaHoraTexto();
     });
-    _0x356c43(_0x3e2c92.chat, "Hoja de pedido guardada y avisada a almacén (" + _0x3e2c92.pendiente.items.length + " línea(s))");
+    anadirMensajeChat(_0x3e2c92.chat, "Hoja de pedido guardada y avisada a almacén (" + _0x3e2c92.pendiente.items.length + " línea(s))");
     _0x29f0a4();
     if (_0x3e2c92.pendiente.items.length) {
-      const _0x2f3f1a = _0x47d525.current[_0x47d525.mode];
-      const _0x142f57 = _0x297402(_0x47d525.mode, _0x2f3f1a);
+      const _0x2f3f1a = estado.current[estado.mode];
+      const _0x142f57 = buscarGrupo(estado.mode, _0x2f3f1a);
       const _0x5b3cbf = _0x142f57 && _0x142f57.tipo ? " (" + _0x142f57.tipo + ")" : "";
-      let _0x593dad = "Pedido de materiales guardado en " + (_0x47d525.mode === "montaje" ? "Montaje/Venta" : "Proyecto") + " \"" + _0x2f3f1a + "\"" + _0x5b3cbf + ":\n\n";
+      let _0x593dad = "Pedido de materiales guardado en " + (estado.mode === "montaje" ? "Montaje/Venta" : "Proyecto") + " \"" + _0x2f3f1a + "\"" + _0x5b3cbf + ":\n\n";
       _0x3e2c92.pendiente.items.forEach(_0x2158a8 => {
         _0x593dad += "- " + _0x2158a8.code + " · " + _0x2158a8.desc + " · Cantidad: " + _0x2158a8.qty + " · Pedido: " + (_0x2158a8.pedido ?? _0x2158a8.qty) + " · Reserva: " + (_0x2158a8.reserva ?? 0) + "\n";
       });
       _0x593dad += "\nPedido por: " + (_0x3e2c92.pendiente.requesterName || "sin especificar");
-      _0x2fa439("Nuevo pedido de materiales — " + _0x2f3f1a, _0x593dad);
-      _0x47d525.notifications.unshift({
-        id: _0x588d17(),
-        groupKind: _0x47d525.mode,
+      enviarCorreoAviso("Nuevo pedido de materiales — " + _0x2f3f1a, _0x593dad);
+      estado.notifications.unshift({
+        id: nuevoId(),
+        groupKind: estado.mode,
         groupName: _0x2f3f1a,
         requesterName: _0x3e2c92.pendiente.requesterName || "sin especificar",
         tipo: _0x142f57 ? _0x142f57.tipo || "" : "",
         lineas: _0x3e2c92.pendiente.items.length,
-        ts: _0x347a69(),
+        ts: fechaHoraTexto(),
         tsMs: Date.now(),
         leida: false
       });
-      _0xc28b67();
+      guardarAvisos();
     }
-    _0x279f78("Pedido guardado" + (_0x172e48 && _0x47d525.settings.emailDestino ? " y aviso enviado a almacén." : "."));
-    _0x474249();
+    _0x279f78("Pedido guardado" + (_0x172e48 && estado.settings.emailDestino ? " y aviso enviado a almacén." : "."));
+    render();
   }
   function _0x308988() {
     const _0xd138f7 = _0x1ea037();
@@ -1963,7 +2040,7 @@
       if (__clasifLinea(_0x2864cb).tipo === "externo") {
         return;
       }
-      const _0x463110 = _0x2864cb.itemId ? _0x47d525.catalog.find(_0x4a2124 => _0x4a2124.id === _0x2864cb.itemId) : _0x4746f7(_0x2864cb.code);
+      const _0x463110 = _0x2864cb.itemId ? estado.catalog.find(_0x4a2124 => _0x4a2124.id === _0x2864cb.itemId) : buscarPorCodigo(_0x2864cb.code);
       const _0x5e78a4 = _0x463110 ? _0x463110.qty : 0;
       if (_0x5e78a4 < _0x2864cb.qty) {
         _0x2855cb.push(_0x2864cb.code + " — " + _0x2864cb.desc + " (pedidas " + _0x2864cb.qty + ", solo hay " + _0x5e78a4 + ")");
@@ -1977,9 +2054,9 @@
       _0x2f5b81.reservado = true;
     });
     _0x29f0a4();
-    _0x47d525.pendingDelivery = {
-      groupKind: _0x47d525.mode,
-      groupName: _0x47d525.current[_0x47d525.mode],
+    estado.pendingDelivery = {
+      groupKind: estado.mode,
+      groupName: estado.current[estado.mode],
       requesterName: _0xd138f7.pendiente.requesterName,
       items: __hojaLineasLista(_0xd138f7).map(_0x3120ee => ({
         id: _0x3120ee.id,
@@ -1992,41 +2069,41 @@
       })),
       recipientName: ""
     };
-    _0x474249();
+    render();
   }
   function _0x59f3bd() {
-    if (_0x47d525.pendingDelivery) {
-      const _0x7ced69 = _0x47d525.groupData[_0x47d525.pendingDelivery.groupKind + "::" + _0x47d525.pendingDelivery.groupName];
+    if (estado.pendingDelivery) {
+      const _0x7ced69 = estado.groupData[estado.pendingDelivery.groupKind + "::" + estado.pendingDelivery.groupName];
       if (_0x7ced69) {
         _0x7ced69.pendiente.items.forEach(_0x2b4c04 => {
           _0x2b4c04.reservado = false;
         });
-        _0x1968be("group_" + _0x47d525.pendingDelivery.groupKind + "_" + _0x1e8f19(_0x47d525.pendingDelivery.groupName), _0x7ced69);
+        guardar("group_" + estado.pendingDelivery.groupKind + "_" + aSlug(estado.pendingDelivery.groupName), _0x7ced69);
       }
     }
-    _0x47d525.pendingDelivery = null;
+    estado.pendingDelivery = null;
     _0x1abbb2();
-    _0x474249();
+    render();
   }
   function _0x28a554(_0x88fbb) {
-    if (!_0x47d525.pendingDelivery) {
+    if (!estado.pendingDelivery) {
       return;
     }
-    const _0x3fddd3 = _0x47d525.pendingDelivery.groupKind + "::" + _0x47d525.pendingDelivery.groupName;
-    const _0x2546c8 = _0x47d525.groupData[_0x3fddd3];
+    const _0x3fddd3 = estado.pendingDelivery.groupKind + "::" + estado.pendingDelivery.groupName;
+    const _0x2546c8 = estado.groupData[_0x3fddd3];
     if (!_0x2546c8) {
       _0x279f78("La orden/proyecto de esta solicitud ya no existe.");
-      _0x47d525.pendingDelivery = null;
+      estado.pendingDelivery = null;
       _0x1abbb2();
-      _0x474249();
+      render();
       return;
     }
     const _0x4303ac = [];
-    _0x47d525.pendingDelivery.items.forEach(_0x3dbca4 => {
+    estado.pendingDelivery.items.forEach(_0x3dbca4 => {
       if (_0x3dbca4.externo) {
         return;
       }
-      const _0x4e3c43 = _0x3dbca4.itemId ? _0x47d525.catalog.find(_0x45b401 => _0x45b401.id === _0x3dbca4.itemId) : _0x4746f7(_0x3dbca4.code);
+      const _0x4e3c43 = _0x3dbca4.itemId ? estado.catalog.find(_0x45b401 => _0x45b401.id === _0x3dbca4.itemId) : buscarPorCodigo(_0x3dbca4.code);
       const _0x33780c = _0x4e3c43 ? _0x4e3c43.qty : 0;
       if (_0x33780c < _0x3dbca4.qty) {
         _0x4303ac.push(_0x3dbca4.code + " — " + _0x3dbca4.desc);
@@ -2036,13 +2113,13 @@
       _0x279f78("Ya no hay stock suficiente de: " + _0x4303ac.join(", ") + ". Cancela y ajusta la solicitud.");
       return;
     }
-    const _0x48bc68 = (_0x47d525.pendingDelivery.groupKind === "montaje" ? "Montaje/Venta: " : "Proyecto: ") + _0x47d525.pendingDelivery.groupName + " — pedido por " + (_0x47d525.pendingDelivery.requesterName || "sin especificar") + (_0x47d525.pendingDelivery.recipientName ? " — recogido por " + _0x47d525.pendingDelivery.recipientName : "");
-    _0x47d525.pendingDelivery.items.forEach(_0x16b903 => {
+    const _0x48bc68 = (estado.pendingDelivery.groupKind === "montaje" ? "Montaje/Venta: " : "Proyecto: ") + estado.pendingDelivery.groupName + " — pedido por " + (estado.pendingDelivery.requesterName || "sin especificar") + (estado.pendingDelivery.recipientName ? " — recogido por " + estado.pendingDelivery.recipientName : "");
+    estado.pendingDelivery.items.forEach(_0x16b903 => {
       if (_0x16b903.externo) {
         __servirExterno(_0x2546c8, _0x16b903);
         return;
       }
-      const _0x316fe3 = _0x16b903.itemId ? _0x47d525.catalog.find(_0x416daa => _0x416daa.id === _0x16b903.itemId) : _0x4746f7(_0x16b903.code);
+      const _0x316fe3 = _0x16b903.itemId ? estado.catalog.find(_0x416daa => _0x416daa.id === _0x16b903.itemId) : buscarPorCodigo(_0x16b903.code);
       if (!_0x316fe3) {
         return;
       }
@@ -2052,28 +2129,28 @@
       });
       _0x1d4277(_0x316fe3, _0x16b903.qty, "salida", _0x48bc68);
     });
-    _0x356c43(_0x2546c8.chat, "Recogida confirmada y firmada por " + (_0x47d525.pendingDelivery.recipientName || "sin especificar") + " (" + _0x47d525.pendingDelivery.items.length + " línea(s))");
+    anadirMensajeChat(_0x2546c8.chat, "Recogida confirmada y firmada por " + (estado.pendingDelivery.recipientName || "sin especificar") + " (" + estado.pendingDelivery.items.length + " línea(s))");
     _0x2546c8.pendiente = {
       requesterName: "",
-      items: _0x2546c8.pendiente.items.filter(__l => !_0x47d525.pendingDelivery.items.some(__e => __e.id === __l.id))
+      items: _0x2546c8.pendiente.items.filter(__l => !estado.pendingDelivery.items.some(__e => __e.id === __l.id))
     };
-    _0x1968be("group_" + _0x47d525.pendingDelivery.groupKind + "_" + _0x1e8f19(_0x47d525.pendingDelivery.groupName), _0x2546c8);
-    _0x47d525.deliveries.unshift({
-      id: _0x588d17(),
-      groupKind: _0x47d525.pendingDelivery.groupKind,
-      groupName: _0x47d525.pendingDelivery.groupName,
-      items: _0x47d525.pendingDelivery.items,
-      requesterName: _0x47d525.pendingDelivery.requesterName,
-      recipientName: _0x47d525.pendingDelivery.recipientName,
+    guardar("group_" + estado.pendingDelivery.groupKind + "_" + aSlug(estado.pendingDelivery.groupName), _0x2546c8);
+    estado.deliveries.unshift({
+      id: nuevoId(),
+      groupKind: estado.pendingDelivery.groupKind,
+      groupName: estado.pendingDelivery.groupName,
+      items: estado.pendingDelivery.items,
+      requesterName: estado.pendingDelivery.requesterName,
+      recipientName: estado.pendingDelivery.recipientName,
       signature: _0x88fbb,
-      ts: _0x347a69(),
+      ts: fechaHoraTexto(),
       tsMs: Date.now(),
-      confirmadoPor: _0x4496b3()
+      confirmadoPor: usuarioActual()
     });
     _0x529094();
-    _0x47d525.pendingDelivery = null;
+    estado.pendingDelivery = null;
     _0x1abbb2();
-    _0x474249();
+    render();
     _0x279f78("Recogida confirmada y firmada — stock descontado.");
   }
   function _0x1a6d34(_0x5c161c) {
@@ -2083,10 +2160,10 @@
     return Math.round((_0x10f917 - _0x2d9449) / 86400000);
   }
   function _0x3fdd17() {
-    return _0x47d525.bobinas.filter(_0x5dad0e => _0x1a6d34(_0x5dad0e.expira) <= _0x47d525.settings.bobinaAvisoDias);
+    return estado.bobinas.filter(_0x5dad0e => _0x1a6d34(_0x5dad0e.expira) <= estado.settings.bobinaAvisoDias);
   }
   function _0x41ba69() {
-    return _0x47d525.catalog.filter(_0xd6c61b => _0xd6c61b.qty <= __clasifMinimo(_0xd6c61b));
+    return estado.catalog.filter(_0xd6c61b => _0xd6c61b.qty <= __clasifMinimo(_0xd6c61b));
   }
   function _0x2269fd() {
     return new Date().toISOString().slice(0, 10);
@@ -2105,16 +2182,16 @@
   }
   function _0x5d7cfc() {
     const _0x3f7b91 = new Date();
-    if (_0x3f7b91.getHours() < _0x47d525.settings.avisoHora) {
+    if (_0x3f7b91.getHours() < estado.settings.avisoHora) {
       return;
     }
-    if (_0x47d525.alerts.lastDailyCheck === _0x2269fd()) {
+    if (estado.alerts.lastDailyCheck === _0x2269fd()) {
       return;
     }
     const _0x8030f = _0x41ba69();
     const _0x3bf198 = _0x3fdd17();
     if (_0x8030f.length) {
-      let _0x448b8f = "Materiales con " + _0x47d525.settings.stockBajoUmbral + " unidades o menos:\n\n";
+      let _0x448b8f = "Materiales con " + estado.settings.stockBajoUmbral + " unidades o menos:\n\n";
       _0x8030f.forEach(_0x482954 => {
         _0x448b8f += "- " + _0x482954.code + " · " + _0x482954.desc + " · " + _0x482954.qty + " uds · ubicación: " + (_0x482954.location || "sin ubicar") + "\n";
       });
@@ -2124,13 +2201,13 @@
           _0x448b8f += "- " + (_0x3c3117.codigo ? _0x3c3117.codigo + " · " : "") + _0x3c3117.desc + " · matrícula " + _0x3c3117.matricula + " · devolver antes del " + _0x3c3117.expira + "\n";
         });
       }
-      _0x2fa439("Aviso de stock bajo" + (_0x3bf198.length ? " y bobinas por expirar" : ""), _0x448b8f);
+      enviarCorreoAviso("Aviso de stock bajo" + (_0x3bf198.length ? " y bobinas por expirar" : ""), _0x448b8f);
     } else if (_0x3bf198.length) {
       let _0x2c9dd3 = "Bobinas a punto de expirar:\n\n";
       _0x3bf198.forEach(_0x283ec3 => {
         _0x2c9dd3 += "- " + (_0x283ec3.codigo ? _0x283ec3.codigo + " · " : "") + _0x283ec3.desc + " · matrícula " + _0x283ec3.matricula + " · devolver antes del " + _0x283ec3.expira + "\n";
       });
-      _0x2fa439("Aviso: bobinas a punto de expirar", _0x2c9dd3);
+      enviarCorreoAviso("Aviso: bobinas a punto de expirar", _0x2c9dd3);
     }
     const _0x5c7f10 = _0x4fc746();
     if (_0x5c7f10.length) {
@@ -2138,15 +2215,15 @@
       _0x5c7f10.forEach(_0x2e3d8f => {
         _0x38991d += "- " + _0x2e3d8f.vehiculo + " — " + _0x2e3d8f.tarea + " · " + (_0x2e3d8f.estado === "atrasada" ? "ATRASADA" : "pronto") + "\n";
       });
-      _0x2fa439("Aviso: mantenimiento de vehículos pendiente", _0x38991d);
+      enviarCorreoAviso("Aviso: mantenimiento de vehículos pendiente", _0x38991d);
     }
-    _0x47d525.alerts.lastDailyCheck = _0x2269fd();
+    estado.alerts.lastDailyCheck = _0x2269fd();
     _0x5a6d71();
   }
   function _0x5c7e54(_0x3d7865) {
     const _0x116bc5 = Date.now() - _0x3d7865 * 86400000;
     const _0x5cf9fe = {};
-    _0x47d525.movements.forEach(_0x321739 => {
+    estado.movements.forEach(_0x321739 => {
       if (_0x321739.type === "eliminado") {
         return;
       }
@@ -2175,10 +2252,10 @@
   }
   function _0x4b1425() {
     const _0x40a502 = new Date();
-    if (_0x40a502.getHours() < _0x47d525.settings.avisoHora) {
+    if (_0x40a502.getHours() < estado.settings.avisoHora) {
       return;
     }
-    if (_0x47d525.alerts.lastWeeklyCheckMs && Date.now() - _0x47d525.alerts.lastWeeklyCheckMs < 604800000) {
+    if (estado.alerts.lastWeeklyCheckMs && Date.now() - estado.alerts.lastWeeklyCheckMs < 604800000) {
       return;
     }
     const _0x45b081 = _0x5c7e54(7);
@@ -2193,8 +2270,8 @@
     }
     _0x15ff6a += "\nReferencias con stock bajo ahora mismo: " + _0x41ba69().length + "\n";
     _0x15ff6a += "Bobinas a punto de expirar: " + _0x3fdd17().length + "\n";
-    _0x2fa439("Resumen semanal de almacén", _0x15ff6a);
-    _0x47d525.alerts.lastWeeklyCheckMs = Date.now();
+    enviarCorreoAviso("Resumen semanal de almacén", _0x15ff6a);
+    estado.alerts.lastWeeklyCheckMs = Date.now();
     _0x5a6d71();
   }
   function _0x5c175f(_0x515dc1, _0x1492d8, _0x4f3e7b, _0x10442d) {
@@ -2202,7 +2279,7 @@
     const _0x269eb6 = _0x515dc1.servido.find(_0x112fae => _0x112fae.itemId ? _0x112fae.itemId === _0x1492d8.id : _0x112fae.code.toLowerCase() === _0x1492d8.code.toLowerCase());
     if (_0x269eb6) {
       _0x269eb6.qty += _0x4f3e7b;
-      _0x269eb6.ts = _0x347a69();
+      _0x269eb6.ts = fechaHoraTexto();
       if (!_0x269eb6.itemId) {
         _0x269eb6.itemId = _0x1492d8.id;
       }
@@ -2216,9 +2293,9 @@
         _0x269eb6.proveedor = _0x10442d.proveedor;
       }
     } else {
-      const _0x6193da = _0x347a69();
+      const _0x6193da = fechaHoraTexto();
       _0x515dc1.servido.unshift({
-        id: _0x588d17(),
+        id: nuevoId(),
         itemId: _0x1492d8.id,
         code: _0x1492d8.code,
         desc: _0x1492d8.desc,
@@ -2251,7 +2328,7 @@
       _0x38d9c7.qty += _0x2f6851;
     } else {
       _0x4b4fff.pendiente.items.push({
-        id: _0x588d17(),
+        id: nuevoId(),
         itemId: _0x24f4ae.id,
         code: _0x24f4ae.code,
         desc: _0x24f4ae.desc,
@@ -2261,7 +2338,7 @@
         reserva: 0
       });
     }
-    _0x356c43(_0x4b4fff.chat, "Escaneado: " + _0x24f4ae.code + " — " + _0x24f4ae.desc + " · " + _0x2f6851 + " uds");
+    anadirMensajeChat(_0x4b4fff.chat, "Escaneado: " + _0x24f4ae.code + " — " + _0x24f4ae.desc + " · " + _0x2f6851 + " uds");
   }
   async function _0x50972b() {
     const _0x5b8e68 = _0x1ea037();
@@ -2271,7 +2348,7 @@
     if (!(await _0x328b69(_0x5b8e68))) {
       return;
     }
-    const _0x585dd7 = _0x231ff7("#mainList");
+    const _0x585dd7 = $("#mainList");
     const _0x3f02e5 = [..._0x585dd7.querySelectorAll(".rapido-check:checked")];
     if (!_0x3f02e5.length) {
       _0x279f78("Marca al menos un material de la lista rápida.");
@@ -2280,15 +2357,15 @@
     let _0x4b4a40 = 0;
     _0x3f02e5.forEach(_0x5104f1 => {
       const _0x28a1be = _0x5104f1.dataset.rapidoId;
-      const _0x15113c = _0x47d525.materialesRapidos.find(_0x5047bc => _0x5047bc.id === _0x28a1be);
+      const _0x15113c = estado.materialesRapidos.find(_0x5047bc => _0x5047bc.id === _0x28a1be);
       if (!_0x15113c) {
         return;
       }
       const _0x3874c2 = _0x585dd7.querySelector("[data-rapido-qty=\"" + _0x28a1be + "\"]");
       const _0x4b03ff = Math.max(1, parseInt(_0x3874c2.value, 10) || 1);
-      const _0x4c6cb3 = _0x15113c.codigo ? _0x4746f7(_0x15113c.codigo) : null;
+      const _0x4c6cb3 = _0x15113c.codigo ? buscarPorCodigo(_0x15113c.codigo) : null;
       const _0x23c329 = _0x4c6cb3 ? {
-        id: _0x588d17(),
+        id: nuevoId(),
         itemId: _0x4c6cb3.id,
         code: _0x4c6cb3.code,
         desc: _0x4c6cb3.desc,
@@ -2297,7 +2374,7 @@
         pedido: 0,
         reserva: 0
       } : {
-        id: _0x588d17(),
+        id: nuevoId(),
         itemId: null,
         code: "",
         desc: "",
@@ -2313,9 +2390,9 @@
     if (!_0x4b4a40) {
       return;
     }
-    _0x356c43(_0x5b8e68.chat, "Añadido desde la lista rápida: " + _0x4b4a40 + " línea(s)");
+    anadirMensajeChat(_0x5b8e68.chat, "Añadido desde la lista rápida: " + _0x4b4a40 + " línea(s)");
     _0x29f0a4();
-    _0x474249();
+    render();
   }
   async function _0x1b4d13() {
     return __chatEnviar();
@@ -2337,7 +2414,7 @@
       return;
     }
     const _0x428a63 = Math.max(1, parseInt(_0x4031f1, 10) || 1);
-    const _0x2c798b = _0x588d17();
+    const _0x2c798b = nuevoId();
     _0x400a64.pendiente.items.push({
       id: _0x2c798b,
       itemId: null,
@@ -2349,10 +2426,10 @@
       pedido: 0,
       reserva: 0
     });
-    _0x356c43(_0x400a64.chat, "Pedido: " + _0x24f59d.trim() + " · " + _0x428a63 + " uds (sin referencia todavía)");
+    anadirMensajeChat(_0x400a64.chat, "Pedido: " + _0x24f59d.trim() + " · " + _0x428a63 + " uds (sin referencia todavía)");
     _0x400a64.chat[_0x400a64.chat.length - 1].pendienteId = _0x2c798b;
     _0x29f0a4();
-    _0x474249();
+    render();
   }
   function _0x14693b(_0x183de2) {
     const _0x2da0af = _0x1ea037();
@@ -2367,14 +2444,14 @@
       if (!_0x251baf || !_0x251baf.trim()) {
         return;
       }
-      let _0x2de8ff = _0x4746f7(_0x251baf.trim());
+      let _0x2de8ff = buscarPorCodigo(_0x251baf.trim());
       if (!_0x2de8ff) {
         if (!(await _0x2cc777("El código \"" + _0x251baf.trim() + "\" no existe todavía en el stock. ¿Darlo de alta ahora (con 0 unidades, se ajusta luego)?"))) {
           return;
         }
         const _0x2ab88c = (await _0x3b375f("Artículo para \"" + _0x251baf.trim() + "\":", _0x25bb21.textoLibre)) || _0x25bb21.textoLibre;
         _0x2de8ff = {
-          id: _0x588d17(),
+          id: nuevoId(),
           code: _0x251baf.trim(),
           desc: _0x2ab88c.trim(),
           qty: 0,
@@ -2385,8 +2462,8 @@
           categoria: "",
           coste: 0
         };
-        _0x47d525.catalog.push(_0x2de8ff);
-        _0x4bebe2();
+        estado.catalog.push(_0x2de8ff);
+        guardarCatalogo();
       }
       _0x25bb21.itemId = _0x2de8ff.id;
       _0x25bb21.code = _0x2de8ff.code;
@@ -2394,9 +2471,9 @@
       _0x25bb21.referencia = _0x2de8ff.referencia || "";
       __clasifAsociar(_0x25bb21, _0x2de8ff);
       delete _0x25bb21.textoLibre;
-      _0x356c43(_0x2da0af.chat, "Asociado a " + _0x2de8ff.code + " — " + _0x2de8ff.desc);
+      anadirMensajeChat(_0x2da0af.chat, "Asociado a " + _0x2de8ff.code + " — " + _0x2de8ff.desc);
       _0x29f0a4();
-      _0x474249();
+      render();
       _0x279f78("Referencia asignada: " + _0x2de8ff.code + " — " + _0x2de8ff.desc);
     };
     _0x210142("Código de la referencia real para \"" + _0x25bb21.textoLibre + "\"").then(_0x2802ef);
@@ -2404,7 +2481,7 @@
   async function _0x2d3f0d(_0xec7d50) {
     _0x1564f0();
     const _0x5e3c65 = _0xec7d50.code + " — " + _0xec7d50.desc;
-    if (_0x47d525.mode === "almacen") {
+    if (estado.mode === "almacen") {
       const _0x437a51 = await _0x27b2ef(_0x5e3c65);
       if (_0x437a51 === null) {
         return;
@@ -2420,12 +2497,12 @@
       const _0x212e0a = _0x345037 === "entrada" ? "salida" : "entrada";
       _0x279f78((_0x345037 === "entrada" ? "Entrada registrada: +" : "Salida registrada: -") + _0x437a51 + " · " + _0x5e3c65, () => {
         _0x1d4277(_0xec7d50, _0x437a51, _0x212e0a, "Deshacer " + _0x345037);
-        _0x474249();
+        render();
       });
-      _0x474249();
+      render();
       return;
     }
-    if (_0x47d525.mode === "pedido") {
+    if (estado.mode === "pedido") {
       if (!(await _0x30b7a6())) {
         return;
       }
@@ -2435,16 +2512,16 @@
       }
       _0x57856f(_0xec7d50, _0x582308);
       _0x279f78("Añadido al pedido: " + _0x582308 + " · " + _0x5e3c65, () => {
-        const _0x4c8bc6 = _0x47d525.pedidoItems.find(_0x30e70d => _0x30e70d.itemId === _0xec7d50.id);
+        const _0x4c8bc6 = estado.pedidoItems.find(_0x30e70d => _0x30e70d.itemId === _0xec7d50.id);
         if (!_0x4c8bc6) {
           return;
         }
         _0x4c8bc6.qty -= _0x582308;
         if (_0x4c8bc6.qty <= 0) {
-          _0x47d525.pedidoItems = _0x47d525.pedidoItems.filter(_0x1ae049 => _0x1ae049 !== _0x4c8bc6);
+          estado.pedidoItems = estado.pedidoItems.filter(_0x1ae049 => _0x1ae049 !== _0x4c8bc6);
         }
         _0x253c4d();
-        _0x474249();
+        render();
       });
       return;
     }
@@ -2479,9 +2556,9 @@
         _0x3222e2.pendiente.items = _0x3222e2.pendiente.items.filter(_0x3b2eb2 => _0x3b2eb2 !== _0x910d8b);
       }
       _0x29f0a4();
-      _0x474249();
+      render();
     });
-    _0x474249();
+    render();
   }
   async function _0x1803b3(_0x23d0d4) {
     const _0x2ce812 = _0x23d0d4.trim();
@@ -2489,21 +2566,21 @@
       return;
     }
     _0x1dfbd0 = null;
-    if (_0x47d525.mode === "montaje" || _0x47d525.mode === "proyecto") {
+    if (estado.mode === "montaje" || estado.mode === "proyecto") {
       const _0x3471b1 = _0x1ea037();
       if (!_0x3471b1) {
-        _0x279f78("Selecciona " + (_0x47d525.mode === "montaje" ? "una orden de montaje" : "un proyecto") + " antes de escanear.");
+        _0x279f78("Selecciona " + (estado.mode === "montaje" ? "una orden de montaje" : "un proyecto") + " antes de escanear.");
         return;
       }
-      const _0x32d1e5 = _0x297402(_0x47d525.mode, _0x47d525.current[_0x47d525.mode]);
+      const _0x32d1e5 = buscarGrupo(estado.mode, estado.current[estado.mode]);
       if (_0x32d1e5 && _0x32d1e5.status === "finalizado") {
-        _0x279f78("Est" + (_0x47d525.mode === "montaje" ? "a orden está finalizada" : "e proyecto está finalizado") + ". Reactíval" + (_0x47d525.mode === "montaje" ? "a" : "o") + " para seguir registrando material.");
+        _0x279f78("Est" + (estado.mode === "montaje" ? "a orden está finalizada" : "e proyecto está finalizado") + ". Reactíval" + (estado.mode === "montaje" ? "a" : "o") + " para seguir registrando material.");
         return;
       }
     }
     const _0xb52eb3 = _0xdcb31c(_0x2ce812);
     if (_0xb52eb3.length === 0) {
-      if (_0x47d525.mode === "almacen" || _0x47d525.mode === "pedido") {
+      if (estado.mode === "almacen" || estado.mode === "pedido") {
         _0x24edec = {
           code: _0x2ce812
         };
@@ -2516,7 +2593,7 @@
           const _0x418630 = await _0x27b2ef(_0x2ce812);
           if (_0x418630 !== null) {
             _0xbb82ac.pendiente.items.push({
-              id: _0x588d17(),
+              id: nuevoId(),
               itemId: null,
               code: "",
               desc: "",
@@ -2528,12 +2605,12 @@
             });
             _0x29f0a4();
             _0x279f78("Añadido sin referencia: " + _0x418630 + " · \"" + _0x2ce812 + "\" — almacén le asignará la referencia real.");
-            _0x474249();
+            render();
           }
         }
       }
-      _0x231ff7("#scanInput").value = "";
-      _0x231ff7("#scanInput").focus({
+      $("#scanInput").value = "";
+      $("#scanInput").focus({
         preventScroll: true
       });
       return;
@@ -2541,8 +2618,8 @@
     if (_0xb52eb3.length === 1) {
       _0x24edec = null;
       _0x2d3f0d(_0xb52eb3[0]);
-      _0x231ff7("#scanInput").value = "";
-      _0x231ff7("#scanInput").focus({
+      $("#scanInput").value = "";
+      $("#scanInput").focus({
         preventScroll: true
       });
       return;
@@ -2553,8 +2630,8 @@
       matches: _0xb52eb3.map(_0x1ea373 => _0x1ea373.id)
     };
     _0x323e0f();
-    _0x231ff7("#scanInput").value = "";
-    _0x231ff7("#scanInput").focus({
+    $("#scanInput").value = "";
+    $("#scanInput").focus({
       preventScroll: true
     });
   }
@@ -2562,22 +2639,22 @@
     if (!_0x24edec) {
       return;
     }
-    const _0x66f41c = _0x231ff7("#unknownDesc");
+    const _0x66f41c = $("#unknownDesc");
     const _0x43bc49 = (_0x66f41c.value || "").trim();
     if (!_0x43bc49) {
       _0x279f78("Escribe el artículo para el material.");
       return;
     }
-    const _0x3d547a = _0x231ff7("#unknownRef");
+    const _0x3d547a = $("#unknownRef");
     const _0x3dd7e0 = _0x3d547a ? (_0x3d547a.value || "").trim() : "";
-    const _0x46e65d = _0x231ff7("#unknownLoc");
+    const _0x46e65d = $("#unknownLoc");
     const _0x59b2b7 = _0x46e65d ? (_0x46e65d.value || "").trim() : "";
-    const _0x43ed61 = _0x231ff7("#unknownCategoria");
+    const _0x43ed61 = $("#unknownCategoria");
     const _0x58ad9c = _0x43ed61 ? _0x43ed61.value : "";
     const _0x24882c = _0x12054f(_0x24edec.code, _0x43bc49, _0x59b2b7, _0x58ad9c, _0x3dd7e0);
     _0x24edec = null;
     _0x2d3f0d(_0x24882c);
-    _0x231ff7("#scanInput").focus({
+    $("#scanInput").focus({
       preventScroll: true
     });
   }
@@ -2597,17 +2674,17 @@
       desc: _0x4a7d94.desc,
       qty: _0x57a4b8,
       deliveredAt: _0x4a7d94.firstTs || _0x4a7d94.ts,
-      ts: _0x347a69()
+      ts: fechaHoraTexto()
     });
     if (_0x4a7d94.qty <= 0) {
       _0x4d2986.servido = _0x4d2986.servido.filter(_0x18cd15 => _0x18cd15.id !== _0x182b15);
     }
     _0x29f0a4();
-    const _0x2d49c7 = _0x4a7d94.itemId && _0x47d525.catalog.find(_0x57e281 => _0x57e281.id === _0x4a7d94.itemId) || _0x4746f7(_0x4a7d94.code);
+    const _0x2d49c7 = _0x4a7d94.itemId && estado.catalog.find(_0x57e281 => _0x57e281.id === _0x4a7d94.itemId) || buscarPorCodigo(_0x4a7d94.code);
     if (_0x2d49c7) {
       _0x1d4277(_0x2d49c7, _0x57a4b8, "entrada", _0x10a3a1() + " (devolución)");
     }
-    _0x474249();
+    render();
   }
   async function _0x17cb6c() {
     const _0x5a519f = _0x1ea037();
@@ -2620,7 +2697,7 @@
     _0x5a519f.servido = [];
     _0x5a519f.devuelto = [];
     _0x29f0a4();
-    _0x474249();
+    render();
   }
   function _0x5a53db(_0x14fe3b, _0x3c54f7, _0x442c3d, _0x409e3f, _0x142dcd, _0x25d7ae) {
     _0x14fe3b = _0x14fe3b.trim();
@@ -2632,7 +2709,7 @@
       _0x279f78("Rellena código, artículo y una cantidad válida.");
       return;
     }
-    let _0x132ee8 = _0x4746f7(_0x14fe3b);
+    let _0x132ee8 = buscarPorCodigo(_0x14fe3b);
     if (!_0x132ee8) {
       _0x132ee8 = _0x12054f(_0x14fe3b, _0x3c54f7, _0x409e3f, _0x142dcd, _0x25d7ae);
     } else if (!_0x132ee8.categoria && _0x142dcd) {
@@ -2642,26 +2719,26 @@
     if (!_0x132ee8.categoria) {
       _0x291d0f(_0x132ee8.id);
     }
-    _0x474249();
+    render();
   }
-  function _0x297402(_0x930926, _0x31f5fb) {
-    return _0x47d525.groups[_0x930926].find(_0x157a0 => _0x157a0.name === _0x31f5fb);
+  function buscarGrupo(_0x930926, _0x31f5fb) {
+    return estado.groups[_0x930926].find(_0x157a0 => _0x157a0.name === _0x31f5fb);
   }
   async function _0x2f0e01(_0x5a7091, _0x3915d9) {
-    _0x47d525.current[_0x5a7091] = _0x3915d9 || null;
+    estado.current[_0x5a7091] = _0x3915d9 || null;
     _0x5592da = "chat";
     clearTimeout(_0x279f78._t);
-    const _0x54fc7f = _0x231ff7("#statusBanner");
+    const _0x54fc7f = $("#statusBanner");
     if (_0x54fc7f) {
       _0x54fc7f.style.display = "none";
     }
     if (_0x3915d9) {
       const _0x57ba4d = _0x5a7091 + "::" + _0x3915d9;
-      if (!_0x47d525.groupData[_0x57ba4d]) {
-        const _0xe92912 = await _0x31ceb4("group_" + _0x5a7091 + "_" + _0x1e8f19(_0x3915d9));
-        _0x47d525.groupData[_0x57ba4d] = _0xe92912 ? Object.assign(_0x2b3e8c(), _0xe92912) : _0x2b3e8c();
+      if (!estado.groupData[_0x57ba4d]) {
+        const _0xe92912 = await _0x31ceb4("group_" + _0x5a7091 + "_" + aSlug(_0x3915d9));
+        estado.groupData[_0x57ba4d] = _0xe92912 ? Object.assign(grupoVacio(), _0xe92912) : grupoVacio();
       }
-      const _0x1b3be7 = _0x47d525.groupData[_0x57ba4d];
+      const _0x1b3be7 = estado.groupData[_0x57ba4d];
       if (_0x1b3be7 && _0x1b3be7.pendiente.items.length) {
         const _0x51e77e = _0x1b3be7.pendiente.items.reduce((_0x575887, _0xce2396) => _0x575887 + _0xce2396.qty, 0);
         _0x279f78("Esta " + (_0x5a7091 === "montaje" ? "orden" : "este proyecto") + " tiene " + _0x1b3be7.pendiente.items.length + " línea(s) sin recoger (" + _0x51e77e + " uds).");
@@ -2669,39 +2746,39 @@
     }
     _0x430fb2();
     _0x4efabf();
-    _0x474249();
+    render();
   }
   async function _0xc78429(_0x3d9b4c, _0x2f23cf, _0x116c8c, _0x4c9719) {
     _0x2f23cf = _0x2f23cf.trim();
     if (!_0x2f23cf) {
       return;
     }
-    if (!_0x297402(_0x3d9b4c, _0x2f23cf)) {
-      _0x47d525.groups[_0x3d9b4c].push({
+    if (!buscarGrupo(_0x3d9b4c, _0x2f23cf)) {
+      estado.groups[_0x3d9b4c].push({
         name: _0x2f23cf,
         status: "activo",
         tipo: _0x4c9719 || ""
       });
-      _0x5cfc4b(_0x3d9b4c);
+      guardarListaGrupos(_0x3d9b4c);
     }
     const _0x3c6a3b = _0x3d9b4c + "::" + _0x2f23cf;
-    if (!_0x47d525.groupData[_0x3c6a3b]) {
-      _0x47d525.groupData[_0x3c6a3b] = _0x2b3e8c();
+    if (!estado.groupData[_0x3c6a3b]) {
+      estado.groupData[_0x3c6a3b] = grupoVacio();
     }
     if (_0x116c8c) {
-      _0x47d525.groupData[_0x3c6a3b].pendiente.requesterName = _0x116c8c.trim();
+      estado.groupData[_0x3c6a3b].pendiente.requesterName = _0x116c8c.trim();
     }
-    _0x5478d9(_0x3d9b4c, _0x2f23cf);
+    guardarGrupo(_0x3d9b4c, _0x2f23cf);
     await _0x2f0e01(_0x3d9b4c, _0x2f23cf);
   }
   async function _0x55946d(_0xe1b3e2, _0x4c68dd) {
-    const _0x2fd417 = _0x297402(_0xe1b3e2, _0x4c68dd);
+    const _0x2fd417 = buscarGrupo(_0xe1b3e2, _0x4c68dd);
     if (!_0x2fd417) {
       return;
     }
     const _0x2644b4 = _0x2fd417.status !== "finalizado";
     if (_0x2644b4) {
-      const _0x34a0d9 = _0x47d525.groupData[_0xe1b3e2 + "::" + _0x4c68dd];
+      const _0x34a0d9 = estado.groupData[_0xe1b3e2 + "::" + _0x4c68dd];
       const _0x207d6d = _0x34a0d9 ? _0x34a0d9.pendiente.items.length : 0;
       const _0xc28b62 = _0x207d6d ? "Todavía hay " + _0x207d6d + " línea(s) en la solicitud pendiente de recoger, sin firmar. Si finalizas ahora, es fácil que se quede olvidada. ¿Finalizar de todos modos?" : "¿Seguro que quieres finalizar \"" + _0x4c68dd + "\"? Se puede reactivar más tarde si hace falta.";
       if (!(await _0x2cc777(_0xc28b62))) {
@@ -2711,35 +2788,35 @@
       return;
     }
     _0x2fd417.status = _0x2644b4 ? "finalizado" : "activo";
-    _0x5cfc4b(_0xe1b3e2);
-    _0x474249();
+    guardarListaGrupos(_0xe1b3e2);
+    render();
   }
   async function _0x2d4970(_0x28c730, _0x2dfdf9) {
     const _0x4fa642 = _0x535db1[_0x28c730];
     if (!(await _0x2cc777("¿Eliminar " + (_0x28c730 === "montaje" ? "la orden" : "el proyecto") + " \"" + _0x2dfdf9 + "\" y todo su material registrado? Esta acción no se puede deshacer."))) {
       return;
     }
-    _0x47d525.groups[_0x28c730] = _0x47d525.groups[_0x28c730].filter(_0x128762 => _0x128762.name !== _0x2dfdf9);
-    delete _0x47d525.groupData[_0x28c730 + "::" + _0x2dfdf9];
-    _0x5cfc4b(_0x28c730);
-    await _0x5390a2("group_" + _0x28c730 + "_" + _0x1e8f19(_0x2dfdf9));
-    if (_0x47d525.current[_0x28c730] === _0x2dfdf9) {
-      _0x47d525.current[_0x28c730] = null;
+    estado.groups[_0x28c730] = estado.groups[_0x28c730].filter(_0x128762 => _0x128762.name !== _0x2dfdf9);
+    delete estado.groupData[_0x28c730 + "::" + _0x2dfdf9];
+    guardarListaGrupos(_0x28c730);
+    await _0x5390a2("group_" + _0x28c730 + "_" + aSlug(_0x2dfdf9));
+    if (estado.current[_0x28c730] === _0x2dfdf9) {
+      estado.current[_0x28c730] = null;
       _0x430fb2();
     }
-    _0x474249();
+    render();
   }
   async function _0x6153c8(_0x5e8f9b) {
-    for (const _0x1ddf26 of _0x47d525.groups[_0x5e8f9b]) {
+    for (const _0x1ddf26 of estado.groups[_0x5e8f9b]) {
       const _0x1bfd64 = _0x5e8f9b + "::" + _0x1ddf26.name;
-      if (!_0x47d525.groupData[_0x1bfd64]) {
-        const _0x151664 = await _0x31ceb4("group_" + _0x5e8f9b + "_" + _0x1e8f19(_0x1ddf26.name));
-        _0x47d525.groupData[_0x1bfd64] = _0x151664 ? Object.assign(_0x2b3e8c(), _0x151664) : _0x2b3e8c();
+      if (!estado.groupData[_0x1bfd64]) {
+        const _0x151664 = await _0x31ceb4("group_" + _0x5e8f9b + "_" + aSlug(_0x1ddf26.name));
+        estado.groupData[_0x1bfd64] = _0x151664 ? Object.assign(grupoVacio(), _0x151664) : grupoVacio();
       }
     }
   }
   async function _0x5c71d9(_0x5d5727) {
-    if (!_0x47d525.groups[_0x5d5727].length) {
+    if (!estado.groups[_0x5d5727].length) {
       _0x279f78("Todavía no hay " + (_0x5d5727 === "montaje" ? "órdenes" : "proyectos") + " creados.");
       return;
     }
@@ -2747,12 +2824,12 @@
     const _0x2ec2d7 = XLSX.utils.book_new();
     const _0x35741c = new Set();
     const _0x37c3fa = [];
-    _0x47d525.groups[_0x5d5727].forEach(_0x4299e4 => {
+    estado.groups[_0x5d5727].forEach(_0x4299e4 => {
       const _0x3dd9fe = _0x4299e4.name;
-      const _0x4d72e4 = _0x47d525.groupData[_0x5d5727 + "::" + _0x3dd9fe] || _0x2b3e8c();
+      const _0x4d72e4 = estado.groupData[_0x5d5727 + "::" + _0x3dd9fe] || grupoVacio();
       const _0x492161 = [..._0x4d72e4.pendiente.items.map(_0x40434e => ({
         OT: _0x3dd9fe,
-        Fecha: _0x347a69(),
+        Fecha: fechaHoraTexto(),
         Artículo: _0x40434e.code + " — " + _0x40434e.desc,
         "Cantidad pedida": _0x40434e.qty,
         Pedido: _0x40434e.pedido ?? _0x40434e.qty,
@@ -2801,15 +2878,15 @@
     await _0x6153c8("proyecto");
     const _0x986aab = {
       version: 5,
-      exportedAt: _0x347a69(),
-      catalog: _0x47d525.catalog,
-      movements: _0x47d525.movements,
-      groups: _0x47d525.groups,
-      groupData: _0x47d525.groupData,
-      bobinas: _0x47d525.bobinas,
-      settings: _0x47d525.settings,
-      pedidoItems: _0x47d525.pedidoItems,
-      deliveries: _0x47d525.deliveries
+      exportedAt: fechaHoraTexto(),
+      catalog: estado.catalog,
+      movements: estado.movements,
+      groups: estado.groups,
+      groupData: estado.groupData,
+      bobinas: estado.bobinas,
+      settings: estado.settings,
+      pedidoItems: estado.pedidoItems,
+      deliveries: estado.deliveries
     };
     const _0x3051e9 = new Blob([JSON.stringify(_0x986aab, null, 2)], {
       type: "application/json"
@@ -2832,8 +2909,8 @@
         if (!(await _0x2cc777("Esto reemplazará el stock, las órdenes de montaje y los proyectos actuales por los de la copia de seguridad. ¿Continuar?"))) {
           return;
         }
-        _0x47d525.catalog = (_0x47ae07.catalog || []).map(_0x251310 => ({
-          id: _0x251310.id || _0x588d17(),
+        estado.catalog = (_0x47ae07.catalog || []).map(_0x251310 => ({
+          id: _0x251310.id || nuevoId(),
           code: _0x251310.code,
           desc: _0x251310.desc,
           qty: typeof _0x251310.qty === "number" ? _0x251310.qty : 0,
@@ -2844,12 +2921,12 @@
           categoria: _0x251310.categoria || "",
           coste: typeof _0x251310.coste === "number" ? _0x251310.coste : 0
         }));
-        _0x47d525.movements = _0x47ae07.movements || [];
+        estado.movements = _0x47ae07.movements || [];
         if (_0x47ae07.groups) {
-          _0x47d525.groups = _0x47ae07.groups;
-          _0x47d525.groupData = _0x47ae07.groupData || {};
+          estado.groups = _0x47ae07.groups;
+          estado.groupData = _0x47ae07.groupData || {};
         } else {
-          _0x47d525.groups = {
+          estado.groups = {
             montaje: _0x47ae07.lists && _0x47ae07.lists.montaje && (_0x47ae07.lists.montaje.servido.length || _0x47ae07.lists.montaje.devuelto.length) ? [{
               name: "General",
               status: "activo"
@@ -2862,40 +2939,40 @@
               status: _0x4a196e.status || "activo"
             })
           };
-          _0x47d525.groupData = {};
+          estado.groupData = {};
           if (_0x47ae07.lists && _0x47ae07.lists.montaje) {
-            _0x47d525.groupData["montaje::General"] = Object.assign(_0x2b3e8c(), _0x47ae07.lists.montaje);
+            estado.groupData["montaje::General"] = Object.assign(grupoVacio(), _0x47ae07.lists.montaje);
           }
           Object.keys(_0x47ae07.projectData || {}).forEach(_0x3a51d0 => {
-            _0x47d525.groupData["proyecto::" + _0x3a51d0] = Object.assign(_0x2b3e8c(), _0x47ae07.projectData[_0x3a51d0]);
+            estado.groupData["proyecto::" + _0x3a51d0] = Object.assign(grupoVacio(), _0x47ae07.projectData[_0x3a51d0]);
           });
         }
-        _0x4bebe2();
+        guardarCatalogo();
         _0x240f8a();
-        _0x5cfc4b("montaje");
-        _0x5cfc4b("proyecto");
-        Object.keys(_0x47d525.groupData).forEach(_0x3dc1c6 => {
+        guardarListaGrupos("montaje");
+        guardarListaGrupos("proyecto");
+        Object.keys(estado.groupData).forEach(_0x3dc1c6 => {
           const [_0x3ad553, _0x535dee] = _0x3dc1c6.split("::");
-          _0x5478d9(_0x3ad553, _0x535dee);
+          guardarGrupo(_0x3ad553, _0x535dee);
         });
         if (_0x47ae07.bobinas) {
-          _0x47d525.bobinas = _0x47ae07.bobinas;
+          estado.bobinas = _0x47ae07.bobinas;
           _0x217fa8();
         }
         if (_0x47ae07.settings) {
-          _0x47d525.settings = Object.assign({}, _0x47d525.settings, _0x47ae07.settings);
+          estado.settings = Object.assign({}, estado.settings, _0x47ae07.settings);
           _0x37360d();
         }
         if (_0x47ae07.pedidoItems) {
-          _0x47d525.pedidoItems = _0x47ae07.pedidoItems;
+          estado.pedidoItems = _0x47ae07.pedidoItems;
           _0x253c4d();
         }
         if (_0x47ae07.deliveries) {
-          _0x47d525.deliveries = _0x47ae07.deliveries;
+          estado.deliveries = _0x47ae07.deliveries;
           _0x529094();
         }
         _0x279f78("Copia de seguridad restaurada correctamente.");
-        _0x474249();
+        render();
       } catch (_0x95d421) {
         _0x279f78("No se pudo leer la copia de seguridad: " + _0x95d421.message);
       }
@@ -2904,7 +2981,7 @@
   }
   function _0x54b127() {
     const _0x28205c = XLSX.utils.book_new();
-    const _0x2ec350 = _0x47d525.catalog.slice().sort((_0x4e2593, _0x3db2ca) => _0x4e2593.code.localeCompare(_0x3db2ca.code)).map(_0x1d5946 => ({
+    const _0x2ec350 = estado.catalog.slice().sort((_0x4e2593, _0x3db2ca) => _0x4e2593.code.localeCompare(_0x3db2ca.code)).map(_0x1d5946 => ({
       Código: _0x1d5946.code,
       Artículo: _0x1d5946.desc,
       Referencia: _0x1d5946.referencia || "",
@@ -2914,7 +2991,7 @@
       "Coste unitario": _0x1d5946.coste || 0,
       "Valor total": +(_0x1d5946.qty * (_0x1d5946.coste || 0)).toFixed(2)
     }));
-    const _0x21f8ea = _0x47d525.movements.map(_0x1713dd => ({
+    const _0x21f8ea = estado.movements.map(_0x1713dd => ({
       Código: _0x1713dd.code,
       Artículo: _0x1713dd.desc,
       Cantidad: _0x1713dd.qty,
@@ -2923,7 +3000,7 @@
       Fecha: _0x1713dd.ts,
       Usuario: _0x1713dd.usuario || ""
     }));
-    const _0x3f308a = _0x47d525.bobinas.slice().sort((_0x562eeb, _0x503269) => _0x562eeb.expira.localeCompare(_0x503269.expira)).map(_0x4ff398 => ({
+    const _0x3f308a = estado.bobinas.slice().sort((_0x562eeb, _0x503269) => _0x562eeb.expira.localeCompare(_0x503269.expira)).map(_0x4ff398 => ({
       Código: _0x4ff398.codigo || "",
       Referencia: _0x4ff398.desc,
       Matrícula: _0x4ff398.matricula,
@@ -2962,7 +3039,7 @@
     const _0x42befa = XLSX.utils.book_new();
     const _0x4c4596 = [..._0x4d455c.pendiente.items.map(_0x136587 => ({
       OT: _0x1a41c4 || "",
-      Fecha: _0x136587.fechaGuardado || _0x347a69(),
+      Fecha: _0x136587.fechaGuardado || fechaHoraTexto(),
       Artículo: _0x136587.textoLibre ? _0x136587.textoLibre + " (sin referencia)" : _0x136587.code + " — " + _0x136587.desc,
       Referencia: _0x136587.textoLibre ? "" : _0x136587.referencia || "",
       "Cantidad pedida": _0x136587.qty,
@@ -3052,7 +3129,7 @@
           if (!_0x2edd84) {
             return;
           }
-          let _0x3d7b57 = _0x47d525.catalog.find(_0xe706a4 => _0xe706a4.code.toLowerCase() === _0x2edd84.toLowerCase());
+          let _0x3d7b57 = estado.catalog.find(_0xe706a4 => _0xe706a4.code.toLowerCase() === _0x2edd84.toLowerCase());
           if (_0x3d7b57) {
             if (_0x3d6e23) {
               _0x3d7b57.desc = _0x3d6e23;
@@ -3068,7 +3145,7 @@
             }
           } else {
             _0x3d7b57 = {
-              id: _0x588d17(),
+              id: nuevoId(),
               code: _0x2edd84,
               desc: _0x3d6e23 || _0x4034da || "(sin referencia)",
               qty: 0,
@@ -3078,7 +3155,7 @@
               marca: "",
               coste: !isNaN(_0x52a143) ? _0x52a143 : 0
             };
-            _0x47d525.catalog.push(_0x3d7b57);
+            estado.catalog.push(_0x3d7b57);
             _0x2fa091++;
           }
           if (!isNaN(_0x25ed23) && _0x25ed23 > 0) {
@@ -3086,9 +3163,9 @@
             _0xd5c917++;
           }
         });
-        _0x4bebe2();
+        guardarCatalogo();
         _0x279f78("Catálogo actualizado: " + _0x1160b8.length + " filas procesadas, " + _0x2fa091 + " materiales nuevos" + (_0xd5c917 ? ", " + _0xd5c917 + " con entrada de stock" : "") + ".");
-        _0x474249();
+        render();
       } catch (_0x2d1e01) {
         _0x279f78("No se pudo leer el archivo: " + _0x2d1e01.message);
       }
@@ -3126,7 +3203,7 @@
           return;
         }
         const _0x11876e = new Set(_0x5e6070.map(_0x55d20a => _0x55d20a.code.toLowerCase()));
-        const _0x514e32 = _0x47d525.catalog.filter(_0x54b88c => !_0x11876e.has(_0x54b88c.code.toLowerCase()));
+        const _0x514e32 = estado.catalog.filter(_0x54b88c => !_0x11876e.has(_0x54b88c.code.toLowerCase()));
         const _0x18dfac = "¿Sobrescribir todo el stock con este archivo?\n\n- " + _0x5e6070.length + " referencias en el Excel (se crean o se actualizan)\n- " + _0x514e32.length + " referencias que tienes ahora MISMO y no están en el archivo — se ELIMINARÁN del stock\n\nEsta acción no se puede deshacer. ¿Seguro que quieres continuar?";
         if (!(await _0x2cc777(_0x18dfac))) {
           return;
@@ -3134,10 +3211,10 @@
         let _0x17c439 = 0;
         let _0x15a8c9 = 0;
         _0x5e6070.forEach(_0x503a9f => {
-          let _0x395c21 = _0x47d525.catalog.find(_0x1d13c7 => _0x1d13c7.code.toLowerCase() === _0x503a9f.code.toLowerCase());
+          let _0x395c21 = estado.catalog.find(_0x1d13c7 => _0x1d13c7.code.toLowerCase() === _0x503a9f.code.toLowerCase());
           if (!_0x395c21) {
             _0x395c21 = {
-              id: _0x588d17(),
+              id: nuevoId(),
               code: _0x503a9f.code,
               desc: _0x503a9f.desc || _0x503a9f.referencia || "(sin referencia)",
               qty: 0,
@@ -3146,7 +3223,7 @@
               specs: "",
               marca: ""
             };
-            _0x47d525.catalog.push(_0x395c21);
+            estado.catalog.push(_0x395c21);
             _0x15a8c9++;
           } else {
             if (_0x503a9f.desc) {
@@ -3167,23 +3244,23 @@
           }
         });
         _0x514e32.forEach(_0x4e83da => {
-          _0x47d525.movements.unshift({
-            id: _0x588d17(),
+          estado.movements.unshift({
+            id: nuevoId(),
             code: _0x4e83da.code,
             desc: _0x4e83da.desc,
             qty: _0x4e83da.qty,
             type: "eliminado",
             origin: "Sobrescritura de stock (Excel) — ya no está en el archivo",
-            ts: _0x347a69(),
+            ts: fechaHoraTexto(),
             tsMs: Date.now(),
-            usuario: _0x4496b3()
+            usuario: usuarioActual()
           });
         });
         _0x240f8a();
-        _0x47d525.catalog = _0x47d525.catalog.filter(_0xadc62 => _0x11876e.has(_0xadc62.code.toLowerCase()));
-        _0x4bebe2();
+        estado.catalog = estado.catalog.filter(_0xadc62 => _0x11876e.has(_0xadc62.code.toLowerCase()));
+        guardarCatalogo();
         _0x279f78("Stock sobrescrito: " + _0x15a8c9 + " nuevas, " + _0x17c439 + " actualizadas, " + _0x514e32.length + " eliminadas.");
-        _0x474249();
+        render();
       } catch (_0x575069) {
         _0x279f78("No se pudo leer el archivo: " + _0x575069.message);
       }
@@ -3262,7 +3339,7 @@
   async function _0x2f0af0(_0x35872) {
     const _0x3cd8e1 = _0x1ea037();
     if (!_0x3cd8e1) {
-      _0x279f78("Selecciona " + (_0x47d525.mode === "montaje" ? "una orden de montaje" : "un proyecto") + " antes de subir el archivo.");
+      _0x279f78("Selecciona " + (estado.mode === "montaje" ? "una orden de montaje" : "un proyecto") + " antes de subir el archivo.");
       return;
     }
     const _0x359113 = (_0x35872.name.split(".").pop() || "").toLowerCase();
@@ -3285,12 +3362,12 @@
       return;
     }
     const _0x343de3 = _0x5dd670.map(_0x46d819 => {
-      let _0x7e8f09 = _0x46d819.code ? _0x4746f7(_0x46d819.code) : null;
+      let _0x7e8f09 = _0x46d819.code ? buscarPorCodigo(_0x46d819.code) : null;
       if (!_0x7e8f09 && _0x46d819.code) {
-        _0x7e8f09 = _0x47d525.catalog.find(_0x290762 => _0x290762.referencia && _0x290762.referencia.toLowerCase() === _0x46d819.code.toLowerCase());
+        _0x7e8f09 = estado.catalog.find(_0x290762 => _0x290762.referencia && _0x290762.referencia.toLowerCase() === _0x46d819.code.toLowerCase());
       }
       if (!_0x7e8f09 && _0x46d819.desc) {
-        _0x7e8f09 = _0x47d525.catalog.find(_0x2d94cb => _0x2d94cb.desc.toLowerCase() === _0x46d819.desc.toLowerCase());
+        _0x7e8f09 = estado.catalog.find(_0x2d94cb => _0x2d94cb.desc.toLowerCase() === _0x46d819.desc.toLowerCase());
       }
       if (_0x7e8f09) {
         const _0x1c2f53 = Math.min(_0x46d819.qty, _0x7e8f09.qty);
@@ -3312,9 +3389,9 @@
     });
     _0x453578 = {
       plan: _0x343de3,
-      targetKey: _0x47d525.mode + "::" + _0x47d525.current[_0x47d525.mode]
+      targetKey: estado.mode + "::" + estado.current[estado.mode]
     };
-    _0x474249();
+    render();
   }
   function _0x1305ba() {
     if (!_0x453578) {
@@ -3323,7 +3400,7 @@
     const _0x3cf49d = _0x1ea037();
     if (!_0x3cf49d) {
       _0x453578 = null;
-      _0x474249();
+      render();
       return;
     }
     if (!_0x3cf49d.pendiente.requesterName) {
@@ -3334,12 +3411,12 @@
     let _0x36f954 = 0;
     _0x453578.plan.forEach(_0x539568 => {
       if (_0x539568.kind === "nueva") {
-        const _0xce7fb6 = _0x539568.code || "REF-" + _0x1e8f19(_0x539568.desc || _0x588d17());
+        const _0xce7fb6 = _0x539568.code || "REF-" + aSlug(_0x539568.desc || nuevoId());
         const _0x49a819 = _0x12054f(_0xce7fb6, _0x539568.desc || "(sin referencia)", "");
         _0xc5b186(_0x3cf49d, _0x49a819, _0x539568.requested);
         _0x36f954++;
       } else {
-        const _0x5d3e5e = _0x47d525.catalog.find(_0xa7fd7d => _0xa7fd7d.id === _0x539568.itemId);
+        const _0x5d3e5e = estado.catalog.find(_0xa7fd7d => _0xa7fd7d.id === _0x539568.itemId);
         if (!_0x5d3e5e) {
           return;
         }
@@ -3349,42 +3426,42 @@
     });
     _0x29f0a4();
     _0x453578 = null;
-    _0x474249();
+    render();
     _0x279f78("Archivo añadido a la solicitud pendiente: " + _0x374203 + " línea(s)" + (_0x36f954 ? ", " + _0x36f954 + " creadas como plantilla nueva" : "") + ". Prepara la recogida y firma cuando corresponda.");
   }
   function _0x58f658() {
     _0x453578 = null;
-    _0x474249();
+    render();
   }
   let _0x2bda1b = false;
   let _0x429406 = false;
   let _0x2f0c4f = null;
   function _0x3f1ebf() {
-    const _0x5504f6 = _0x231ff7("#signatureOverlay");
+    const _0x5504f6 = $("#signatureOverlay");
     if (!_0x5504f6) {
       return;
     }
-    if (!_0x47d525.pendingDelivery) {
+    if (!estado.pendingDelivery) {
       _0x5504f6.style.display = "none";
       return;
     }
     _0x5504f6.style.display = "flex";
-    const _0xd610ea = _0x231ff7("#signatureItemsList");
-    _0xd610ea.innerHTML = "<div class=\"sig-item\" style=\"color:var(--accent); font-weight:700;\">Pedido por: " + _0x1d1ab0(_0x47d525.pendingDelivery.requesterName || "sin especificar") + "</div>" + _0x47d525.pendingDelivery.items.map(_0x5f1565 => "<div class=\"sig-item\">" + _0x1d1ab0(_0x5f1565.code) + " · " + _0x1d1ab0(_0x5f1565.desc) + " · <strong>" + _0x5f1565.qty + " uds</strong></div>").join("");
-    const _0x30e794 = _0x231ff7("#recipientNameInput");
+    const _0xd610ea = $("#signatureItemsList");
+    _0xd610ea.innerHTML = "<div class=\"sig-item\" style=\"color:var(--accent); font-weight:700;\">Pedido por: " + _0x1d1ab0(estado.pendingDelivery.requesterName || "sin especificar") + "</div>" + estado.pendingDelivery.items.map(_0x5f1565 => "<div class=\"sig-item\">" + _0x1d1ab0(_0x5f1565.code) + " · " + _0x1d1ab0(_0x5f1565.desc) + " · <strong>" + _0x5f1565.qty + " uds</strong></div>").join("");
+    const _0x30e794 = $("#recipientNameInput");
     if (_0x30e794 && !_0x30e794.value) {
-      _0x30e794.value = _0x47d525.pendingDelivery.recipientName || "";
+      _0x30e794.value = estado.pendingDelivery.recipientName || "";
     }
     _0x4e4636();
-    const _0x403ce9 = _0x231ff7("#clearSignatureBtn");
+    const _0x403ce9 = $("#clearSignatureBtn");
     if (_0x403ce9) {
       _0x403ce9.onclick = _0x5dffee;
     }
-    const _0x5ac4be = _0x231ff7("#cancelDeliveryBtn");
+    const _0x5ac4be = $("#cancelDeliveryBtn");
     if (_0x5ac4be) {
       _0x5ac4be.onclick = _0x59f3bd;
     }
-    const _0x279265 = _0x231ff7("#confirmDeliveryBtn");
+    const _0x279265 = $("#confirmDeliveryBtn");
     if (_0x279265) {
       _0x279265.onclick = () => {
         if (!_0x429406) {
@@ -3395,14 +3472,14 @@
           return;
         }
         _0x279265.disabled = true;
-        _0x47d525.pendingDelivery.recipientName = (_0x30e794.value || "").trim();
-        const _0xe4ac1 = _0x231ff7("#signatureCanvas");
+        estado.pendingDelivery.recipientName = (_0x30e794.value || "").trim();
+        const _0xe4ac1 = $("#signatureCanvas");
         _0x28a554(_0xe4ac1.toDataURL("image/png"));
       };
     }
   }
   function _0x4e4636() {
-    const _0x1b611d = _0x231ff7("#signatureCanvas");
+    const _0x1b611d = $("#signatureCanvas");
     if (!_0x1b611d || _0x1b611d.dataset.ready) {
       return;
     }
@@ -3449,7 +3526,7 @@
     _0x1b611d.onpointercancel = _0x134554;
   }
   function _0x5dffee() {
-    const _0x1d43e3 = _0x231ff7("#signatureCanvas");
+    const _0x1d43e3 = $("#signatureCanvas");
     if (!_0x1d43e3 || !_0x2f0c4f) {
       return;
     }
@@ -3458,7 +3535,7 @@
     _0x429406 = false;
   }
   function _0x1abbb2() {
-    const _0x448395 = _0x231ff7("#signatureCanvas");
+    const _0x448395 = $("#signatureCanvas");
     if (_0x448395) {
       delete _0x448395.dataset.ready;
     }
@@ -3468,9 +3545,9 @@
   let _0x4e20d6 = null;
   function _0x210142(_0x588acc) {
     return new Promise(_0x3976d0 => {
-      const _0x2633d2 = _0x231ff7("#askCodeOverlay");
-      const _0x4cb7fe = _0x231ff7("#askCodeInput");
-      _0x231ff7("#askCodeTitulo").textContent = _0x588acc;
+      const _0x2633d2 = $("#askCodeOverlay");
+      const _0x4cb7fe = $("#askCodeInput");
+      $("#askCodeTitulo").textContent = _0x588acc;
       _0x4cb7fe.value = "";
       _0x2633d2.style.display = "flex";
       _0x4cb7fe.focus({
@@ -3484,9 +3561,9 @@
         _0x4cb7fe.removeEventListener("keydown", _0x471f83);
         _0x3976d0(_0xe2a927);
       };
-      const _0x51bb31 = _0x231ff7("#askCodeOkBtn");
-      const _0x351ed0 = _0x231ff7("#askCodeCancelBtn");
-      const _0x375695 = _0x231ff7("#askCodeCamBtn");
+      const _0x51bb31 = $("#askCodeOkBtn");
+      const _0x351ed0 = $("#askCodeCancelBtn");
+      const _0x375695 = $("#askCodeCamBtn");
       const _0x413b97 = () => _0x47b3c8(_0x4cb7fe.value.trim() || null);
       const _0x25f10b = () => _0x47b3c8(null);
       const _0xd6b7a2 = () => {
@@ -3512,8 +3589,8 @@
       _0x279f78("Tu navegador no soporta escaneo por cámara. Usa un lector USB/Bluetooth o introduce el código manualmente.");
       return;
     }
-    const _0x2982a4 = _0x231ff7("#camOverlay");
-    const _0x3b517a = _0x231ff7("#camVideo");
+    const _0x2982a4 = $("#camOverlay");
+    const _0x3b517a = $("#camVideo");
     _0x2982a4.style.display = "flex";
     try {
       _0x4e20d6 = await navigator.mediaDevices.getUserMedia({
@@ -3541,7 +3618,7 @@
       };
       requestAnimationFrame(_0x21324b);
     } catch (_0x972ddb) {
-      _0x231ff7("#camStatus").textContent = "No se pudo acceder a la cámara: " + _0x972ddb.message;
+      $("#camStatus").textContent = "No se pudo acceder a la cámara: " + _0x972ddb.message;
     }
   }
   function _0x46d5dc() {
@@ -3549,9 +3626,9 @@
       _0x4e20d6.getTracks().forEach(_0x546984 => _0x546984.stop());
       _0x4e20d6 = null;
     }
-    _0x231ff7("#camOverlay").style.display = "none";
+    $("#camOverlay").style.display = "none";
   }
-  _0x231ff7("#camClose").addEventListener("click", _0x46d5dc);
+  $("#camClose").addEventListener("click", _0x46d5dc);
   let _0x309b07 = null;
   let _0xb33f4f = [];
   async function _0x1c65e1() {
@@ -3559,8 +3636,8 @@
       _0x279f78("Selecciona primero una orden o proyecto.");
       return;
     }
-    const _0x3cda4b = _0x231ff7("#docScanOverlay");
-    const _0x3db95c = _0x231ff7("#docScanVideo");
+    const _0x3cda4b = $("#docScanOverlay");
+    const _0x3db95c = $("#docScanVideo");
     _0xb33f4f = [];
     _0x3b930e();
     _0x3cda4b.style.display = "flex";
@@ -3578,7 +3655,7 @@
       });
       _0x3db95c.srcObject = _0x309b07;
     } catch (_0x3065f2) {
-      _0x231ff7("#docScanStatus").textContent = "No se pudo acceder a la cámara: " + _0x3065f2.message;
+      $("#docScanStatus").textContent = "No se pudo acceder a la cámara: " + _0x3065f2.message;
     }
   }
   function _0x512cbd() {
@@ -3590,9 +3667,9 @@
       _0x309b07.getTracks().forEach(_0x34ace6 => _0x34ace6.stop());
       _0x309b07 = null;
     }
-    _0x231ff7("#docScanOverlay").style.display = "none";
+    $("#docScanOverlay").style.display = "none";
     _0xb33f4f = [];
-    const __elInstrClose = _0x231ff7("#docScanInstrucciones");
+    const __elInstrClose = $("#docScanInstrucciones");
     if (__elInstrClose) {
       __elInstrClose.value = "";
     }
@@ -3685,7 +3762,7 @@
     }
   }
   function _0x4e1af1() {
-    const _0x465c26 = _0x231ff7("#docScanVideo");
+    const _0x465c26 = $("#docScanVideo");
     if (!_0x465c26.videoWidth) {
       return;
     }
@@ -3714,10 +3791,10 @@
     _0x3b930e();
   }
   function _0x3b930e() {
-    _0x231ff7("#docScanThumbs").innerHTML = _0xb33f4f.map((_0x3ce1f4, _0x593fa9) => "<img src=\"" + _0x3ce1f4.thumb + "\" data-quitar-pagina=\"" + _0x593fa9 + "\" title=\"Pulsa para quitar esta página\">").join("");
-    _0x231ff7("#docScanTerminarBtn").disabled = _0xb33f4f.length === 0;
-    _0x231ff7("#docScanStatus").textContent = _0xb33f4f.length ? _0xb33f4f.length + " página(s) capturada(s) — toca una foto para quitarla" : "Encuadra la página y pulsa \"Capturar página\"";
-    _0x231ff7("#docScanThumbs").querySelectorAll("[data-quitar-pagina]").forEach(_0xe74ca1 => {
+    $("#docScanThumbs").innerHTML = _0xb33f4f.map((_0x3ce1f4, _0x593fa9) => "<img src=\"" + _0x3ce1f4.thumb + "\" data-quitar-pagina=\"" + _0x593fa9 + "\" title=\"Pulsa para quitar esta página\">").join("");
+    $("#docScanTerminarBtn").disabled = _0xb33f4f.length === 0;
+    $("#docScanStatus").textContent = _0xb33f4f.length ? _0xb33f4f.length + " página(s) capturada(s) — toca una foto para quitarla" : "Encuadra la página y pulsa \"Capturar página\"";
+    $("#docScanThumbs").querySelectorAll("[data-quitar-pagina]").forEach(_0xe74ca1 => {
       _0xe74ca1.addEventListener("click", () => {
         _0xb33f4f.splice(parseInt(_0xe74ca1.dataset.quitarPagina, 10), 1);
         _0x3b930e();
@@ -3726,7 +3803,7 @@
   }
   let _0x1a8185 = null;
   async function __subirPdfComoPaginas(__file) {
-    const __statusEl = _0x231ff7("#docScanStatus");
+    const __statusEl = $("#docScanStatus");
     try {
       if (__statusEl) {
         __statusEl.textContent = "Leyendo PDF…";
@@ -3822,7 +3899,7 @@
     return _0x2fdc12.sort();
   }
   function __clasifStore() {
-    const _0x5ae0ce = _0x47d525.clasificacion = _0x47d525.clasificacion || {};
+    const _0x5ae0ce = estado.clasificacion = estado.clasificacion || {};
     _0x5ae0ce.ref = _0x5ae0ce.ref || {};
     _0x5ae0ce.pal = _0x5ae0ce.pal || {};
     _0x5ae0ce.email = _0x5ae0ce.email || "";
@@ -3866,7 +3943,7 @@
       _0x3ec838.v = 2;
       _0x262eb0 = true;
     }
-    const _0x780dd5 = _0x47d525.catalog || [];
+    const _0x780dd5 = estado.catalog || [];
     if (!(_0x3ec838.v >= 3) && (_0x780dd5.length || !Object.keys(_0x3ec838.ref || {}).length)) {
       _0x3ec838.pq = _0x3ec838.pq || [];
       for (const _0x16d2dd in _0x3ec838.ref || {}) {
@@ -3878,7 +3955,7 @@
         const _0x40552c = _0x780dd5.find(_0x1ef5e0 => String(_0x1ef5e0.code).toLowerCase() === _0x16d2dd);
         if (_0x40552c && !_0x3ec838.pq.some(_0x3d55a2 => _0x3d55a2.key === "c:" + _0x16d2dd)) {
           _0x3ec838.pq.push({
-            id: _0x588d17(),
+            id: nuevoId(),
             key: "c:" + _0x16d2dd,
             code: _0x40552c.code,
             desc: _0x40552c.desc || _0x40552c.code,
@@ -3913,7 +3990,7 @@
       return;
     }
     _0x38ffd1.pq.push({
-      id: _0x588d17(),
+      id: nuevoId(),
       key: _0x686d32,
       code: _0x15f53e.code || "",
       desc: (_0x15f53e.code ? _0x15f53e.desc : _0x15f53e.textoLibre || _0x15f53e.textoOrig || _0x15f53e.desc) || _0x15f53e.code,
@@ -3921,7 +3998,7 @@
     });
   }
   function __guardarClasif() {
-    _0x1968be("clasificacion", _0x47d525.clasificacion);
+    guardar("clasificacion", estado.clasificacion);
   }
   function __clasifVoto(_0x141d4f, _0x44c43b, _0x362cc0, _0x4bb337) {
     if (_0x44c43b === "__proto__") {
@@ -3959,7 +4036,7 @@
   let __stockIdx = null;
   let __stockFirma = "";
   function __stockIndice() {
-    const _0x221004 = _0x47d525.catalog || [];
+    const _0x221004 = estado.catalog || [];
     let _0x11fc3a = _0x221004.length;
     _0x221004.forEach(_0x1139a0 => {
       _0x11fc3a = _0x11fc3a * 31 + String(_0x1139a0.code || "").length * 7 + String(_0x1139a0.desc || "").length * 3 + String(_0x1139a0.referencia || "").length | 0;
@@ -4050,7 +4127,7 @@
         if (_0x180561 === _0x4f1889) {
           continue;
         }
-        const _0x4c8179 = _0x4746f7(_0x180561);
+        const _0x4c8179 = buscarPorCodigo(_0x180561);
         if (!_0x4c8179) {
           continue;
         }
@@ -4076,7 +4153,7 @@
     delete _0x5df21c.textoLibre;
     delete _0x5df21c.asocRechazada;
     __clasifRegistrarAsoc(_0x536f54, _0x185d19.code, 1);
-    _0x356c43(_0x472896.chat, "Asociado a " + _0x185d19.code + " — " + _0x185d19.desc);
+    anadirMensajeChat(_0x472896.chat, "Asociado a " + _0x185d19.code + " — " + _0x185d19.desc);
   }
   function __clasifCompacto(_0x71c2d0) {
     return String(_0x71c2d0 || "").toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -4086,12 +4163,12 @@
     if (!_0x3f4672.length) {
       return null;
     }
-    return (_0x47d525.catalog || []).find(_0x448385 => _0x448385.code !== _0x564a1b && _0x3f4672.some(_0x42a6c7 => __clasifCompacto(_0x448385.code) === _0x42a6c7 || _0x448385.referencia && __clasifCompacto(_0x448385.referencia) === _0x42a6c7)) || null;
+    return (estado.catalog || []).find(_0x448385 => _0x448385.code !== _0x564a1b && _0x3f4672.some(_0x42a6c7 => __clasifCompacto(_0x448385.code) === _0x42a6c7 || _0x448385.referencia && __clasifCompacto(_0x448385.referencia) === _0x42a6c7)) || null;
   }
   function __clasifValidarRef(_0x13f0b4, _0x23cbcf) {
     __clasifRegistrarAsoc(_0x23cbcf.textoOrig, _0x23cbcf.code, 1);
     delete _0x23cbcf.refAuto;
-    _0x356c43(_0x13f0b4.chat, "Asociado a " + _0x23cbcf.code + " — " + _0x23cbcf.desc);
+    anadirMensajeChat(_0x13f0b4.chat, "Asociado a " + _0x23cbcf.code + " — " + _0x23cbcf.desc);
   }
   function __clasifDeshacerRef(_0x2941cf) {
     _0x2941cf.asocRechazada = _0x2941cf.code;
@@ -4156,7 +4233,7 @@
   }
   function __iaIndice() {
     const _0x38f9b2 = new Map();
-    (_0x47d525.catalog || []).forEach(_0x585b51 => {
+    (estado.catalog || []).forEach(_0x585b51 => {
       __clasifFichas(_0x585b51.code + " " + _0x585b51.desc + " " + (_0x585b51.referencia || "")).forEach(_0x4d69bb => {
         if (!_0x38f9b2.has(_0x4d69bb)) {
           _0x38f9b2.set(_0x4d69bb, []);
@@ -4281,7 +4358,7 @@
   }
   function __iaRef(_0x7e96b8) {
     const _0x4b29bb = !_0x7e96b8.code && __iaEntrada(_0x7e96b8);
-    const _0x5d6525 = _0x4b29bb && _0x4b29bb.r ? _0x4746f7(_0x4b29bb.r) : null;
+    const _0x5d6525 = _0x4b29bb && _0x4b29bb.r ? buscarPorCodigo(_0x4b29bb.r) : null;
     if (_0x5d6525) {
       return {
         cat: _0x5d6525,
@@ -4353,8 +4430,8 @@
     __clasifGuardarPronto();
   }
   function __clasifTextoInterno(_0x48b813) {
-    const _0x1a0bb0 = _0x47d525.mode;
-    const _0x3f956b = _0x47d525.current[_0x1a0bb0] || "";
+    const _0x1a0bb0 = estado.mode;
+    const _0x3f956b = estado.current[_0x1a0bb0] || "";
     const _0x55e454 = _0x1a0bb0 === "montaje" ? "montaje" : "proyecto";
     const _0x12319e = _0x48b813.map(_0x39d1eb => {
       const _0x3f9f9d = parseInt(_0x39d1eb.qty, 10) || 1;
@@ -4384,7 +4461,7 @@
   async function __proxyFetch(_0x1e6aa3, _0xe2fd09) {
     let _0x1505d5 = "";
     try {
-      _0x1505d5 = _0x4b4e46 && _0x4b4e46.currentUser ? await _0x4b4e46.currentUser.getIdToken() : "";
+      _0x1505d5 = firebaseAuth && firebaseAuth.currentUser ? await firebaseAuth.currentUser.getIdToken() : "";
     } catch (_0x495502) {}
     return fetch(__GEMINI_PROXY_URL, {
       method: "POST",
@@ -4448,14 +4525,14 @@
     if (Number.isFinite(_0x56ea6d.minimo)) {
       return _0x56ea6d.minimo;
     } else {
-      return _0x47d525.settings.stockBajoUmbral;
+      return estado.settings.stockBajoUmbral;
     }
   }
   let __respaldoUltimo = 0;
   let __respaldoFirma = "";
   function __respaldoSincronizar() {
     try {
-      const _0x3f73e7 = _0x47d525;
+      const _0x3f73e7 = estado;
       if (_0x2df77d() !== "almacen" || !(_0x3f73e7.catalog || []).length || Date.now() - __respaldoUltimo < __RESPALDO_INTERVALO_MS) {
         return;
       }
@@ -4507,7 +4584,7 @@
     };
   }
   function __pushIniciar() {
-    const _0x467170 = (_0x47d525.settings.onesignalAppId || "").trim();
+    const _0x467170 = (estado.settings.onesignalAppId || "").trim();
     if (!_0x467170 || __pushIniciado) {
       return;
     }
@@ -4528,7 +4605,7 @@
     document.head.appendChild(_0x264c43);
   }
   function __pushPanel() {
-    const _0x5c8ce6 = _0x231ff7("#setBobinaDias");
+    const _0x5c8ce6 = $("#setBobinaDias");
     const _0x304cf3 = document.getElementById("pushPanel");
     if (_0x304cf3) {
       _0x304cf3.remove();
@@ -4537,26 +4614,26 @@
     if (_0x2df77d() !== "almacen" || !_0x27e0f3) {
       return;
     }
-    const _0x5af903 = (_0x47d525.settings.onesignalAppId || "").trim();
+    const _0x5af903 = (estado.settings.onesignalAppId || "").trim();
     const _0x354a0d = document.createElement("div");
     _0x354a0d.className = "panel";
     _0x354a0d.id = "pushPanel";
     _0x354a0d.style.marginTop = "14px";
     _0x354a0d.innerHTML = "<p class=\"panel-title\">Notificaciones push</p><p style=\"font-size:12px; color:var(--text-muted); margin:0 0 8px;\">Avisos en este dispositivo con la app cerrada (petición de material enviada, stock bajo). Requiere una cuenta gratuita de OneSignal; en iPhone, iOS 16.4 o superior y la app añadida a la pantalla de inicio.</p><div class=\"manual-stock-form\" style=\"flex-direction:column;\"><input type=\"text\" id=\"pushAppId\" placeholder=\"ID de la aplicación de OneSignal\" value=\"" + _0x1d1ab0(_0x5af903) + "\" style=\"width:100%;\"><button class=\"cam-btn\" id=\"pushGuardarBtn\">Guardar ID</button></div>" + (_0x5af903 ? "<p id=\"pushEstado\" style=\"font-size:12.5px; margin:10px 0 6px;\"></p><button class=\"btn primary\" id=\"pushActivarBtn\" style=\"width:100%;\"></button>" : "");
     _0x27e0f3.after(_0x354a0d);
-    _0x231ff7("#pushGuardarBtn").addEventListener("click", () => {
-      _0x47d525.settings.onesignalAppId = _0x231ff7("#pushAppId").value.trim();
-      _0x1968be("settings", _0x47d525.settings);
-      _0x279f78(_0x47d525.settings.onesignalAppId ? "ID guardado." : "ID eliminado.");
+    $("#pushGuardarBtn").addEventListener("click", () => {
+      estado.settings.onesignalAppId = $("#pushAppId").value.trim();
+      guardar("settings", estado.settings);
+      _0x279f78(estado.settings.onesignalAppId ? "ID guardado." : "ID eliminado.");
       __pushIniciar();
-      _0x474249();
+      render();
     });
     if (!_0x5af903) {
       return;
     }
     __pushIniciar();
-    const _0x3d19be = _0x231ff7("#pushEstado");
-    const _0x1a1a16 = _0x231ff7("#pushActivarBtn");
+    const _0x3d19be = $("#pushEstado");
+    const _0x1a1a16 = $("#pushActivarBtn");
     const _0x4c2fcb = _0x339802 => {
       const _0x5be66a = !!_0x339802.Notifications.permission && !!_0x339802.User.PushSubscription.optedIn;
       _0x3d19be.textContent = _0x339802.Notifications.isPushSupported() ? _0x5be66a ? "Activadas en este dispositivo." : "No activadas en este dispositivo." : "Este navegador no admite notificaciones push.";
@@ -4575,7 +4652,7 @@
     window.OneSignalDeferred.push(_0x4c2fcb);
   }
   function __editarItem() {
-    return (_0x47d525.catalog || []).find(_0x5bb242 => _0x5bb242.id === _0x16ea10) || null;
+    return (estado.catalog || []).find(_0x5bb242 => _0x5bb242.id === _0x16ea10) || null;
   }
   function __editarCampos() {
     const _0x97533 = document.getElementById("editItemCard");
@@ -4605,7 +4682,7 @@
   }
   function __codigoRenombrar(_0x5cbb53, _0xced3c1) {
     const _0x5be0cb = _0x5cbb53.code;
-    const _0x1563ee = _0x47d525;
+    const _0x1563ee = estado;
     const _0x285c3d = (_0x1563ee.catalog || []).some(_0x274752 => _0x274752.id !== _0x5cbb53.id && _0x274752.code === _0x5be0cb);
     _0x5cbb53.code = _0xced3c1;
     const _0x5c3a83 = _0x35cfce => {
@@ -4669,12 +4746,12 @@
         }
       }
     }
-    _0x1968be("movements", _0x1563ee.movements);
-    _0x1968be("deliveries", _0x1563ee.deliveries);
+    guardar("movements", _0x1563ee.movements);
+    guardar("deliveries", _0x1563ee.deliveries);
     __guardarClasif();
     _0x24d2fa.forEach(_0x185d69 => {
       const _0x294433 = _0x185d69.split("::");
-      _0x5478d9(_0x294433[0], _0x294433.slice(1).join("::"));
+      guardarGrupo(_0x294433[0], _0x294433.slice(1).join("::"));
     });
   }
   function __editarGuardar(_0x2eaa69) {
@@ -4725,16 +4802,16 @@
   let __chatExtUltimo = 0;
   let __chatExtOcupado = false;
   function __chatExtGrupo() {
-    const _0xac620d = _0x47d525.mode;
+    const _0xac620d = estado.mode;
     if (_0xac620d !== "montaje" && _0xac620d !== "proyecto") {
       return null;
     }
-    const _0x1a9388 = _0x47d525.current[_0xac620d];
+    const _0x1a9388 = estado.current[_0xac620d];
     if (_0x1a9388) {
       return {
         modo: _0xac620d,
         nombre: _0x1a9388,
-        datos: _0x47d525.groupData[_0xac620d + "::" + _0x1a9388] || null
+        datos: estado.groupData[_0xac620d + "::" + _0x1a9388] || null
       };
     } else {
       return null;
@@ -4742,8 +4819,8 @@
   }
   function __chatExtUrl(_0x4f0b47) {
     const _0x59e88e = new URL("chat.html", location.href);
-    _0x59e88e.searchParams.set("u", _0x5acf9a);
-    _0x59e88e.searchParams.set("a", _0x19e6e0);
+    _0x59e88e.searchParams.set("u", SUPABASE_URL);
+    _0x59e88e.searchParams.set("a", SUPABASE_ANON_KEY);
     _0x59e88e.searchParams.set("ot", _0x4f0b47.id);
     _0x59e88e.searchParams.set("t", _0x4f0b47.token);
     return _0x59e88e.href;
@@ -4757,7 +4834,7 @@
     const {
       data: _0x4a5e75,
       error: _0x27ea61
-    } = await _0xf42482.from("chat_externo").insert({
+    } = await supabaseCliente.from("chat_externo").insert({
       modo: _0x1478aa.modo,
       nombre: _0x1478aa.nombre
     }).select().single();
@@ -4769,23 +4846,23 @@
       token: _0x4a5e75.token,
       vistos: []
     };
-    _0x5478d9(_0x1478aa.modo, _0x1478aa.nombre);
+    guardarGrupo(_0x1478aa.modo, _0x1478aa.nombre);
   }
   async function __chatExtRegenerar(_0x502d5a) {
     const _0x3d92d1 = __chatExtClave();
     const {
       error: _0x51aead
-    } = await _0xf42482.from("chat_externo").update({
+    } = await supabaseCliente.from("chat_externo").update({
       token: _0x3d92d1
     }).eq("id", _0x502d5a.datos.chatExt.id);
     if (_0x51aead) {
       throw _0x51aead;
     }
     _0x502d5a.datos.chatExt.token = _0x3d92d1;
-    _0x5478d9(_0x502d5a.modo, _0x502d5a.nombre);
+    guardarGrupo(_0x502d5a.modo, _0x502d5a.nombre);
   }
   function __chatExtAplicar(_0x2981e6, _0x469d1e) {
-    const _0x2c35c3 = _0x469d1e.codigo ? _0x4746f7(_0x469d1e.codigo) : null;
+    const _0x2c35c3 = _0x469d1e.codigo ? buscarPorCodigo(_0x469d1e.codigo) : null;
     const _0x576e18 = Math.max(1, parseInt(_0x469d1e.cantidad, 10) || 1);
     if (!_0x2981e6.pendiente.requesterName) {
       _0x2981e6.pendiente.requesterName = _0x469d1e.autor;
@@ -4795,7 +4872,7 @@
       _0x28642c.qty += _0x576e18;
     } else {
       _0x2981e6.pendiente.items.push(_0x2c35c3 ? {
-        id: _0x588d17(),
+        id: nuevoId(),
         itemId: _0x2c35c3.id,
         code: _0x2c35c3.code,
         desc: _0x2c35c3.desc,
@@ -4804,7 +4881,7 @@
         pedido: 0,
         reserva: 0
       } : {
-        id: _0x588d17(),
+        id: nuevoId(),
         itemId: null,
         code: "",
         desc: "",
@@ -4816,24 +4893,24 @@
         destino: ""
       });
     }
-    _0x356c43(_0x2981e6.chat, "Taller (app externa) · " + _0x469d1e.autor + ": " + _0x469d1e.texto + " × " + _0x576e18);
+    anadirMensajeChat(_0x2981e6.chat, "Taller (app externa) · " + _0x469d1e.autor + ": " + _0x469d1e.texto + " × " + _0x576e18);
   }
   async function __chatExtSincronizar() {
-    if (!_0xf42482 || __chatExtOcupado || Date.now() - __chatExtUltimo < __CHAT_EXT_INTERVALO_MS) {
+    if (!supabaseCliente || __chatExtOcupado || Date.now() - __chatExtUltimo < __CHAT_EXT_INTERVALO_MS) {
       return;
     }
-    const _0x35ba6c = Object.keys(_0x47d525.groupData).filter(_0xce61e4 => _0x47d525.groupData[_0xce61e4] && _0x47d525.groupData[_0xce61e4].chatExt);
+    const _0x35ba6c = Object.keys(estado.groupData).filter(_0xce61e4 => estado.groupData[_0xce61e4] && estado.groupData[_0xce61e4].chatExt);
     if (!_0x35ba6c.length) {
       return;
     }
     __chatExtUltimo = Date.now();
     __chatExtOcupado = true;
     try {
-      const _0xcc0074 = _0x35ba6c.map(_0x21857b => _0x47d525.groupData[_0x21857b].chatExt.id);
+      const _0xcc0074 = _0x35ba6c.map(_0x21857b => estado.groupData[_0x21857b].chatExt.id);
       const {
         data: _0x270157,
         error: _0x521fd5
-      } = await _0xf42482.from("chat_externo_mensajes").select("*").in("ot_id", _0xcc0074).eq("importado", false).order("created_at", {
+      } = await supabaseCliente.from("chat_externo_mensajes").select("*").in("ot_id", _0xcc0074).eq("importado", false).order("created_at", {
         ascending: true
       }).limit(200);
       if (_0x521fd5 || !_0x270157 || !_0x270157.length) {
@@ -4841,11 +4918,11 @@
       }
       const _0xcfc8d0 = new Set();
       _0x270157.forEach(_0x3fa4f7 => {
-        const _0x3224d4 = _0x35ba6c.find(_0x27a7bc => _0x47d525.groupData[_0x27a7bc].chatExt.id === _0x3fa4f7.ot_id);
+        const _0x3224d4 = _0x35ba6c.find(_0x27a7bc => estado.groupData[_0x27a7bc].chatExt.id === _0x3fa4f7.ot_id);
         if (!_0x3224d4) {
           return;
         }
-        const _0x39add2 = _0x47d525.groupData[_0x3224d4];
+        const _0x39add2 = estado.groupData[_0x3224d4];
         if (_0x39add2.chatExt.vistos.includes(_0x3fa4f7.id)) {
           return;
         }
@@ -4858,13 +4935,13 @@
       });
       _0xcfc8d0.forEach(_0x14a67a => {
         const _0x2430c1 = _0x14a67a.split("::");
-        _0x5478d9(_0x2430c1[0], _0x2430c1.slice(1).join("::"));
+        guardarGrupo(_0x2430c1[0], _0x2430c1.slice(1).join("::"));
       });
-      await _0xf42482.from("chat_externo_mensajes").update({
+      await supabaseCliente.from("chat_externo_mensajes").update({
         importado: true
       }).in("id", _0x270157.map(_0x5a73de => _0x5a73de.id));
       if (_0xcfc8d0.size) {
-        _0x474249();
+        render();
       }
     } catch (_0x434e87) {} finally {
       __chatExtOcupado = false;
@@ -4876,8 +4953,8 @@
       _0x5b04e1.remove();
     }
     const _0x347dec = __chatExtGrupo();
-    const _0xaa91d6 = _0x231ff7(".chat-tabs-row");
-    if (!_0xf42482 || _0x2df77d() !== "almacen" || _0x5592da !== "chat" || !_0x347dec || !_0x347dec.datos || !_0xaa91d6) {
+    const _0xaa91d6 = $(".chat-tabs-row");
+    if (!supabaseCliente || _0x2df77d() !== "almacen" || _0x5592da !== "chat" || !_0x347dec || !_0x347dec.datos || !_0xaa91d6) {
       return;
     }
     const _0x4ac14b = _0x347dec.datos.chatExt;
@@ -4889,26 +4966,26 @@
     _0xaa91d6.after(_0x200324);
     const _0x1afab2 = _0x183b31 => _0x279f78("No se pudo completar: " + __errorAmable(_0x183b31));
     if (!_0x4ac14b) {
-      _0x231ff7("#chatExtCrearBtn").addEventListener("click", async () => {
+      $("#chatExtCrearBtn").addEventListener("click", async () => {
         try {
           await __chatExtCrear(_0x347dec);
           __clasifCopiar(__chatExtUrl(_0x347dec.datos.chatExt));
-          _0x474249();
+          render();
         } catch (_0x4ef71d) {
           _0x1afab2(_0x4ef71d);
         }
       });
       return;
     }
-    _0x231ff7("#chatExtCopiarBtn").addEventListener("click", () => __clasifCopiar(__chatExtUrl(_0x4ac14b)));
-    _0x231ff7("#chatExtRegenerarBtn").addEventListener("click", async () => {
+    $("#chatExtCopiarBtn").addEventListener("click", () => __clasifCopiar(__chatExtUrl(_0x4ac14b)));
+    $("#chatExtRegenerarBtn").addEventListener("click", async () => {
       if (!(await _0x2cc777("¿Regenerar el enlace? El enlace anterior dejará de funcionar y habrá que pegar el nuevo en la otra aplicación."))) {
         return;
       }
       try {
         await __chatExtRegenerar(_0x347dec);
         __clasifCopiar(__chatExtUrl(_0x347dec.datos.chatExt));
-        _0x474249();
+        render();
       } catch (_0x8beed5) {
         _0x1afab2(_0x8beed5);
       }
@@ -5038,7 +5115,7 @@
     }
     const _0xfb7abe = __chatExtGrupo();
     const _0x3fd869 = document.getElementById("chatMensajeInput");
-    const _0x388d91 = _0x3fd869 && _0x3fd869.closest(".ticket") || _0x231ff7(".chat-tabs-row");
+    const _0x388d91 = _0x3fd869 && _0x3fd869.closest(".ticket") || $(".chat-tabs-row");
     if (!_0xfb7abe || !_0xfb7abe.datos || _0x5592da !== "chat" || !_0x388d91) {
       return;
     }
@@ -5055,7 +5132,7 @@
     }
     if (_0x3f408d && _0x3f408d.length) {
       _0x1d52b7 += "<div class=\"clasif-rap-grid\" style=\"margin-top:10px;\">" + _0x3f408d.map((_0x31ef69, _0x406bec) => {
-        const _0x478947 = _0x31ef69.ref ? (_0x47d525.catalog || []).find(_0x3d7d52 => _0x3d7d52.id === _0x31ef69.ref) : null;
+        const _0x478947 = _0x31ef69.ref ? (estado.catalog || []).find(_0x3d7d52 => _0x3d7d52.id === _0x31ef69.ref) : null;
         return "<label class=\"clasif-rap-item\"><input type=\"checkbox\" data-texto-chk=\"" + _0x406bec + "\"" + (_0x31ef69.marcada ? " checked" : "") + "><span class=\"clasif-rap-txt\">" + _0x1d1ab0(_0x31ef69.desc) + "<small>" + (_0x478947 ? "→ " + _0x1d1ab0(_0x478947.code + " — " + (_0x478947.desc || "")) : "sin referencia (texto libre)") + (_0x31ef69.ia ? " · IA" : "") + "</small></span></label>";
       }).join("") + "</div><button type=\"button\" class=\"btn primary\" data-texto-anadir style=\"width:100%; margin-top:10px;\">Añadir a la solicitud</button>";
     } else if (_0x3f408d) {
@@ -5099,7 +5176,7 @@
     }
   }
   function __analisisLocal() {
-    const _0x2402be = _0x47d525;
+    const _0x2402be = estado;
     const _0x55b63c = Date.now();
     const _0x3f2907 = _0x55b63c - 2592000000;
     const _0xabcf7 = _0x55b63c - 7776000000;
@@ -5161,7 +5238,7 @@
     if (_0x3996ad) {
       _0x3996ad.remove();
     }
-    if (_0x47d525.mode !== "resumen" || _0x2df77d() !== "almacen") {
+    if (estado.mode !== "resumen" || _0x2df77d() !== "almacen") {
       return;
     }
     const _0x14bbcb = [...document.querySelectorAll(".panel-title,.eyebrow")].find(_0x40dae4 => _0x40dae4.textContent.trim() === "Almacén");
@@ -5182,8 +5259,8 @@
     _0x5765ad.style.marginBottom = "14px";
     _0x5765ad.innerHTML = "<p class=\"panel-title\">Análisis de actividad (30 días)</p>" + _0x145208("Más consumo", _0x7d28e0.top) + _0x145208("Se agotan en ≤10 días", _0x7d28e0.agotan) + _0x145208("Stock bajo (" + _0x7d28e0.nBajo + ")", _0x7d28e0.bajo) + _0x145208("Salidas anómalas", _0x7d28e0.anomalias) + "<p style=\"margin:0 0 8px; font-size:12.5px;\"><b>Con stock y sin movimiento en 90 días:</b> " + _0x7d28e0.latentes + "</p>" + (_0x670645 ? "<ul id=\"analisisIa\" style=\"margin:8px 0; padding-left:18px; font-size:12.5px;\">" + _0x670645.map(_0xb3af50 => "<li>" + _0x1d1ab0(_0xb3af50) + "</li>").join("") + "</ul>" : "") + "<button type=\"button\" class=\"cam-btn\" id=\"analisisIaBtn\" style=\"width:100%;\"" + (_0x670645 || _0x19a3d0.resumen >= __IA_MAX_RESUMEN_DIA ? " disabled" : "") + ">" + (_0x670645 ? "Recomendaciones de la IA (ya generadas con estos datos)" : "Pedir recomendaciones a la IA (usos de hoy: " + _0x19a3d0.resumen + "/" + __IA_MAX_RESUMEN_DIA + ")") + "</button>";
     _0x14e216.before(_0x5765ad);
-    _0x231ff7("#analisisIaBtn").addEventListener("click", async () => {
-      const _0x314f26 = _0x231ff7("#analisisIaBtn");
+    $("#analisisIaBtn").addEventListener("click", async () => {
+      const _0x314f26 = $("#analisisIaBtn");
       _0x314f26.disabled = true;
       _0x314f26.textContent = "Consultando…";
       try {
@@ -5201,7 +5278,7 @@
       } catch (_0x4a4aa5) {
         _0x279f78("La IA no ha respondido: " + __errorAmable(_0x4a4aa5) + ".");
       }
-      _0x474249();
+      render();
     });
   }
   function __reposicionTexto(_0xb6de0a) {
@@ -5212,7 +5289,7 @@
     if (_0x1e68ca) {
       _0x1e68ca.remove();
     }
-    if (_0x47d525.mode !== "resumen" || _0x2df77d() !== "almacen") {
+    if (estado.mode !== "resumen" || _0x2df77d() !== "almacen") {
       return;
     }
     const _0x1498d2 = __reposicionLista().sort((_0xda2be0, _0x56e824) => _0xda2be0.qty - __clasifMinimo(_0xda2be0) - (_0x56e824.qty - __clasifMinimo(_0x56e824))).slice(0, 40);
@@ -5232,7 +5309,7 @@
     _0x203b41.after(_0x8a1de);
     __reposicionAjustar();
     const _0x451d11 = () => [..._0x8a1de.querySelectorAll("[data-repo-sel]")].filter(_0x36f3b0 => _0x36f3b0.checked).map(_0x343c4b => {
-      const _0x30b80d = (_0x47d525.catalog || []).find(_0x2742b9 => _0x2742b9.id === _0x343c4b.getAttribute("data-repo-sel"));
+      const _0x30b80d = (estado.catalog || []).find(_0x2742b9 => _0x2742b9.id === _0x343c4b.getAttribute("data-repo-sel"));
       const _0x449b00 = parseInt(_0x343c4b.closest("label").querySelector("[data-repo-cant]").value, 10);
       if (_0x30b80d && _0x449b00 > 0) {
         return {
@@ -5281,7 +5358,7 @@
     }
     const _0x45d5ea = !!_0x1b4d13.reservaActiva;
     _0x578c59.forEach(_0x436112 => {
-      const _0x577c8e = _0x588d17();
+      const _0x577c8e = nuevoId();
       _0x3edc96.pendiente.items.push({
         id: _0x577c8e,
         itemId: null,
@@ -5296,7 +5373,7 @@
         reserva: _0x45d5ea ? 1 : 0,
         destino: ""
       });
-      _0x356c43(_0x3edc96.chat, "Pedido: " + _0x436112.desc + " ×" + (_0x436112.qty || 1) + " (sin referencia todavía)");
+      anadirMensajeChat(_0x3edc96.chat, "Pedido: " + _0x436112.desc + " ×" + (_0x436112.qty || 1) + " (sin referencia todavía)");
       _0x3edc96.chat[_0x3edc96.chat.length - 1].pendienteId = _0x577c8e;
     });
     __clasifLimpiarChat();
@@ -5332,8 +5409,8 @@
       if (_0x2df77d() !== "almacen") {
         return;
       }
-      const _0x14ef3c = _0x47d525.mode;
-      const _0x4f9494 = _0x47d525.current[_0x14ef3c];
+      const _0x14ef3c = estado.mode;
+      const _0x4f9494 = estado.current[_0x14ef3c];
       if (_0x14ef3c !== "montaje" && _0x14ef3c !== "proyecto") {
         return;
       }
@@ -5344,7 +5421,7 @@
       const _0xee0917 = __autoEnvioLineas(_0x14ef3c, _0x4f9494).length;
       if (!_0xee0917) {
         __autoEnvioCancelar();
-        const _0x5549b0 = _0x47d525.groupData[_0x14ef3c + "::" + _0x4f9494];
+        const _0x5549b0 = estado.groupData[_0x14ef3c + "::" + _0x4f9494];
         const _0x583b14 = (_0x5549b0 && _0x5549b0.pendiente && _0x5549b0.pendiente.items || []).filter(_0x1df040 => {
           if (_0x1df040.extPeticion) {
             return false;
@@ -5420,7 +5497,7 @@
     }
     const _0xbfea13 = document.querySelector(".chat-tabs-row");
     const _0x3e9497 = __GUIAS[_0x5592da + "|" + _0x2df77d()];
-    if (!_0xbfea13 || !_0x3e9497 || _0x47d525.mode !== "montaje" && _0x47d525.mode !== "proyecto") {
+    if (!_0xbfea13 || !_0x3e9497 || estado.mode !== "montaje" && estado.mode !== "proyecto") {
       return;
     }
     const _0x1983e9 = document.createElement("p");
@@ -5438,7 +5515,7 @@
       return;
     }
     _0x5bb334.style.display = "";
-    if (_0x47d525.mode !== "montaje" && _0x47d525.mode !== "proyecto") {
+    if (estado.mode !== "montaje" && estado.mode !== "proyecto") {
       return;
     }
     if (__escanerAbierto === null) {
@@ -5511,11 +5588,11 @@
           return;
         }
         __clasifMigrar(_0x5638df);
-        if (JSON.stringify(_0x5638df) === JSON.stringify(_0x47d525.clasificacion)) {
+        if (JSON.stringify(_0x5638df) === JSON.stringify(estado.clasificacion)) {
           return;
         }
-        _0x47d525.clasificacion = _0x5638df;
-        _0x474249();
+        estado.clasificacion = _0x5638df;
+        render();
       }).catch(() => {});
     } catch (_0x2dbc76) {}
   }
@@ -5529,11 +5606,11 @@
       return;
     }
     __guardarClasif();
-    Object.keys(_0x1cffa5).forEach(_0x1972a4 => _0x5478d9(_0x1cffa5[_0x1972a4][0], _0x1cffa5[_0x1972a4][1]));
+    Object.keys(_0x1cffa5).forEach(_0x1972a4 => guardarGrupo(_0x1cffa5[_0x1972a4][0], _0x1cffa5[_0x1972a4][1]));
   }
   function __clasifGuardarPronto() {
-    const _0x4b1b0b = _0x47d525.mode;
-    const _0x57a30e = _0x47d525.current[_0x4b1b0b];
+    const _0x4b1b0b = estado.mode;
+    const _0x57a30e = estado.current[_0x4b1b0b];
     if (!__clasifPend) {
       __clasifPend = {};
       setTimeout(__clasifVaciar, 300);
@@ -5554,7 +5631,7 @@
   let __clasifRapClave = "";
   let __clasifCtxUltimo = "";
   function __clasifContexto() {
-    return _0x47d525.mode + "|" + (_0x47d525.current[_0x47d525.mode] || "") + "|" + _0x5592da;
+    return estado.mode + "|" + (estado.current[estado.mode] || "") + "|" + _0x5592da;
   }
   function __clasifLimpiarChat() {
     const _0x508bfe = document.getElementById("chatMensajeInput");
@@ -5587,7 +5664,7 @@
       if (_0x5592da !== "chat") {
         __pmActivo = false;
       }
-      const _0x8d6a0f = _0x47d525.mode + "|" + (_0x47d525.current[_0x47d525.mode] || "");
+      const _0x8d6a0f = estado.mode + "|" + (estado.current[estado.mode] || "");
       if (_0x8d6a0f !== __clasifRapClave) {
         __pmActivo = false;
       }
@@ -5597,7 +5674,7 @@
         __clasifRapGestion = false;
       }
       __clasifRapClave = _0x8d6a0f;
-      if (_0x47d525.mode !== "montaje" && _0x47d525.mode !== "proyecto") {
+      if (estado.mode !== "montaje" && estado.mode !== "proyecto") {
         return;
       }
       const _0x50e29e = document.querySelector(".chat-tabs-row");
@@ -5621,12 +5698,12 @@
       _0x46f1a4.addEventListener("click", () => {
         __pmActivo = true;
         _0x5592da = "chat";
-        _0x474249();
+        render();
       });
       _0x22c995.addEventListener("click", () => {
         if (__pmActivo) {
           __pmActivo = false;
-          _0x474249();
+          render();
         }
       }, true);
       if (__pmActivo) {
@@ -5662,7 +5739,7 @@
       const _0x1c6205 = _0x2df77d() === "almacen";
       const _0x513312 = __clasifStore().pq.map(_0x35855f => ({
         p: _0x35855f,
-        cat: _0x35855f.code ? (_0x47d525.catalog || []).find(_0x1e2d23 => String(_0x1e2d23.code).toLowerCase() === String(_0x35855f.code).toLowerCase()) || null : null
+        cat: _0x35855f.code ? (estado.catalog || []).find(_0x1e2d23 => String(_0x1e2d23.code).toLowerCase() === String(_0x35855f.code).toLowerCase()) || null : null
       }));
       const _0x95ed45 = document.createElement("div");
       _0x95ed45.id = "clasifRapido";
@@ -5749,7 +5826,7 @@
             const _0xe49b8d = 1;
             const _0x277924 = _0x4d74d3.cat;
             _0x30ac7d.pendiente.items.push(_0x277924 ? {
-              id: _0x588d17(),
+              id: nuevoId(),
               itemId: _0x277924.id,
               code: _0x277924.code,
               desc: _0x277924.desc,
@@ -5761,7 +5838,7 @@
               tipo: "pequeno",
               tipoOk: true
             } : {
-              id: _0x588d17(),
+              id: nuevoId(),
               itemId: null,
               code: "",
               desc: "",
@@ -5781,38 +5858,38 @@
           __clasifRapFiltro = "";
           if (!_0x3ca202) {
             _0x279f78("Esos materiales ya están en la orden.");
-            _0x474249();
+            render();
             return;
           }
-          _0x356c43(_0x30ac7d.chat, "Pequeño material: " + _0x3c6f70.join(", ") + " (pide: " + (_0x30ac7d.pendiente.requesterName || "sin especificar") + ")");
+          anadirMensajeChat(_0x30ac7d.chat, "Pequeño material: " + _0x3c6f70.join(", ") + " (pide: " + (_0x30ac7d.pendiente.requesterName || "sin especificar") + ")");
           _0x29f0a4();
           try {
             if (_0x2df77d() === "taller") {
-              const _0x11e7e3 = _0x47d525.current[_0x47d525.mode];
-              const _0x46d8f8 = _0x297402(_0x47d525.mode, _0x11e7e3);
-              _0x2fa439("Nueva petición por chat — " + _0x11e7e3, "Pequeño material: " + _0x3c6f70.join(", ") + "\n\nPedido por: " + (_0x30ac7d.pendiente.requesterName || "sin especificar"));
-              _0x47d525.notifications.unshift({
-                id: _0x588d17(),
-                groupKind: _0x47d525.mode,
+              const _0x11e7e3 = estado.current[estado.mode];
+              const _0x46d8f8 = buscarGrupo(estado.mode, _0x11e7e3);
+              enviarCorreoAviso("Nueva petición por chat — " + _0x11e7e3, "Pequeño material: " + _0x3c6f70.join(", ") + "\n\nPedido por: " + (_0x30ac7d.pendiente.requesterName || "sin especificar"));
+              estado.notifications.unshift({
+                id: nuevoId(),
+                groupKind: estado.mode,
                 groupName: _0x11e7e3,
                 requesterName: _0x30ac7d.pendiente.requesterName || "sin especificar",
                 tipo: _0x46d8f8 ? _0x46d8f8.tipo || "" : "",
                 lineas: _0x3ca202,
-                ts: _0x347a69(),
+                ts: fechaHoraTexto(),
                 tsMs: Date.now(),
                 leida: false
               });
-              _0xc28b67();
+              guardarAvisos();
             }
           } catch (_0x588e63) {}
-          _0x474249();
+          render();
         });
       }
       if (_0x1c6205) {
         const _0x551f5 = _0x95ed45.querySelector("[data-rap-gestion-caja]");
         _0x95ed45.querySelector("[data-rap-gestion]").addEventListener("click", () => {
           __clasifRapGestion = !__clasifRapGestion;
-          _0x474249();
+          render();
         });
         if (__clasifRapGestion) {
           let _0x22a4d1 = "<p style=\"font-size:12px; color:var(--text-muted); margin:10px 0 4px;\">Esta lista es independiente de las órdenes: quitar una línea de un pedido no la modifica. Solo se elimina aquí, de forma manual.</p>";
@@ -5834,7 +5911,7 @@
               _0x19a7ec.pq = _0x19a7ec.pq.filter(_0x92b7e2 => _0x92b7e2.id !== _0x574bbd.p.id);
               delete __clasifRapSel[_0x574bbd.p.id];
               __guardarClasif();
-              _0x474249();
+              render();
             });
           });
           _0x551f5.querySelector("[data-pq-anadir]").addEventListener("click", () => {
@@ -5842,7 +5919,7 @@
             if (!_0x3b9895) {
               return;
             }
-            const _0x1391a7 = _0x4746f7(_0x3b9895);
+            const _0x1391a7 = buscarPorCodigo(_0x3b9895);
             __clasifRegistrarPQ(_0x1391a7 ? {
               code: _0x1391a7.code,
               desc: _0x1391a7.desc
@@ -5852,7 +5929,7 @@
               textoLibre: _0x3b9895
             });
             __guardarClasif();
-            _0x474249();
+            render();
           });
         }
       }
@@ -5866,10 +5943,10 @@
   const __CATEGORIA_ROPA = "Ropa";
   let __ropaExcluidas = new Set();
   function __ropaCatalogo() {
-    return (_0x47d525.catalog || []).filter(_0x4b0a69 => __clasifNormalizar(_0x4b0a69.categoria) === "ropa").sort((_0x5542c2, _0x580441) => String(_0x5542c2.desc || _0x5542c2.code).localeCompare(String(_0x580441.desc || _0x580441.code), "es"));
+    return (estado.catalog || []).filter(_0x4b0a69 => __clasifNormalizar(_0x4b0a69.categoria) === "ropa").sort((_0x5542c2, _0x580441) => String(_0x5542c2.desc || _0x5542c2.code).localeCompare(String(_0x580441.desc || _0x580441.code), "es"));
   }
   function __ropaItem(_0x30e3ba) {
-    return (_0x47d525.catalog || []).find(_0x5debf8 => _0x5debf8.id === _0x30e3ba) || null;
+    return (estado.catalog || []).find(_0x5debf8 => _0x5debf8.id === _0x30e3ba) || null;
   }
   function __ropaTexto(_0xd57b9f) {
     return _0xd57b9f.code + " — " + (_0xd57b9f.desc || "");
@@ -5939,13 +6016,13 @@
     }
     _0x4baf2b.forEach(_0x558578 => _0x1d4277(__ropaItem(_0x558578.itemId), _0x558578.qty, "salida", "Entrega de ropa — " + _0x2c8316.nombre));
     (_0x2c8316.entregas = _0x2c8316.entregas || []).push({
-      id: _0x588d17(),
+      id: nuevoId(),
       ts: Date.now(),
       lineas: _0x4baf2b
     });
     __guardarTrabajadores();
     _0x279f78("Ropa entregada y descontada del stock.");
-    _0x474249();
+    render();
   }
   async function __ropaAnular(_0x4d517c, _0x27042c) {
     if (!(await _0x2cc777("¿Anular la entrega del " + __ropaFecha(_0x27042c.ts) + "? Las prendas vuelven al stock."))) {
@@ -5959,41 +6036,41 @@
     });
     _0x4d517c.entregas = _0x4d517c.entregas.filter(_0x4cbfdf => _0x4cbfdf.id !== _0x27042c.id);
     __guardarTrabajadores();
-    _0x474249();
+    render();
   }
   const __fichaEditando = new Set();
   function __fichaCreada(_0x363b8e) {
     return !!_0x363b8e.ficha || (_0x363b8e.entregas || []).length > 0;
   }
   function __anadirTrabajador() {
-    const _0x11a697 = _0x231ff7("#nuevoTrabajadorNombre");
+    const _0x11a697 = $("#nuevoTrabajadorNombre");
     const _0x5147e3 = (_0x11a697 && _0x11a697.value || "").trim();
     if (!_0x5147e3) {
       return;
     }
     const _0x27786c = {
-      id: _0x588d17(),
+      id: nuevoId(),
       nombre: _0x5147e3,
       ropa: [],
       entregas: []
     };
-    _0x47d525.trabajadores = _0x47d525.trabajadores || [];
-    _0x47d525.trabajadores.push(_0x27786c);
+    estado.trabajadores = estado.trabajadores || [];
+    estado.trabajadores.push(_0x27786c);
     __trabajadorActualId = _0x27786c.id;
     __guardarTrabajadores();
-    _0x474249();
+    render();
   }
   function __renderTrabajadores() {
-    if (_0x47d525.mode !== "trabajadores") {
+    if (estado.mode !== "trabajadores") {
       return;
     }
-    const _0x1b7557 = _0x231ff7("#mainList");
+    const _0x1b7557 = $("#mainList");
     if (!_0x1b7557) {
       return;
     }
     const _0x3f3ab2 = _0x1d1ab0;
     const _0x35473d = _0x2df77d() === "almacen";
-    const _0x43b96c = _0x47d525.trabajadores || [];
+    const _0x43b96c = estado.trabajadores || [];
     const _0x471ec1 = _0x43b96c.find(_0x3e6dc3 => _0x3e6dc3.id === __trabajadorActualId) || _0x43b96c[0] || null;
     if (_0x471ec1 && _0x471ec1.id !== __trabajadorActualId) {
       __trabajadorActualId = _0x471ec1.id;
@@ -6029,26 +6106,26 @@
       _0x87b1ae += "<div class=\"panel\" style=\"margin-top:14px;\"><div style=\"display:flex; justify-content:space-between; align-items:center; gap:8px;\">" + (_0x592db6 ? "<input type=\"text\" id=\"fichaNombre\" value=\"" + _0x3f3ab2(_0x471ec1.nombre) + "\" aria-label=\"Nombre del trabajador\" style=\"flex:1; min-width:0; font-weight:700;\">" : "<p class=\"panel-title\" style=\"margin:0;\">" + _0x3f3ab2(_0x471ec1.nombre) + "</p>") + (_0x39bf3e ? "<button class=\"btn\" data-ficha-editar=\"" + _0x3f3ab2(_0x471ec1.id) + "\" style=\"width:auto; padding:6px 14px;\">" + (_0x592db6 ? "Listo" : "Editar") + "</button>" : "") + "<button class=\"btn ghost-danger\" data-quitar-trabajador=\"" + _0x3f3ab2(_0x471ec1.id) + "\" style=\"width:auto; padding:6px 14px;\">Eliminar</button></div><p class=\"panel-title\" style=\"font-size:14px; margin-top:16px;\">" + (_0x39bf3e ? "Ficha de ropa" + (_0x471ec1.ficha ? " · creada el " + _0x3f3ab2(__ropaFecha(_0x471ec1.ficha.ts)) : "") : "Ropa asignada (borrador)") + "</p><p style=\"color:var(--text-faint); font-size:12.5px; margin:0 0 4px;\">" + (_0x39bf3e ? "Nada descuenta stock hasta pulsar «Entregar». Las prendas se conservan en la ficha después de entregar." : "Asigna las prendas y pulsa «Crear ficha». Hasta entonces no hay ficha y no se descuenta nada del stock.") + "</p>" + _0x20f91a + (_0x592db6 ? _0x54a61d.length ? "<div style=\"display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;\"><select id=\"ropaAsignarSel\" style=\"flex:1 1 200px; min-width:0;\">" + _0x54a61d.map(_0x432f0f => "<option value=\"" + _0x3f3ab2(_0x432f0f.id) + "\">" + _0x3f3ab2(__ropaTexto(_0x432f0f)) + "</option>").join("") + "</select><input type=\"number\" id=\"ropaAsignarQty\" min=\"1\" value=\"1\" style=\"width:72px;\"><button class=\"btn primary\" id=\"ropaAsignarBtn\" style=\"width:auto; padding:8px 16px;\">" + (_0x39bf3e ? "Añadir a la ficha" : "Asignar") + "</button></div>" : _0x513993.length ? "" : "<div style=\"margin-top:12px;\">" + _0x42d05f + "</div>" : "") + (!_0x39bf3e ? "<button type=\"button\" class=\"btn primary\" id=\"fichaCrearBtn\" style=\"width:100%; margin-top:14px;\"" + (_0x5a8334.length ? "" : " disabled") + ">Crear ficha</button>" : "") + (_0x39bf3e && !_0x592db6 && _0x35473d && _0x5a8334.length ? "<button type=\"button\" class=\"btn primary\" id=\"ropaEntregarBtn\" style=\"width:100%; margin-top:14px;\"></button>" : "") + (_0x39bf3e ? "<p class=\"panel-title\" style=\"font-size:14px; margin-top:20px;\">Listado de ropa entregada</p>" + (_0xf3a67.length ? _0xf3a67.map(_0x52e856 => "<div class=\"clasif-fila\" style=\"align-items:flex-start;\"><div class=\"clasif-desc\"><strong>" + _0x3f3ab2(__ropaFecha(_0x52e856.ts)) + "</strong><br>" + _0x52e856.lineas.map(_0x13cfb8 => "<small>" + _0x3f3ab2(__ropaLineaTexto(_0x13cfb8).slice(2)) + "</small>").join("<br>") + "</div><div class=\"clasif-seg\"><button type=\"button\" data-ropa-hoja=\"" + _0x3f3ab2(_0x52e856.id) + "\">Hoja firmable</button>" + (_0x35473d ? "<button type=\"button\" data-ropa-anular=\"" + _0x3f3ab2(_0x52e856.id) + "\">Anular</button>" : "") + "</div></div>").join("") + "<div class=\"scanner-row\" style=\"margin-top:10px;\"><button type=\"button\" class=\"cam-btn\" id=\"ropaCopiarBtn\" style=\"flex:1;\">Copiar listado</button><button type=\"button\" class=\"cam-btn\" id=\"ropaDescargarBtn\" style=\"flex:1;\">Descargar listado (Excel)</button></div>" : "<p style=\"color:var(--text-faint); font-size:13.5px;\">Todavía no se le ha entregado ropa.</p>") : "") + "</div>";
     }
     _0x1b7557.innerHTML = _0x87b1ae;
-    const _0x5b6efd = _0x231ff7("#ropaMesesInput");
+    const _0x5b6efd = $("#ropaMesesInput");
     if (_0x5b6efd) {
       _0x5b6efd.addEventListener("change", () => {
         const _0x50f0a8 = Math.min(60, Math.max(1, parseInt(_0x5b6efd.value, 10) || 12));
-        _0x47d525.settings.ropaMeses = _0x50f0a8;
-        _0x1968be("settings", _0x47d525.settings);
-        _0x474249();
+        estado.settings.ropaMeses = _0x50f0a8;
+        guardar("settings", estado.settings);
+        render();
       });
     }
     _0x1b7557.querySelectorAll("[data-ropa-ren]").forEach(_0xb90c => {
       _0xb90c.addEventListener("click", () => {
         __trabajadorActualId = _0xb90c.getAttribute("data-ropa-ren");
-        _0x474249();
+        render();
       });
     });
-    const _0xa665e9 = _0x231ff7("#anadirTrabajadorBtn");
+    const _0xa665e9 = $("#anadirTrabajadorBtn");
     if (_0xa665e9) {
       _0xa665e9.addEventListener("click", __anadirTrabajador);
     }
-    const _0x3550a2 = _0x231ff7("#nuevoTrabajadorNombre");
+    const _0x3550a2 = $("#nuevoTrabajadorNombre");
     if (_0x3550a2) {
       _0x3550a2.addEventListener("keydown", _0x3e687a => {
         if (_0x3e687a.key === "Enter") {
@@ -6059,25 +6136,25 @@
     _0x1b7557.querySelectorAll("[data-trabajador-id]").forEach(_0x5562e1 => {
       _0x5562e1.addEventListener("click", () => {
         __trabajadorActualId = _0x5562e1.getAttribute("data-trabajador-id");
-        _0x474249();
+        render();
       });
     });
     _0x1b7557.querySelectorAll("[data-quitar-trabajador]").forEach(_0x5e87b9 => {
       _0x5e87b9.addEventListener("click", () => {
         const _0x48afb0 = _0x5e87b9.getAttribute("data-quitar-trabajador");
-        _0x47d525.trabajadores = (_0x47d525.trabajadores || []).filter(_0x9096e3 => _0x9096e3.id !== _0x48afb0);
+        estado.trabajadores = (estado.trabajadores || []).filter(_0x9096e3 => _0x9096e3.id !== _0x48afb0);
         __fichaEditando.delete(_0x48afb0);
         if (__trabajadorActualId === _0x48afb0) {
           __trabajadorActualId = null;
         }
         __guardarTrabajadores();
-        _0x474249();
+        render();
       });
     });
     if (!_0x471ec1) {
       return;
     }
-    const _0x5792d9 = _0x231ff7("#fichaNombre");
+    const _0x5792d9 = $("#fichaNombre");
     if (_0x5792d9) {
       _0x5792d9.addEventListener("change", () => {
         const _0x55e76f = _0x5792d9.value.trim();
@@ -6085,11 +6162,11 @@
           _0x471ec1.nombre = _0x55e76f;
         }
         __guardarTrabajadores();
-        _0x474249();
+        render();
       });
     }
     const _0x1aa089 = _0x471ec1.ropa = _0x471ec1.ropa || [];
-    const _0x1cb30b = _0x231ff7("#fichaCrearBtn");
+    const _0x1cb30b = $("#fichaCrearBtn");
     if (_0x1cb30b) {
       _0x1cb30b.addEventListener("click", () => {
         if (!_0x1aa089.length) {
@@ -6100,10 +6177,10 @@
         };
         __guardarTrabajadores();
         _0x279f78("Ficha creada. No se ha descontado nada del stock.");
-        _0x474249();
+        render();
       });
     }
-    const _0x333bc6 = _0x231ff7("[data-ficha-editar]");
+    const _0x333bc6 = $("[data-ficha-editar]");
     if (_0x333bc6) {
       _0x333bc6.addEventListener("click", () => {
         if (__fichaEditando.has(_0x471ec1.id)) {
@@ -6111,28 +6188,28 @@
         } else {
           __fichaEditando.add(_0x471ec1.id);
         }
-        _0x474249();
+        render();
       });
     }
-    const _0x53252e = _0x231ff7("#ropaAsignarBtn");
+    const _0x53252e = $("#ropaAsignarBtn");
     if (_0x53252e) {
       _0x53252e.addEventListener("click", () => {
         _0x1aa089.push({
-          itemId: _0x231ff7("#ropaAsignarSel").value,
-          qty: __ropaCantidad(_0x231ff7("#ropaAsignarQty").value)
+          itemId: $("#ropaAsignarSel").value,
+          qty: __ropaCantidad($("#ropaAsignarQty").value)
         });
         __guardarTrabajadores();
-        _0x474249();
+        render();
       });
     }
     _0x1b7557.querySelectorAll("[data-ropa-quitar]").forEach(_0x1fddd4 => {
       _0x1fddd4.addEventListener("click", () => {
         _0x471ec1.ropa = _0x1aa089.filter(_0x1fc020 => _0x1fc020.itemId !== _0x1fddd4.getAttribute("data-ropa-quitar"));
         __guardarTrabajadores();
-        _0x474249();
+        render();
       });
     });
-    const _0x2d0df5 = _0x231ff7("#ropaEntregarBtn");
+    const _0x2d0df5 = $("#ropaEntregarBtn");
     const _0x5f9c2d = () => {
       if (!_0x2d0df5) {
         return;
@@ -6183,11 +6260,11 @@
         }
       });
     });
-    const _0x217900 = _0x231ff7("#ropaCopiarBtn");
+    const _0x217900 = $("#ropaCopiarBtn");
     if (_0x217900) {
       _0x217900.addEventListener("click", () => __clasifCopiar(__ropaListadoTexto(_0x471ec1)));
     }
-    const _0xde6557 = _0x231ff7("#ropaDescargarBtn");
+    const _0xde6557 = $("#ropaDescargarBtn");
     if (_0xde6557) {
       _0xde6557.addEventListener("click", () => __ropaDescargar(_0x471ec1));
     }
@@ -6304,8 +6381,8 @@
     return __ETQ_FORMATOS.find(_0x38a05b => _0x38a05b.id === __etqFormatoId) || __ETQ_FORMATOS[0];
   }
   function __etqUbicaciones() {
-    const _0x27dbf4 = new Set((_0x47d525.ubicaciones || []).map(_0x432c1e => String(_0x432c1e).trim()));
-    (_0x47d525.catalog || []).forEach(_0x4ecf90 => {
+    const _0x27dbf4 = new Set((estado.ubicaciones || []).map(_0x432c1e => String(_0x432c1e).trim()));
+    (estado.catalog || []).forEach(_0x4ecf90 => {
       if (_0x4ecf90 && _0x4ecf90.location) {
         _0x27dbf4.add(String(_0x4ecf90.location).trim());
       }
@@ -6386,7 +6463,7 @@
     const _0x1fb7de = [];
     if (__etqTipo === "ref") {
       __etqSelRef.forEach((_0x139293, _0xd8c9b5) => {
-        const _0x1ae0fa = (_0x47d525.catalog || []).find(_0x298944 => _0x298944.id === _0xd8c9b5);
+        const _0x1ae0fa = (estado.catalog || []).find(_0x298944 => _0x298944.id === _0xd8c9b5);
         if (_0x1ae0fa && _0x1ae0fa.code) {
           for (let _0x21955c = 0; _0x21955c < _0x139293; _0x21955c++) {
             _0x1fb7de.push({
@@ -6442,7 +6519,7 @@
     const _0x1e9315 = _0x1d1ab0;
     const _0x5b1490 = __etqTipo === "ref";
     const _0xf0834 = _0x5b1490 ? __etqSelRef : __etqSelUb;
-    const _0x22d1f1 = [...new Set((_0x47d525.catalog || []).map(_0x3bb241 => (_0x3bb241.categoria || "").trim()).filter(Boolean))].sort((_0x5b3663, _0xa170bf) => _0x5b3663.localeCompare(_0xa170bf, "es"));
+    const _0x22d1f1 = [...new Set((estado.catalog || []).map(_0x3bb241 => (_0x3bb241.categoria || "").trim()).filter(Boolean))].sort((_0x5b3663, _0xa170bf) => _0x5b3663.localeCompare(_0xa170bf, "es"));
     _0x422e35.innerHTML = "<div class=\"clasif-seg clasif-vista\" style=\"margin-bottom:12px;\"><button type=\"button\" data-etq-tipo=\"ref\" class=\"" + (_0x5b1490 ? "on" : "") + "\">Referencias</button><button type=\"button\" data-etq-tipo=\"ub\" class=\"" + (_0x5b1490 ? "" : "on") + "\">Ubicaciones</button></div><label style=\"font-size:12px; color:var(--text-muted);\">Etiqueta (rollo de la Brother QL-700)</label><select id=\"etqFormato\" style=\"width:100%; margin:4px 0 12px;\">" + __ETQ_FORMATOS.map(_0x42f33f => "<option value=\"" + _0x42f33f.id + "\"" + (_0x42f33f.id === _0xaec946.id ? " selected" : "") + ">" + _0x1e9315(_0x42f33f.nombre) + "</option>").join("") + "</select>" + (_0x5b1490 ? "<div style=\"display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;\"><input type=\"text\" id=\"etqBuscar\" placeholder=\"Buscar por código, descripción o ubicación…\" style=\"flex:1 1 200px; min-width:0;\"><select id=\"etqCategoria\" style=\"flex:0 1 180px; min-width:0;\"><option value=\"\">Todas las categorías</option>" + _0x22d1f1.map(_0x29ca84 => "<option value=\"" + _0x1e9315(_0x29ca84) + "\">" + _0x1e9315(_0x29ca84) + "</option>").join("") + "</select></div>" : "<div style=\"display:flex; gap:8px; margin-bottom:8px;\"><input type=\"text\" id=\"etqNuevaUb\" placeholder=\"Otra ubicación (p. ej. A-12)\" style=\"flex:1; min-width:0;\"><button type=\"button\" class=\"cam-btn\" id=\"etqAnadirUb\" style=\"flex:none;\">Añadir</button></div>") + "<div style=\"display:flex; gap:8px; margin-bottom:8px;\"><button type=\"button\" class=\"cam-btn\" id=\"etqMarcar\" style=\"flex:1;\">Marcar las que se ven</button><button type=\"button\" class=\"cam-btn\" id=\"etqQuitar\" style=\"flex:1;\">Quitar marcas</button>" + (_0x5b1490 ? "<button type=\"button\" class=\"cam-btn\" id=\"etqSinEtq\" style=\"flex:1;\">Sin etiquetar</button>" : "") + "</div><div id=\"etqLista\" style=\"max-height:38vh; overflow:auto; border:1px solid var(--border); border-radius:8px; padding:0 10px;\"></div><p id=\"etqResumen\" style=\"font-size:12.5px; margin:10px 0 6px;\"></p><div style=\"display:flex; gap:8px;\"><button type=\"button\" class=\"cam-btn\" id=\"etqVistaBtn\" style=\"flex:1;\">Vista previa</button><button type=\"button\" class=\"btn primary\" id=\"etqImprimirBtn\" style=\"flex:1;\">Imprimir</button></div><div id=\"etqVista\" style=\"margin-top:12px; display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start;\"></div><p style=\"font-size:12px; color:var(--text-faint); margin:12px 0 0;\">En el cuadro de impresión: impresora Brother QL-700, papel con el mismo tamaño que el rollo cargado, márgenes «Ninguno» y escala 100 %. La QL-700 se conecta por USB: imprimir desde un ordenador con el controlador instalado.</p>";
     const _0xfa54af = _0x422e35.querySelector("#etqLista");
     const _0xaa20b = _0x422e35.querySelector("#etqResumen");
@@ -6451,7 +6528,7 @@
       const _0xb61896 = _0x5b1490 ? _0x422e35.querySelector("#etqCategoria").value : "";
       let _0x226292;
       if (_0x5b1490) {
-        _0x226292 = (_0x47d525.catalog || []).filter(_0x5d1ec8 => _0x5d1ec8 && _0x5d1ec8.code && (!_0xb61896 || (_0x5d1ec8.categoria || "").trim() === _0xb61896) && (!_0x164337 || [_0x5d1ec8.code, _0x5d1ec8.desc, _0x5d1ec8.referencia, _0x5d1ec8.marca, _0x5d1ec8.location].some(_0x338dd4 => String(_0x338dd4 || "").toLowerCase().includes(_0x164337)))).map(_0x5bd23e => ({
+        _0x226292 = (estado.catalog || []).filter(_0x5d1ec8 => _0x5d1ec8 && _0x5d1ec8.code && (!_0xb61896 || (_0x5d1ec8.categoria || "").trim() === _0xb61896) && (!_0x164337 || [_0x5d1ec8.code, _0x5d1ec8.desc, _0x5d1ec8.referencia, _0x5d1ec8.marca, _0x5d1ec8.location].some(_0x338dd4 => String(_0x338dd4 || "").toLowerCase().includes(_0x164337)))).map(_0x5bd23e => ({
           clave: _0x5bd23e.id,
           texto: _0x5bd23e.code,
           sub: _0x5bd23e.desc || "",
@@ -6550,7 +6627,7 @@
     });
     if (_0x5b1490) {
       _0x422e35.querySelector("#etqSinEtq").addEventListener("click", () => {
-        const _0x141420 = new Set(_0x47d525.settings.etqHechas || []);
+        const _0x141420 = new Set(estado.settings.etqHechas || []);
         const _0x5733f1 = _0x19ffee().filter(_0xe52da5 => !_0x141420.has(_0xe52da5.clave));
         _0x5733f1.forEach(_0x1a086c => _0xf0834.set(_0x1a086c.clave, 1));
         _0x279f78(_0x5733f1.length ? _0x5733f1.length + " referencia" + (_0x5733f1.length === 1 ? "" : "s") + " sin etiquetar marcada" + (_0x5733f1.length === 1 ? "" : "s") + "." : "Todas las referencias de la lista ya tienen etiqueta impresa.");
@@ -6599,9 +6676,9 @@
       _0x371e1e.forEach(_0x1f3640 => _0x3f0543.appendChild(_0x1f3640));
       const _0x45d1f4 = __etqFormato();
       if (_0x5b1490) {
-        const _0x28973b = new Set((_0x47d525.catalog || []).map(_0x1ff500 => _0x1ff500.id));
-        _0x47d525.settings.etqHechas = [...new Set([...(_0x47d525.settings.etqHechas || []), ...__etqSelRef.keys()])].filter(_0x58b13d => _0x28973b.has(_0x58b13d));
-        _0x1968be("settings", _0x47d525.settings);
+        const _0x28973b = new Set((estado.catalog || []).map(_0x1ff500 => _0x1ff500.id));
+        estado.settings.etqHechas = [...new Set([...(estado.settings.etqHechas || []), ...__etqSelRef.keys()])].filter(_0x58b13d => _0x28973b.has(_0x58b13d));
+        guardar("settings", estado.settings);
       }
       __imprimirLote(_0x3f0543, _0x45d1f4.w + "mm " + _0x45d1f4.h + "mm; margin:0");
     });
@@ -6616,7 +6693,7 @@
     } catch (_0x5ecb10) {}
   }
   async function __etiquetaRapida(_0x6744ca) {
-    const _0x1a03a8 = (_0x47d525.catalog || []).find(_0x218bc6 => _0x218bc6.id === _0x6744ca);
+    const _0x1a03a8 = (estado.catalog || []).find(_0x218bc6 => _0x218bc6.id === _0x6744ca);
     if (!_0x1a03a8 || !_0x1a03a8.code) {
       return;
     }
@@ -6642,7 +6719,7 @@
   }
   function __pitido() {
     try {
-      if (!_0x47d525.settings || _0x47d525.settings.sonidoEscaneo === false) {
+      if (!estado.settings || estado.settings.sonidoEscaneo === false) {
         return;
       }
       const _0x4872a3 = window.AudioContext || window.webkitAudioContext;
@@ -6752,7 +6829,7 @@
   }
   function __invCargar(_0x88a8b3) {
     __invUb = _0x88a8b3;
-    __invFilas = (_0x47d525.catalog || []).filter(_0x5b4577 => _0x5b4577 && (_0x88a8b3 === __INV_SIN && !String(_0x5b4577.location || "").trim() || _0x88a8b3 !== __INV_SIN && String(_0x5b4577.location || "").trim().toLowerCase() === _0x88a8b3.toLowerCase())).sort((_0x16f834, _0x361a4a) => String(_0x16f834.code).localeCompare(String(_0x361a4a.code), "es", {
+    __invFilas = (estado.catalog || []).filter(_0x5b4577 => _0x5b4577 && (_0x88a8b3 === __INV_SIN && !String(_0x5b4577.location || "").trim() || _0x88a8b3 !== __INV_SIN && String(_0x5b4577.location || "").trim().toLowerCase() === _0x88a8b3.toLowerCase())).sort((_0x16f834, _0x361a4a) => String(_0x16f834.code).localeCompare(String(_0x361a4a.code), "es", {
       numeric: true
     })).map(_0x208310 => ({
       id: _0x208310.id,
@@ -6835,7 +6912,7 @@
     _0x15e7db.focus();
   }
   function __invItem(_0x56a380) {
-    return (_0x47d525.catalog || []).find(_0x310206 => _0x310206.id === _0x56a380) || null;
+    return (estado.catalog || []).find(_0x310206 => _0x310206.id === _0x56a380) || null;
   }
   function __invLeer(_0x39bc7f, _0x3d285a) {
     const _0x153afd = String(_0x39bc7f || "").trim();
@@ -6851,7 +6928,7 @@
       return _0x29c1d6 && String(_0x29c1d6.code).toLowerCase() === _0x153afd.toLowerCase();
     });
     if (!_0x37f389.length) {
-      const _0x3dc2ed = (_0x47d525.catalog || []).find(_0x271fb8 => _0x271fb8 && String(_0x271fb8.code).toLowerCase() === _0x153afd.toLowerCase());
+      const _0x3dc2ed = (estado.catalog || []).find(_0x271fb8 => _0x271fb8 && String(_0x271fb8.code).toLowerCase() === _0x153afd.toLowerCase());
       _0x279f78(_0x3dc2ed ? "«" + _0x153afd + "» está registrado en «" + (String(_0x3dc2ed.location || "").trim() || "sin ubicación") + "», no aquí." : "«" + _0x153afd + "» no existe en el stock.");
       return;
     }
@@ -6975,7 +7052,7 @@
         });
         _0x279f78("Inventario aplicado: " + _0x317f6e + " ajuste" + (_0x317f6e === 1 ? "" : "s") + ".");
         __invFase = "elegir";
-        _0x474249();
+        render();
         __invPintar(_0x4e5082);
       });
     }
@@ -6995,12 +7072,12 @@
       return _0xa1f4f7;
     }
     const _0x2ae208 = _0x2173d8 => String(_0x2173d8 || "").toLowerCase().includes(_0x4a56b6);
-    (_0x47d525.catalog || []).forEach(_0x20176d => {
+    (estado.catalog || []).forEach(_0x20176d => {
       if (_0x20176d && [_0x20176d.code, _0x20176d.desc, _0x20176d.referencia, _0x20176d.marca, _0x20176d.location].some(_0x2ae208)) {
         _0xa1f4f7.stock.push(_0x20176d);
       }
     });
-    const _0x4bf172 = _0x47d525.groupData || {};
+    const _0x4bf172 = estado.groupData || {};
     Object.keys(_0x4bf172).forEach(_0x4a6d0a => {
       const _0x2422bb = _0x4bf172[_0x4a6d0a];
       if (!_0x2422bb) {
@@ -7019,7 +7096,7 @@
         });
       }
     });
-    (_0x47d525.trabajadores || []).forEach(_0x5bd109 => {
+    (estado.trabajadores || []).forEach(_0x5bd109 => {
       if (_0x2ae208(_0x5bd109.nombre)) {
         _0xa1f4f7.trabajadores.push(_0x5bd109);
       }
@@ -7027,11 +7104,11 @@
     return _0xa1f4f7;
   }
   function __irA(_0x42e678, _0x45ea9f) {
-    _0x47d525.mode = _0x42e678;
+    estado.mode = _0x42e678;
     if (_0x45ea9f) {
       _0x45ea9f();
     }
-    _0x474249();
+    render();
   }
   function __busquedaPintar(_0x234cf6, _0x1216fd) {
     const _0x35cb88 = _0x1d1ab0;
@@ -7064,7 +7141,7 @@
       const _0x10e9db = _0x33b2c0.getAttribute("data-bus-orden");
       const _0xce7b3c = _0x10e9db.indexOf("::");
       __irA(_0x10e9db.slice(0, _0xce7b3c), () => {
-        _0x47d525.current[_0x10e9db.slice(0, _0xce7b3c)] = _0x10e9db.slice(_0xce7b3c + 2);
+        estado.current[_0x10e9db.slice(0, _0xce7b3c)] = _0x10e9db.slice(_0xce7b3c + 2);
       });
     }));
     _0x195629.querySelectorAll("[data-bus-trab]").forEach(_0x5207c5 => _0x5207c5.addEventListener("click", () => {
@@ -7078,7 +7155,7 @@
     if (_0x2c261d) {
       _0x2c261d.remove();
     }
-    if (_0x47d525.mode !== "resumen") {
+    if (estado.mode !== "resumen") {
       return;
     }
     const _0x544505 = document.getElementById("mainList");
@@ -7105,7 +7182,7 @@
     if (_0x4299f6) {
       _0x4299f6.remove();
     }
-    if (_0x47d525.mode !== "almacen" || _0x2df77d() !== "almacen") {
+    if (estado.mode !== "almacen" || _0x2df77d() !== "almacen") {
       return;
     }
     const _0x35c1cf = document.getElementById("mainList");
@@ -7116,14 +7193,14 @@
     _0x24d247.className = "panel";
     _0x24d247.id = "herrPanel";
     _0x24d247.style.marginBottom = "14px";
-    _0x24d247.innerHTML = "<p class=\"panel-title\">Herramientas</p><div style=\"display:flex; gap:8px; flex-wrap:wrap;\"><button type=\"button\" class=\"btn primary\" id=\"herrEtqBtn\" style=\"flex:1 1 160px;\">Etiquetas</button><button type=\"button\" class=\"btn primary\" id=\"herrInvBtn\" style=\"flex:1 1 160px;\">Inventario guiado</button><button type=\"button\" class=\"btn primary\" id=\"herrMinBtn\" style=\"flex:1 1 160px;\">Mínimos automáticos</button></div><label style=\"display:flex; gap:8px; align-items:center; margin-top:10px; font-size:12.5px;\"><input type=\"checkbox\" id=\"herrSonido\" style=\"width:auto; margin:0;\"" + (_0x47d525.settings.sonidoEscaneo === false ? "" : " checked") + ">Pitido al leer un código (cámara continua e inventario)</label>";
+    _0x24d247.innerHTML = "<p class=\"panel-title\">Herramientas</p><div style=\"display:flex; gap:8px; flex-wrap:wrap;\"><button type=\"button\" class=\"btn primary\" id=\"herrEtqBtn\" style=\"flex:1 1 160px;\">Etiquetas</button><button type=\"button\" class=\"btn primary\" id=\"herrInvBtn\" style=\"flex:1 1 160px;\">Inventario guiado</button><button type=\"button\" class=\"btn primary\" id=\"herrMinBtn\" style=\"flex:1 1 160px;\">Mínimos automáticos</button></div><label style=\"display:flex; gap:8px; align-items:center; margin-top:10px; font-size:12.5px;\"><input type=\"checkbox\" id=\"herrSonido\" style=\"width:auto; margin:0;\"" + (estado.settings.sonidoEscaneo === false ? "" : " checked") + ">Pitido al leer un código (cámara continua e inventario)</label>";
     _0x35c1cf.insertBefore(_0x24d247, _0x35c1cf.firstChild);
     _0x24d247.querySelector("#herrEtqBtn").addEventListener("click", __etqAbrir);
     _0x24d247.querySelector("#herrInvBtn").addEventListener("click", __invAbrir);
     _0x24d247.querySelector("#herrMinBtn").addEventListener("click", __minAbrir);
     _0x24d247.querySelector("#herrSonido").addEventListener("change", _0x1766df => {
-      _0x47d525.settings.sonidoEscaneo = _0x1766df.target.checked;
-      _0x1968be("settings", _0x47d525.settings);
+      estado.settings.sonidoEscaneo = _0x1766df.target.checked;
+      guardar("settings", estado.settings);
     });
   }
   const __MIN_DIAS = 90;
@@ -7133,7 +7210,7 @@
     const _0x1d2fa4 = Date.now() - __MIN_DIAS * 86400000;
     const _0x2e8c0a = new Map();
     const _0x7aac69 = new Map();
-    (_0x47d525.movements || []).forEach(_0x31d21e => {
+    (estado.movements || []).forEach(_0x31d21e => {
       if (_0x31d21e.type !== "salida" || !(_0x31d21e.tsMs >= _0x1d2fa4)) {
         return;
       }
@@ -7141,7 +7218,7 @@
       _0x7aac69.set(_0x31d21e.code, (_0x7aac69.get(_0x31d21e.code) || 0) + 1);
     });
     const _0x306963 = [];
-    (_0x47d525.catalog || []).forEach(_0xe82247 => {
+    (estado.catalog || []).forEach(_0xe82247 => {
       if ((_0x7aac69.get(_0xe82247.code) || 0) < __MIN_SALIDAS) {
         return;
       }
@@ -7177,17 +7254,17 @@
         _0x22aef7++;
       });
       if (_0x22aef7) {
-        _0x4bebe2();
+        guardarCatalogo();
       }
       if (__herrCierre) {
         __herrCierre();
       }
       _0x279f78(_0x22aef7 ? "Mínimo actualizado en " + _0x22aef7 + " referencia" + (_0x22aef7 === 1 ? "" : "s") + "." : "No se ha cambiado ningún mínimo.");
-      _0x474249();
+      render();
     });
   }
   function __ropaMeses() {
-    const _0x5c5b7c = parseInt((_0x47d525.settings || {}).ropaMeses, 10);
+    const _0x5c5b7c = parseInt((estado.settings || {}).ropaMeses, 10);
     if (_0x5c5b7c > 0) {
       return _0x5c5b7c;
     } else {
@@ -7214,7 +7291,7 @@
   }
   function __ropaRenovaciones() {
     const _0x158dcb = [];
-    (_0x47d525.trabajadores || []).forEach(_0x3e6a9a => (_0x3e6a9a.ropa || []).forEach(_0x5716bd => {
+    (estado.trabajadores || []).forEach(_0x3e6a9a => (_0x3e6a9a.ropa || []).forEach(_0x5716bd => {
       const _0x4a3ece = __ropaVence(_0x3e6a9a, _0x5716bd.itemId);
       if (_0x4a3ece && _0x4a3ece <= Date.now()) {
         _0x158dcb.push({
@@ -7267,7 +7344,7 @@
   const __TEXTO_CANT = /^(?:[xX×])?(\d{1,4})$/;
   const __TEXTO_MEDIDA = /^(?:mm|cm|m|mt|mts|metro|metros|kg|g|gr|w|kw|v|a|amp|ah|l|lt|litro|litros|bar|pulgada|pulgadas)\b/i;
   function __textoCodigos() {
-    return new Set((_0x47d525.catalog || []).map(_0x3d80ca => String(_0x3d80ca.code || "").toLowerCase()));
+    return new Set((estado.catalog || []).map(_0x3d80ca => String(_0x3d80ca.code || "").toLowerCase()));
   }
   function __textoRepartir(_0x58e2a0, _0x25f7c4) {
     const _0xd084bc = _0x58e2a0.split(/\s+/);
@@ -7381,7 +7458,7 @@
     };
   }
   async function __textoInterpretar() {
-    const _0x2d0ae8 = (_0x47d525.catalog || []).map(_0x545581 => ({
+    const _0x2d0ae8 = (estado.catalog || []).map(_0x545581 => ({
       c: _0x545581,
       f: __clasifFichas(_0x545581.desc || "")
     }));
@@ -7397,7 +7474,7 @@
         marcada: true
       };
     });
-    _0x474249();
+    render();
   }
   function __textoAplicar(_0x36d90b) {
     const _0x559b08 = _0x36d90b.datos;
@@ -7409,14 +7486,14 @@
       _0x559b08.pendiente.requesterName = __textoEstado.quien.trim();
     }
     _0x541b90.forEach(_0x166189 => {
-      const _0x44d8de = _0x166189.ref ? (_0x47d525.catalog || []).find(_0x29108c => _0x29108c.id === _0x166189.ref) : null;
+      const _0x44d8de = _0x166189.ref ? (estado.catalog || []).find(_0x29108c => _0x29108c.id === _0x166189.ref) : null;
       const _0x53f510 = _0x44d8de && _0x559b08.pendiente.items.find(_0x54d80f => _0x54d80f.itemId === _0x44d8de.id);
       const _0x1c790a = _0x166189.qty || 1;
       if (_0x53f510) {
         _0x53f510.qty += _0x1c790a;
       } else {
         _0x559b08.pendiente.items.push(_0x44d8de ? {
-          id: _0x588d17(),
+          id: nuevoId(),
           itemId: _0x44d8de.id,
           code: _0x44d8de.code,
           desc: _0x44d8de.desc,
@@ -7425,7 +7502,7 @@
           pedido: 0,
           reserva: 0
         } : {
-          id: _0x588d17(),
+          id: nuevoId(),
           itemId: null,
           code: "",
           desc: "",
@@ -7438,12 +7515,12 @@
         });
       }
     });
-    _0x356c43(_0x559b08.chat, "Lista de texto: " + _0x541b90.length + " línea" + (_0x541b90.length === 1 ? "" : "s") + " añadida" + (_0x541b90.length === 1 ? "" : "s") + " a la solicitud.");
-    _0x5478d9(_0x36d90b.modo, _0x36d90b.nombre);
+    anadirMensajeChat(_0x559b08.chat, "Lista de texto: " + _0x541b90.length + " línea" + (_0x541b90.length === 1 ? "" : "s") + " añadida" + (_0x541b90.length === 1 ? "" : "s") + " a la solicitud.");
+    guardarGrupo(_0x36d90b.modo, _0x36d90b.nombre);
     __textoEstado.texto = "";
     __textoEstado.lineas = null;
     __textoEstado.aviso = "";
-    _0x474249();
+    render();
     __autoEnvioProgramar();
   }
   const __CLASIF_APRENDE_MIN = 3;
@@ -7577,7 +7654,7 @@
     return _0x1243aa.filter(_0x23010e => __clasifEstado(__clasifLinea(_0x23010e)) === __hojaFiltro);
   }
   function __servirExterno(_0x39638a, _0x14e115) {
-    const _0x1ef606 = _0x347a69();
+    const _0x1ef606 = fechaHoraTexto();
     const _0x25d44d = String(_0x14e115.code || "");
     const _0x13d878 = _0x14e115.desc || _0x14e115.texto || "";
     const _0x2f7bd0 = _0x39638a.servido.find(_0x6e0052 => _0x6e0052.externo && String(_0x6e0052.code || "").toLowerCase() === _0x25d44d.toLowerCase() && (_0x6e0052.desc || "") === _0x13d878);
@@ -7587,7 +7664,7 @@
       return;
     }
     _0x39638a.servido.push({
-      id: _0x588d17(),
+      id: nuevoId(),
       itemId: _0x14e115.itemId || null,
       code: _0x25d44d,
       desc: _0x13d878,
@@ -7652,7 +7729,7 @@
   }
   async function __ofrecerExterno(_0x97d9bd) {
     const _0x4ecb78 = __hojaLineasLista(_0x97d9bd).map(_0x1f38c8 => {
-      const _0x52047d = _0x1f38c8.itemId ? _0x47d525.catalog.find(_0x404b7a => _0x404b7a.id === _0x1f38c8.itemId) : _0x1f38c8.code ? _0x4746f7(_0x1f38c8.code) : null;
+      const _0x52047d = _0x1f38c8.itemId ? estado.catalog.find(_0x404b7a => _0x404b7a.id === _0x1f38c8.itemId) : _0x1f38c8.code ? buscarPorCodigo(_0x1f38c8.code) : null;
       return {
         it: _0x1f38c8,
         hay: _0x52047d ? _0x52047d.qty : 0
@@ -7672,7 +7749,7 @@
   const __DIA_MS = 86400000;
   function __consumo30(_0x3ed777) {
     const _0x572b83 = Date.now() - __DIA_MS * 30;
-    return (_0x47d525.movements || []).reduce((_0x48e915, _0x5d13d6) => _0x5d13d6.type === "salida" && _0x5d13d6.code === _0x3ed777 && _0x5d13d6.tsMs >= _0x572b83 ? _0x48e915 + _0x5d13d6.qty : _0x48e915, 0);
+    return (estado.movements || []).reduce((_0x48e915, _0x5d13d6) => _0x5d13d6.type === "salida" && _0x5d13d6.code === _0x3ed777 && _0x5d13d6.tsMs >= _0x572b83 ? _0x48e915 + _0x5d13d6.qty : _0x48e915, 0);
   }
   function __cantidadReposicion(_0x58c544, _0x3b0198) {
     return Math.max(1, _0x3b0198 * 2 - _0x58c544.qty, Math.ceil(__consumo30(_0x58c544.code)) - _0x58c544.qty);
@@ -7680,7 +7757,7 @@
   function __reposicionLista() {
     const _0x47a8c6 = _0x41ba69();
     const _0x12fdfd = new Set(_0x47a8c6.map(_0x5c9fdf => _0x5c9fdf.id));
-    const _0x3a9829 = (_0x47d525.catalog || []).filter(_0x4afadb => {
+    const _0x3a9829 = (estado.catalog || []).filter(_0x4afadb => {
       const _0x412619 = __consumo30(_0x4afadb.code);
       return !_0x12fdfd.has(_0x4afadb.id) && _0x4afadb.qty > 0 && _0x412619 > 0 && _0x4afadb.qty / (_0x412619 / 30) <= 7;
     });
@@ -7696,7 +7773,7 @@
       _0x38de68.textContent = "Materiales por debajo de su mínimo o que se agotan en una semana. La cantidad propuesta cubre el consumo de 30 días o el doble del mínimo, el valor que sea mayor; se puede cambiar antes de copiar o enviar.";
     }
     _0x1aa2d5.querySelectorAll("[data-repo-sel]").forEach(_0x2f7a16 => {
-      const _0x4cd20a = (_0x47d525.catalog || []).find(_0x89e0bc => _0x89e0bc.id === _0x2f7a16.getAttribute("data-repo-sel"));
+      const _0x4cd20a = (estado.catalog || []).find(_0x89e0bc => _0x89e0bc.id === _0x2f7a16.getAttribute("data-repo-sel"));
       if (!_0x4cd20a) {
         return;
       }
@@ -7715,8 +7792,8 @@
     const _0x3286db = new Map();
     let _0x520269 = 0;
     let _0x332078 = 0;
-    Object.keys(_0x47d525.groupData || {}).forEach(_0x4c2789 => {
-      const _0x3dabd0 = _0x47d525.groupData[_0x4c2789] || {};
+    Object.keys(estado.groupData || {}).forEach(_0x4c2789 => {
+      const _0x3dabd0 = estado.groupData[_0x4c2789] || {};
       const _0x10b46a = _0x3dabd0.pendiente ? _0x3dabd0.pendiente.items || [] : [];
       const _0x202091 = _0x10b46a.concat(_0x3dabd0.servido || []).filter(_0x462e6e => !_0x462e6e.itemId && !_0x462e6e.code);
       _0x202091.forEach(_0x15571b => {
@@ -7748,7 +7825,7 @@
     return "Consumo 30 días (uds): " + (_0x53664c.top.join("; ") || "sin datos") + "\nSe agotan en ≤10 días: " + (_0x53664c.agotan.join("; ") || "ninguno") + "\nStock bajo (" + _0x53664c.nBajo + "): " + (_0x53664c.bajo.join("; ") || "ninguno") + "\nSalidas anómalas: " + (_0x53664c.anomalias.join("; ") || "ninguna") + "\nReferencias con stock sin movimiento en 90 días: " + _0x53664c.latentes + (_0x5d91f6.length ? "\nPedidos: " + _0x5d91f6.join(" ") : "");
   }
   function __fusionarAvisos() {
-    const _0x2a7b1e = _0x47d525.notifications || [];
+    const _0x2a7b1e = estado.notifications || [];
     const _0x1d29b8 = new Map();
     _0x2a7b1e.forEach(_0x2c70f0 => {
       if (_0x2c70f0.leida) {
@@ -7764,8 +7841,8 @@
       return;
     }
     _0x27d284.forEach(_0x4d9df3 => _0x2a7b1e.splice(_0x2a7b1e.indexOf(_0x4d9df3), 1));
-    _0xc28b67();
-    setTimeout(_0x474249, 0);
+    guardarAvisos();
+    setTimeout(render, 0);
   }
   function __resumenPorRevisar() {
     try {
@@ -7774,17 +7851,17 @@
         _0x53b166.remove();
       }
       const _0x3564e4 = document.getElementById("alertBanner");
-      if (_0x3564e4 && _0x47d525.mode === "resumen") {
+      if (_0x3564e4 && estado.mode === "resumen") {
         _0x3564e4.style.display = "none";
       }
       const _0x390bce = [...document.querySelectorAll("p")].find(_0x24a205 => _0x24a205.textContent.startsWith("Lo más urgente"));
-      if (_0x47d525.mode !== "resumen" || _0x2df77d() !== "almacen" || !_0x390bce) {
+      if (estado.mode !== "resumen" || _0x2df77d() !== "almacen" || !_0x390bce) {
         return;
       }
       const _0x277079 = [];
-      Object.keys(_0x47d525.groupData || {}).forEach(_0x4093ea => {
+      Object.keys(estado.groupData || {}).forEach(_0x4093ea => {
         const _0x1ea925 = _0x4093ea.split("::");
-        const _0x129c4b = _0x47d525.groupData[_0x4093ea];
+        const _0x129c4b = estado.groupData[_0x4093ea];
         const _0x39c591 = _0x129c4b && _0x129c4b.pendiente ? _0x129c4b.pendiente.items || [] : [];
         if (_0x1ea925[0] !== "montaje" && _0x1ea925[0] !== "proyecto" || !_0x39c591.length) {
           return;
@@ -7816,10 +7893,10 @@
       _0x242cdb.innerHTML = "<p class=\"panel-title\">Por revisar</p>" + _0x277079.map((_0x4dba9f, _0x281085) => "<button type=\"button\" class=\"cam-btn\" data-fila=\"" + _0x281085 + "\" style=\"width:100%; text-align:left; margin-top:6px;\"><strong>" + _0x4e6684(_0x4dba9f.nombre) + "</strong> <small>" + _0x4e6684(_0x4dba9f.texto) + "</small></button>").join("") + (_0x470f85.length ? "<p class=\"eyebrow\" style=\"margin:12px 0 4px;\">Sugerencias</p>" + _0x470f85.map(_0x5bde9f => "<p style=\"margin:0 0 4px; font-size:12.5px;\">" + _0x4e6684(_0x5bde9f) + "</p>").join("") : "");
       _0x242cdb.querySelectorAll("button").forEach(_0xa513d3 => _0xa513d3.addEventListener("click", () => {
         const _0x5399ef = _0x277079[+_0xa513d3.getAttribute("data-fila")];
-        _0x47d525.mode = _0x5399ef.modo;
-        _0x47d525.current[_0x5399ef.modo] = _0x5399ef.nombre;
+        estado.mode = _0x5399ef.modo;
+        estado.current[_0x5399ef.modo] = _0x5399ef.nombre;
         _0x5592da = "hoja";
-        _0x474249();
+        render();
       }));
       _0x390bce.insertAdjacentElement("afterend", _0x242cdb);
     } catch (_0x1802f8) {}
@@ -7866,7 +7943,7 @@
         _0x172510.forEach(_0x1da766 => {
           _0x1da766.fecha = _0x30e139;
         });
-        _0x5478d9(_0x47d525.mode, _0x47d525.current[_0x47d525.mode]);
+        guardarGrupo(estado.mode, estado.current[estado.mode]);
       }
       document.querySelectorAll(".hoja-pedido-table [data-select-hoja-id]").forEach(_0x1401a9 => {
         const _0x2a07b2 = _0x94f0c2.find(_0x84134 => _0x84134.id === _0x1401a9.getAttribute("data-select-hoja-id"));
@@ -8061,15 +8138,15 @@
     }
   }
   function __clasifPlanoDe(_0x5659c7, _0x5e3e20) {
-    const _0x35c92e = (_0x47d525.groupData || {})[_0x5659c7 + "::" + _0x5e3e20];
+    const _0x35c92e = (estado.groupData || {})[_0x5659c7 + "::" + _0x5e3e20];
     return String(_0x35c92e && _0x35c92e.pendiente && _0x35c92e.pendiente.plano || "").trim();
   }
   function __clasifNuevaPeticion(_0x18779e, _0x4184ae, _0x39861e) {
-    const _0x5c10d = _0x4184ae || _0x47d525.mode;
+    const _0x5c10d = _0x4184ae || estado.mode;
     const _0x19cb4a = _0x5c10d === "montaje" ? "montaje" : "proyecto";
-    const _0x412b06 = _0x39861e || _0x47d525.current[_0x5c10d] || "";
+    const _0x412b06 = _0x39861e || estado.current[_0x5c10d] || "";
     return {
-      id: _0x588d17(),
+      id: nuevoId(),
       ts: Date.now(),
       modo: _0x19cb4a,
       orden: _0x412b06,
@@ -8096,12 +8173,12 @@
   const __extExcluidos = new Set();
   function __extGrupos() {
     const _0x40f2fb = [];
-    Object.keys(_0x47d525.groupData || {}).forEach(_0x22f47e => {
+    Object.keys(estado.groupData || {}).forEach(_0x22f47e => {
       const _0x340eb8 = _0x22f47e.split("::");
       if (_0x340eb8[0] !== "montaje" && _0x340eb8[0] !== "proyecto") {
         return;
       }
-      const _0x391e10 = _0x47d525.groupData[_0x22f47e];
+      const _0x391e10 = estado.groupData[_0x22f47e];
       const _0x50c8f4 = (_0x391e10 && _0x391e10.pendiente && _0x391e10.pendiente.items || []).filter(_0x31e6b8 => !_0x31e6b8.extPeticion && __clasifEstado(__clasifLinea(_0x31e6b8)) === "externo");
       if (_0x50c8f4.length) {
         _0x40f2fb.push({
@@ -8126,12 +8203,12 @@
     _0x3e4ea3.forEach(_0x5cfa5c => {
       __clasifRegistrarPeticion(_0x5cfa5c.pet, _0x5cfa5c.g.items);
       __extMarcarPedido(_0x5cfa5c.g.items);
-      _0x5478d9(_0x5cfa5c.g.modo, _0x5cfa5c.g.nombre);
+      guardarGrupo(_0x5cfa5c.g.modo, _0x5cfa5c.g.nombre);
     });
     __guardarClasif();
   }
   function __autoEnvioLineas(_0x57fe1a, _0x1c809f) {
-    const _0x3c83c3 = (_0x47d525.groupData || {})[_0x57fe1a + "::" + _0x1c809f];
+    const _0x3c83c3 = (estado.groupData || {})[_0x57fe1a + "::" + _0x1c809f];
     const _0xd23c16 = _0x3c83c3 && _0x3c83c3.pendiente ? _0x3c83c3.pendiente.items || [] : [];
     if (__clasifAutoRefs(_0xd23c16)) {
       __clasifGuardarPronto();
@@ -8165,9 +8242,9 @@
       __clasifRegistrarPeticion(_0x32dfd5, _0x4dd1d2);
       __extMarcarPedido(_0x4dd1d2);
       __guardarClasif();
-      _0x5478d9(_0x1b9063.modo, _0x1b9063.nombre);
+      guardarGrupo(_0x1b9063.modo, _0x1b9063.nombre);
       _0x279f78("Petición externa enviada a " + _0x10ee88 + " (" + _0x4dd1d2.length + " línea" + (_0x4dd1d2.length === 1 ? "" : "s") + ").");
-      _0x474249();
+      render();
     } catch (_0x1da71d) {
       _0x279f78("No se pudo enviar la petición automática: " + __errorAmable(_0x1da71d) + ". Sigue disponible en Hoja de pedido → Externo.");
     }
@@ -8187,7 +8264,7 @@
             return;
           }
           _0x15bca7.pendiente.plano = _0x4a2869.value.trim();
-          _0x5478d9(_0x47d525.mode, _0x47d525.current[_0x47d525.mode]);
+          guardarGrupo(estado.mode, estado.current[estado.mode]);
         });
       }
       if (document.activeElement !== _0x4a2869) {
@@ -8204,7 +8281,7 @@
     const _0x1d286e = Object.fromEntries(__CLASIF_EXT);
     const _0x22936c = _0x5847f6.map(_0x597928 => {
       const _0x104e5c = {
-        "Nº de plano": __clasifPlanoDe(_0x47d525.mode, _0xad84ee),
+        "Nº de plano": __clasifPlanoDe(estado.mode, _0xad84ee),
         OT: _0xad84ee,
         Fecha: __pedidoFechaTexto(_0x597928.fecha) || _0x597928.fechaGuardado || "",
         Código: _0x597928.code || "",
@@ -8356,7 +8433,7 @@
               return;
             }
             _0xfdf492.grupo.pendiente.plano = _0x301a9e.value.trim();
-            _0x5478d9(_0xfdf492.modo, _0xfdf492.nombre);
+            guardarGrupo(_0xfdf492.modo, _0xfdf492.nombre);
             __clasifConservarVista();
           }));
           _0x41f73e.querySelector("#extTodosBtn").addEventListener("click", () => {
@@ -8407,7 +8484,7 @@
       if (_0x2df77d() !== "almacen") {
         return;
       }
-      if (_0x47d525.mode !== "montaje" && _0x47d525.mode !== "proyecto") {
+      if (estado.mode !== "montaje" && estado.mode !== "proyecto") {
         return;
       }
       const _0x43b034 = document.getElementById("saveHojaPedidoBtn");
@@ -8426,12 +8503,12 @@
       if (__clasifAutoRefs(_0x321478)) {
         _0x279f78("Referencias asignadas por coincidencia. Pendientes de validar.");
         __clasifGuardarPronto();
-        setTimeout(_0x474249, 0);
+        setTimeout(render, 0);
         return;
       }
       const _0x55d344 = _0x1d1ab0;
-      const _0x1f3544 = _0x47d525.current[_0x47d525.mode] || "";
-      const _0x594412 = _0x47d525.mode + "|" + _0x1f3544;
+      const _0x1f3544 = estado.current[estado.mode] || "";
+      const _0x594412 = estado.mode + "|" + _0x1f3544;
       const _0x166b15 = __clasifStore();
       const _0x4d2ea1 = _0x321478.map(_0x3ff5e0 => {
         const _0x42c885 = __clasifLinea(_0x3ff5e0);
@@ -8507,7 +8584,7 @@
           }
           __clasifGuardarPronto();
           if (_0x411a44.getAttribute("data-auto") === "no") {
-            _0x474249();
+            render();
           } else {
             __clasifConservarVista();
           }
@@ -8647,7 +8724,7 @@
           __extAbierto = true;
           __clasifConservarVista();
         });
-        const _0x5c5586 = _0x47d525.mode === "montaje" ? "montaje" : "proyecto";
+        const _0x5c5586 = estado.mode === "montaje" ? "montaje" : "proyecto";
         const _0x1f47a9 = _0x166b15.peticiones.filter(_0x2c88a2 => _0x2c88a2.modo === _0x5c5586 && _0x2c88a2.orden === _0x1f3544).slice().reverse();
         if (_0x1f47a9.length) {
           const _0x12b8e9 = document.createElement("div");
@@ -8664,12 +8741,12 @@
             if (_0x34032d.getAttribute("data-pet") === "copiar") {
               __clasifCopiar(__clasifTextoPeticion(_0x2c0c46));
             } else {
-              __clasifAnularPeticion(_0x2c0c46, (_0x47d525.groupData[_0x2c0c46.modo + "::" + _0x2c0c46.orden] || {
+              __clasifAnularPeticion(_0x2c0c46, (estado.groupData[_0x2c0c46.modo + "::" + _0x2c0c46.orden] || {
                 pendiente: {
                   items: _0x321478
                 }
               }).pendiente.items);
-              _0x5478d9(_0x2c0c46.modo, _0x2c0c46.orden);
+              guardarGrupo(_0x2c0c46.modo, _0x2c0c46.orden);
               __clasifConservarVista();
             }
           }));
@@ -8683,7 +8760,7 @@
   __GUIAS["hoja|almacen"] = "Asigna cada línea sin clasificar a Interno, Externo o Pequeño material. Las líneas pueden moverse cuando haga falta.";
   let __trabajadorActualId = null;
   function __guardarTrabajadores() {
-    _0x1968be("trabajadores", _0x47d525.trabajadores);
+    guardar("trabajadores", estado.trabajadores);
   }
   async function __geminiParsearRespuesta(__resp, __crudo) {
     if (!__resp || !__resp.ok) {
@@ -8766,31 +8843,31 @@
     if (!_0xb33f4f.length) {
       return false;
     }
-    const _0xc2ad79 = _0x231ff7("#docScanProveedor").value;
+    const _0xc2ad79 = $("#docScanProveedor").value;
     if (!_0xc2ad79) {
-      _0x231ff7("#docScanStatus").textContent = "Elige antes el proveedor del material.";
+      $("#docScanStatus").textContent = "Elige antes el proveedor del material.";
       return false;
     }
     const _0x19d0b2 = _0x1ea037();
     if (!_0x19d0b2) {
       return false;
     }
-    _0x231ff7("#docScanStatus").textContent = "Reconociendo el texto de la página 1 de " + _0xb33f4f.length + "…";
-    _0x231ff7("#docScanStatus").classList.add("analizando");
-    const __barraProg = _0x231ff7("#docScanProgressBar");
+    $("#docScanStatus").textContent = "Reconociendo el texto de la página 1 de " + _0xb33f4f.length + "…";
+    $("#docScanStatus").classList.add("analizando");
+    const __barraProg = $("#docScanProgressBar");
     if (__barraProg) {
       __barraProg.className = "progress-bar activa indeterminada";
-      const __fillProg = _0x231ff7("#docScanProgressFill");
+      const __fillProg = $("#docScanProgressFill");
       if (__fillProg) {
         __fillProg.style.width = "";
       }
     }
     try {
-      _0x231ff7("#docScanStatus").textContent = "Analizando con Gemini…";
+      $("#docScanStatus").textContent = "Analizando con Gemini…";
       let _0x2558d8;
       try {
         _0x2558d8 = await __geminiExtraerMaterial(_0xb33f4f, (() => {
-          const __elInstr = _0x231ff7("#docScanInstrucciones");
+          const __elInstr = $("#docScanInstrucciones");
           if (__elInstr) {
             return __elInstr.value;
           } else {
@@ -8801,39 +8878,39 @@
         if (__errGemini && __errGemini.name === "AbortError") {
           return false;
         }
-        _0x231ff7("#docScanStatus").textContent = "Gemini no ha respondido (" + (__errGemini && __errGemini.message ? __errGemini.message : "error") + ") — usando reconocimiento local…";
+        $("#docScanStatus").textContent = "Gemini no ha respondido (" + (__errGemini && __errGemini.message ? __errGemini.message : "error") + ") — usando reconocimiento local…";
         await _0x46a074();
         let _0x5212d3 = "";
-        const __barraProgTess = _0x231ff7("#docScanProgressBar");
+        const __barraProgTess = $("#docScanProgressBar");
         if (__barraProgTess) {
           __barraProgTess.className = "progress-bar activa determinada";
         }
         for (let _0x10c746 = 0; _0x10c746 < _0xb33f4f.length; _0x10c746++) {
-          const __fillProgTess = _0x231ff7("#docScanProgressFill");
+          const __fillProgTess = $("#docScanProgressFill");
           if (__fillProgTess) {
             __fillProgTess.style.width = Math.round(_0x10c746 / _0xb33f4f.length * 100) + "%";
           }
-          _0x231ff7("#docScanStatus").textContent = "Reconociendo el texto de la página " + (_0x10c746 + 1) + " de " + _0xb33f4f.length + "…";
+          $("#docScanStatus").textContent = "Reconociendo el texto de la página " + (_0x10c746 + 1) + " de " + _0xb33f4f.length + "…";
           const {
             data: _0x44d7bd
           } = await Tesseract.recognize(_0xb33f4f[_0x10c746].url, "spa");
           _0x5212d3 += _0x44d7bd.text + "\n";
         }
-        const __fillProgTessFin = _0x231ff7("#docScanProgressFill");
+        const __fillProgTessFin = $("#docScanProgressFill");
         if (__fillProgTessFin) {
           __fillProgTessFin.style.width = "100%";
         }
         _0x2558d8 = _0x4b6c29(_0x5212d3);
       }
       if (!_0x2558d8.length) {
-        _0x231ff7("#docScanStatus").textContent = "No he podido reconocer ninguna línea con forma de material — prueba con más luz o más cerca.";
+        $("#docScanStatus").textContent = "No he podido reconocer ninguna línea con forma de material — prueba con más luz o más cerca.";
         return false;
       }
       const _0x23da8c = _0x2558d8.map(_0x24ec14 => ({
-        id: _0x588d17(),
+        id: nuevoId(),
         texto: _0x24ec14.desc,
         cantidad: _0x24ec14.qty,
-        codigoSugerido: _0x47d525.ocrAprendizaje[_0x24ec14.desc.toLowerCase()] || ""
+        codigoSugerido: estado.ocrAprendizaje[_0x24ec14.desc.toLowerCase()] || ""
       }));
       const __normalizarOCR = __s => (__s || "").toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
       const __similarOCR = (__a, __b) => {
@@ -8874,17 +8951,17 @@
         proveedor: _0xc2ad79,
         proveedorLineas: __matchesProveedor
       };
-      _0x474249();
+      render();
       return true;
     } catch (_0x4fb7b6) {
-      _0x231ff7("#docScanStatus").textContent = "Error reconociendo el texto: " + _0x4fb7b6.message;
+      $("#docScanStatus").textContent = "Error reconociendo el texto: " + _0x4fb7b6.message;
       return false;
     } finally {
-      const __elStatusFin = _0x231ff7("#docScanStatus");
+      const __elStatusFin = $("#docScanStatus");
       if (__elStatusFin) {
         __elStatusFin.classList.remove("analizando");
       }
-      const __barraFin = _0x231ff7("#docScanProgressBar");
+      const __barraFin = $("#docScanProgressBar");
       if (__barraFin) {
         __barraFin.className = "progress-bar";
       }
@@ -8897,10 +8974,10 @@
     const _0x557c9d = _0x1ea037();
     if (!_0x557c9d) {
       _0x1a8185 = null;
-      _0x474249();
+      render();
       return;
     }
-    const _0xec5e30 = _0x231ff7("#mainList");
+    const _0xec5e30 = $("#mainList");
     const _0x56bc73 = "Escaneo de documento — proveedor " + _0x1a8185.proveedor;
     let _0x3c68b4 = 0;
     let _0x3e7856 = 0;
@@ -8909,26 +8986,26 @@
       const _0x41d783 = _0xec5e30.querySelector("[data-ocr-cantidad=\"" + _0x4a6de0.id + "\"]");
       const _0x6c5955 = _0xcb76c4 ? _0xcb76c4.value.trim() : "";
       const _0x3cc238 = Math.max(1, parseInt(_0x41d783 ? _0x41d783.value : _0x4a6de0.cantidad, 10) || 1);
-      const _0x375afb = _0x6c5955 ? _0x4746f7(_0x6c5955) : null;
+      const _0x375afb = _0x6c5955 ? buscarPorCodigo(_0x6c5955) : null;
       if (_0x375afb) {
         _0x5c175f(_0x557c9d, _0x375afb, _0x3cc238, {
           proveedor: _0x1a8185.proveedor
         });
         _0x1d4277(_0x375afb, _0x3cc238, "salida", _0x56bc73);
-        _0x47d525.ocrAprendizaje[_0x4a6de0.texto.toLowerCase()] = _0x375afb.code;
+        estado.ocrAprendizaje[_0x4a6de0.texto.toLowerCase()] = _0x375afb.code;
         _0x3c68b4++;
       } else {
         _0x557c9d.materialesFaltantes.unshift({
-          id: _0x588d17(),
+          id: nuevoId(),
           descripcion: _0x4a6de0.texto,
           cantidad: _0x3cc238,
           proveedor: _0x1a8185.proveedor,
-          fecha: _0x347a69()
+          fecha: fechaHoraTexto()
         });
         _0x3e7856++;
       }
     });
-    _0x356c43(_0x557c9d.chat, "Documento escaneado revisado (proveedor " + _0x1a8185.proveedor + "): " + _0x3c68b4 + " servida(s)" + (_0x3e7856 ? ", " + _0x3e7856 + " marcada(s) como material faltante" : ""));
+    anadirMensajeChat(_0x557c9d.chat, "Documento escaneado revisado (proveedor " + _0x1a8185.proveedor + "): " + _0x3c68b4 + " servida(s)" + (_0x3e7856 ? ", " + _0x3e7856 + " marcada(s) como material faltante" : ""));
     _0x56ccc4();
     _0x29f0a4();
     (function () {
@@ -8946,12 +9023,12 @@
       }
     })();
     _0x1a8185 = null;
-    _0x474249();
+    render();
     _0x279f78("Añadido a Servido: " + _0x3c68b4 + " línea(s)" + (_0x3e7856 ? ". Material faltante anotado: " + _0x3e7856 + " línea(s)" : "") + ".");
   }
   function _0x3e7902() {
     _0x1a8185 = null;
-    _0x474249();
+    render();
   }
   async function _0x1ed81c(_0xbfe9ae) {
     const _0xce682 = _0x1ea037();
@@ -8966,7 +9043,7 @@
       return;
     }
     _0xce682.pendiente.items.push({
-      id: _0x588d17(),
+      id: nuevoId(),
       itemId: null,
       code: "",
       desc: "",
@@ -8976,10 +9053,10 @@
       pedido: 0,
       reserva: 0
     });
-    _0x356c43(_0xce682.chat, "Pedido el material faltante: " + _0x2e75fe.descripcion + " (" + _0x2e75fe.cantidad + " uds, proveedor " + _0x2e75fe.proveedor + ")");
+    anadirMensajeChat(_0xce682.chat, "Pedido el material faltante: " + _0x2e75fe.descripcion + " (" + _0x2e75fe.cantidad + " uds, proveedor " + _0x2e75fe.proveedor + ")");
     _0xce682.materialesFaltantes = _0xce682.materialesFaltantes.filter(_0x2100ad => _0x2100ad.id !== _0xbfe9ae);
     _0x29f0a4();
-    _0x474249();
+    render();
   }
   async function _0x3426fa(_0x5e8a13) {
     const _0x1ad895 = _0x1ea037();
@@ -8991,7 +9068,7 @@
     }
     _0x1ad895.materialesFaltantes = _0x1ad895.materialesFaltantes.filter(_0x69fb40 => _0x69fb40.id !== _0x5e8a13);
     _0x29f0a4();
-    _0x474249();
+    render();
   }
   async function _0x49cfbe() {
     if (!_0xb33f4f.length) {
@@ -9001,7 +9078,7 @@
     if (!_0x31218c) {
       return;
     }
-    _0x231ff7("#docScanStatus").textContent = "Generando el PDF…";
+    $("#docScanStatus").textContent = "Generando el PDF…";
     try {
       await _0x12644a();
       const {
@@ -9026,9 +9103,9 @@
       const _0x38b38f = _0x2dfc4e.output("datauristring");
       _0x31218c.documentos = _0x31218c.documentos || [];
       _0x31218c.documentos.unshift({
-        id: _0x588d17(),
+        id: nuevoId(),
         nombre: "Documento escaneado " + (_0x31218c.documentos.length + 1),
-        fecha: _0x347a69(),
+        fecha: fechaHoraTexto(),
         paginas: _0xb33f4f.length,
         dataUrl: _0x38b38f
       });
@@ -9036,20 +9113,20 @@
         _0x31218c.documentos = _0x31218c.documentos.slice(0, 20);
       }
       _0x29f0a4();
-      _0x474249();
+      render();
       _0x279f78("PDF guardado y enlazado a esta orden/proyecto.");
     } catch (_0x57bde7) {
-      _0x231ff7("#docScanStatus").textContent = "Error generando el PDF: " + _0x57bde7.message;
+      $("#docScanStatus").textContent = "Error generando el PDF: " + _0x57bde7.message;
     }
   }
-  _0x231ff7("#docScanCapturarBtn").addEventListener("click", _0x4e1af1);
-  _0x231ff7("#docScanTerminarBtn").addEventListener("click", async () => {
-    const _0xtBtn = _0x231ff7("#docScanTerminarBtn");
+  $("#docScanCapturarBtn").addEventListener("click", _0x4e1af1);
+  $("#docScanTerminarBtn").addEventListener("click", async () => {
+    const _0xtBtn = $("#docScanTerminarBtn");
     if (!_0xb33f4f.length) {
       return;
     }
-    if (!_0x231ff7("#docScanProveedor").value) {
-      _0x231ff7("#docScanStatus").textContent = "Elige antes el proveedor del material.";
+    if (!$("#docScanProveedor").value) {
+      $("#docScanStatus").textContent = "Elige antes el proveedor del material.";
       return;
     }
     _0xtBtn.disabled = true;
@@ -9064,10 +9141,10 @@
       _0xtBtn.disabled = false;
     }
   });
-  _0x231ff7("#docScanCerrarBtn").addEventListener("click", _0x512cbd);
+  $("#docScanCerrarBtn").addEventListener("click", _0x512cbd);
   (function () {
-    const __btnPdf = _0x231ff7("#docScanSubirPdfBtn");
-    const __inpPdf = _0x231ff7("#docScanPdfInput");
+    const __btnPdf = $("#docScanSubirPdfBtn");
+    const __inpPdf = $("#docScanPdfInput");
     if (__btnPdf && __inpPdf) {
       __btnPdf.addEventListener("click", () => {
         __inpPdf.click();
@@ -9194,7 +9271,7 @@
       }
     } catch (_0xe) {}
   }
-  function _0x474249() {
+  function render() {
     const __uiEstado = __capturarEstadoUI();
     const __ctxNuevo = __clasifContexto();
     if (__uiEstado && __ctxNuevo !== __clasifCtxUltimo) {
@@ -9209,71 +9286,71 @@
     __restaurarEstadoUI(__uiEstado);
   }
   function _0x474249_impl() {
-    if ((_0x47d525.mode === "almacen" || _0x47d525.mode === "resumen" || _0x47d525.mode === "mantenimiento") && _0x2df77d() === "taller") {
-      _0x47d525.mode = "montaje";
+    if ((estado.mode === "almacen" || estado.mode === "resumen" || estado.mode === "mantenimiento") && _0x2df77d() === "taller") {
+      estado.mode = "montaje";
     }
-    if (_0x47d525.mode === "almacen" && _0x177050 !== "almacen") {
+    if (estado.mode === "almacen" && _0x177050 !== "almacen") {
       _0x345037 = "entrada";
     }
-    _0x177050 = _0x47d525.mode;
+    _0x177050 = estado.mode;
     const _0x28820a = document.getElementById("app");
     if (_0x28820a) {
-      _0x28820a.className = "mode-" + _0x47d525.mode + (_0x28820a.classList.contains("tema-claro") ? " tema-claro" : "");
+      _0x28820a.className = "mode-" + estado.mode + (_0x28820a.classList.contains("tema-claro") ? " tema-claro" : "");
     }
     _0x2af187();
     _0x9e6851();
     _0x3536a6();
     _0x4197e5();
     const _0x169a42 = document.querySelector(".cols");
-    const _0x4c5daa = _0x231ff7("#scannerZone");
+    const _0x4c5daa = $("#scannerZone");
     if (_0x169a42 && _0x4c5daa) {
-      if (_0x47d525.mode === "almacen") {
+      if (estado.mode === "almacen") {
         _0x169a42.parentNode.insertBefore(_0x4c5daa, _0x169a42);
       } else {
         _0x169a42.parentNode.insertBefore(_0x4c5daa, _0x169a42.nextSibling);
       }
     }
     _0x323e0f();
-    if (_0x47d525.mode === "almacen") {
+    if (estado.mode === "almacen") {
       _0x1c3cca();
-    } else if (_0x47d525.mode === "pedido") {
+    } else if (estado.mode === "pedido") {
       _0x4a9ee1();
-    } else if (_0x47d525.mode === "mantenimiento") {
+    } else if (estado.mode === "mantenimiento") {
       _0x327d31();
-    } else if (_0x47d525.mode === "trabajadores") {
+    } else if (estado.mode === "trabajadores") {
       __renderTrabajadores();
-    } else if (_0x47d525.mode === "resumen") {
+    } else if (estado.mode === "resumen") {
       _0x3aef53();
     } else {
       _0x8db8ba();
     }
     _0xe20c0f();
-    const _0x3a033d = _0x231ff7("#sidePanel");
+    const _0x3a033d = $("#sidePanel");
     if (_0x3a033d && _0x169a42) {
       const _0x33e51a = !_0x3a033d.innerHTML.trim();
       _0x169a42.classList.toggle("cols-sin-lateral", _0x33e51a);
     }
     _0x3f1ebf();
-    const _0xb1626 = _0x231ff7("#ubicacionesList");
+    const _0xb1626 = $("#ubicacionesList");
     if (_0xb1626) {
-      _0xb1626.innerHTML = _0x47d525.ubicaciones.map(_0x202067 => "<option value=\"" + _0x1d1ab0(_0x202067) + "\">").join("");
+      _0xb1626.innerHTML = estado.ubicaciones.map(_0x202067 => "<option value=\"" + _0x1d1ab0(_0x202067) + "\">").join("");
     }
-    const _0x1bd8d0 = _0x231ff7("#catalogCodesList");
+    const _0x1bd8d0 = $("#catalogCodesList");
     if (_0x1bd8d0) {
-      _0x1bd8d0.innerHTML = _0x47d525.catalog.map(_0x49ee52 => "<option value=\"" + _0x1d1ab0(_0x49ee52.code) + "\">" + _0x1d1ab0(_0x49ee52.desc) + "</option>").join("");
+      _0x1bd8d0.innerHTML = estado.catalog.map(_0x49ee52 => "<option value=\"" + _0x1d1ab0(_0x49ee52.code) + "\">" + _0x1d1ab0(_0x49ee52.desc) + "</option>").join("");
     }
   }
   function _0x3536a6() {
-    const _0x2acddd = _0x231ff7("#globalSearchZone");
+    const _0x2acddd = $("#globalSearchZone");
     if (!_0x2acddd) {
       return;
     }
-    if (_0x47d525.mode === "mantenimiento" || _0x47d525.mode === "resumen") {
+    if (estado.mode === "mantenimiento" || estado.mode === "resumen") {
       _0x2acddd.innerHTML = "";
       return;
     }
     _0x2acddd.innerHTML = "\n      <div class=\"global-search\">\n        <input type=\"text\" id=\"globalStockSearch\" placeholder=\"Buscar en el stock por código o referencia…\" value=\"" + _0x1d1ab0(_0x217aa6) + "\">\n        <div id=\"globalSearchResults\"></div>\n      </div>\n    ";
-    const _0x30967c = _0x231ff7("#globalStockSearch");
+    const _0x30967c = $("#globalStockSearch");
     const _0x57088a = _0x5cfc5(() => _0x3ea8d2(), 220);
     _0x30967c.addEventListener("input", _0xe72e2e => {
       _0x217aa6 = _0xe72e2e.target.value;
@@ -9282,7 +9359,7 @@
     _0x3ea8d2();
   }
   function _0x3ea8d2() {
-    const _0x19329c = _0x231ff7("#globalSearchResults");
+    const _0x19329c = $("#globalSearchResults");
     if (!_0x19329c) {
       return;
     }
@@ -9291,7 +9368,7 @@
       _0x19329c.innerHTML = "";
       return;
     }
-    const _0x59d494 = _0x47d525.catalog.filter(_0xf0028f => _0xf0028f.code.toLowerCase().includes(_0x1f564a) || _0xf0028f.desc.toLowerCase().includes(_0x1f564a) || _0xf0028f.referencia && _0xf0028f.referencia.toLowerCase().includes(_0x1f564a));
+    const _0x59d494 = estado.catalog.filter(_0xf0028f => _0xf0028f.code.toLowerCase().includes(_0x1f564a) || _0xf0028f.desc.toLowerCase().includes(_0x1f564a) || _0xf0028f.referencia && _0xf0028f.referencia.toLowerCase().includes(_0x1f564a));
     if (!_0x59d494.length) {
       _0x19329c.innerHTML = "<div style=\"padding:10px 4px; color:var(--text-faint); font-size:12.5px;\">Sin coincidencias en el stock.</div>";
       return;
@@ -9306,7 +9383,7 @@
   }
   function _0x4fc746() {
     const _0x30b86a = [];
-    _0x47d525.vehiculos.forEach(_0x1fd5c8 => {
+    estado.vehiculos.forEach(_0x1fd5c8 => {
       _0x4f0ebd(_0x1fd5c8.id).forEach(_0x576117 => {
         const _0x509b36 = _0x22e6c7(_0x576117, _0x1fd5c8.kmActual || 0);
         if (_0x509b36.estado !== "ok") {
@@ -9321,7 +9398,7 @@
     return _0x30b86a;
   }
   function _0x2af187() {
-    const _0x86798b = _0x231ff7("#alertBanner");
+    const _0x86798b = $("#alertBanner");
     if (!_0x86798b) {
       return;
     }
@@ -9336,7 +9413,7 @@
     }
     const _0x47b814 = [];
     if (_0x5836a0.length) {
-      _0x47b814.push(_0x5836a0.length + " material(es) con " + _0x47d525.settings.stockBajoUmbral + " unidades o menos");
+      _0x47b814.push(_0x5836a0.length + " material(es) con " + estado.settings.stockBajoUmbral + " unidades o menos");
     }
     if (_0x10f382.length) {
       _0x47b814.push(_0x10f382.length + " bobina(s) a punto de expirar");
@@ -9356,11 +9433,11 @@
     _0x86798b.innerHTML = "Aviso: " + _0x47b814.join(" · ") + ". Revísalo en " + _0x3897b9.join(" o ") + ".";
   }
   function _0x9e6851() {
-    const _0x3fac10 = _0x231ff7("#pedidoNotifBanner");
+    const _0x3fac10 = $("#pedidoNotifBanner");
     if (!_0x3fac10) {
       return;
     }
-    const _0x2fe6bc = _0x47d525.notifications.filter(_0x263003 => !_0x263003.leida).slice(0, 5);
+    const _0x2fe6bc = estado.notifications.filter(_0x263003 => !_0x263003.leida).slice(0, 5);
     _0x2fe6bc.forEach(_0x2ffdc6 => {
       if (!_0x1f4699.has(_0x2ffdc6.id)) {
         _0x1f4699.add(_0x2ffdc6.id);
@@ -9389,30 +9466,30 @@
     });
   }
   function _0x3b2431(_0x509d41) {
-    const _0x566143 = _0x47d525.notifications.find(_0x2462a3 => _0x2462a3.id === _0x509d41);
+    const _0x566143 = estado.notifications.find(_0x2462a3 => _0x2462a3.id === _0x509d41);
     if (_0x566143) {
       _0x566143.leida = true;
-      _0xc28b67();
+      guardarAvisos();
     }
-    _0x474249();
+    render();
   }
   async function _0x3b142c(_0x57b315) {
-    const _0x2daf16 = _0x47d525.notifications.find(_0x12cb14 => _0x12cb14.id === _0x57b315);
+    const _0x2daf16 = estado.notifications.find(_0x12cb14 => _0x12cb14.id === _0x57b315);
     if (!_0x2daf16) {
       return;
     }
     _0x2daf16.leida = true;
-    _0xc28b67();
-    _0x47d525.mode = _0x2daf16.groupKind;
+    guardarAvisos();
+    estado.mode = _0x2daf16.groupKind;
     await _0x2f0e01(_0x2daf16.groupKind, _0x2daf16.groupName);
     _0x5592da = "hoja";
-    _0x474249();
+    render();
   }
   let _0x1e9600 = "montaje";
   function _0x4197e5() {
-    const _0x212998 = _0x231ff7("#modeBar");
+    const _0x212998 = $("#modeBar");
     const _0x5967fd = _0x2df77d() === "taller";
-    const _0x51f32c = _0x47d525.mode === "montaje" || _0x47d525.mode === "proyecto";
+    const _0x51f32c = estado.mode === "montaje" || estado.mode === "proyecto";
     const __icoR = "<svg viewBox=\"0 0 20 20\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"><rect x=\"2.5\" y=\"2.5\" width=\"6\" height=\"6\" rx=\"1\"/><rect x=\"11.5\" y=\"2.5\" width=\"6\" height=\"6\" rx=\"1\"/><rect x=\"2.5\" y=\"11.5\" width=\"6\" height=\"6\" rx=\"1\"/><rect x=\"11.5\" y=\"11.5\" width=\"6\" height=\"6\" rx=\"1\"/></svg>";
     const __icoT = "<svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M14.7 6.3a4 4 0 1 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.8 2.8-2-2 2.8-2.8z\"/></svg>";
     const __icoA = "<svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 8l9-5 9 5-9 5-9-5z\"/><path d=\"M3 8v8l9 5 9-5V8\"/><path d=\"M12 13v8\"/></svg>";
@@ -9426,20 +9503,20 @@
         __appElSb.classList.toggle("sidebar-collapsed", localStorage.getItem("tecnomat_sidebar_collapsed") === "1");
       }
     } catch {}
-    _0x212998.innerHTML = "<button class=\"mode-bar-toggle\" id=\"modeBarToggleBtn\" title=\"Contraer o expandir el menú\" aria-label=\"Contraer o expandir el menú\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 4l-6 8 6 8M19 4l-6 8 6 8\"/></svg></button>" + _0x456962.map(([_0x1f2080, _0x5bd5c4, _0x5b3cec, _0x1c0nSvg]) => "<button class=\"mode-btn " + ((_0x1f2080 === "trabajo" ? _0x51f32c : _0x47d525.mode === _0x1f2080) ? "active" : "") + "\" data-mode=\"" + _0x1f2080 + "\"><span class=\"mode-btn-icon\">" + _0x1c0nSvg + "</span><span class=\"mode-btn-label\">" + _0x5bd5c4 + "</span><span class=\"label-extra\">" + _0x5b3cec + "</span></button>").join("");
+    _0x212998.innerHTML = "<button class=\"mode-bar-toggle\" id=\"modeBarToggleBtn\" title=\"Contraer o expandir el menú\" aria-label=\"Contraer o expandir el menú\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 4l-6 8 6 8M19 4l-6 8 6 8\"/></svg></button>" + _0x456962.map(([_0x1f2080, _0x5bd5c4, _0x5b3cec, _0x1c0nSvg]) => "<button class=\"mode-btn " + ((_0x1f2080 === "trabajo" ? _0x51f32c : estado.mode === _0x1f2080) ? "active" : "") + "\" data-mode=\"" + _0x1f2080 + "\"><span class=\"mode-btn-icon\">" + _0x1c0nSvg + "</span><span class=\"mode-btn-label\">" + _0x5bd5c4 + "</span><span class=\"label-extra\">" + _0x5b3cec + "</span></button>").join("");
     _0x212998.querySelectorAll(".mode-btn").forEach(_0x20a919 => {
       _0x20a919.addEventListener("click", () => {
-        _0x47d525.mode = _0x20a919.dataset.mode === "trabajo" ? _0x1e9600 : _0x20a919.dataset.mode;
+        estado.mode = _0x20a919.dataset.mode === "trabajo" ? _0x1e9600 : _0x20a919.dataset.mode;
         _0x24edec = null;
         _0x1dfbd0 = null;
         _0x5592da = "chat";
         clearTimeout(_0x279f78._t);
-        const _0x42e1bb = _0x231ff7("#statusBanner");
+        const _0x42e1bb = $("#statusBanner");
         if (_0x42e1bb) {
           _0x42e1bb.style.display = "none";
         }
         _0x430fb2();
-        _0x474249();
+        render();
       });
     });
     (function () {
@@ -9473,21 +9550,21 @@
   let _0x15a759 = false;
   let _0xcbd78e = false;
   function _0x33d6d2() {
-    const _0x55218f = _0x47d525.mode;
-    const _0xbdd625 = _0x47d525.current[_0x55218f];
-    const _0x2ef914 = _0xbdd625 ? _0x297402(_0x55218f, _0xbdd625) : null;
-    const _0x42ac79 = _0x47d525.groups.montaje.map(_0x347cab => ({
+    const _0x55218f = estado.mode;
+    const _0xbdd625 = estado.current[_0x55218f];
+    const _0x2ef914 = _0xbdd625 ? buscarGrupo(_0x55218f, _0xbdd625) : null;
+    const _0x42ac79 = estado.groups.montaje.map(_0x347cab => ({
       ..._0x347cab,
       kind: "montaje"
-    })).concat(_0x47d525.groups.proyecto.map(_0x4fffd3 => ({
+    })).concat(estado.groups.proyecto.map(_0x4fffd3 => ({
       ..._0x4fffd3,
       kind: "proyecto"
     }))).sort((_0x177222, _0x2f763f) => _0x177222.name.localeCompare(_0x2f763f.name));
     return "\n      " + (_0x42ac79.length > 6 ? "\n      <input type=\"text\" id=\"groupFilterInput\" placeholder=\"Buscar orden o proyecto…\" style=\"width:100%; margin-bottom:6px;\">\n      " : "") + "\n      <div class=\"project-bar\">\n        <select id=\"groupSelect\" style=\"flex:1;\">\n          <option value=\"\">— Selecciona una orden o proyecto —</option>\n          " + _0x42ac79.map(_0x1b186f => "<option value=\"" + _0x1b186f.kind + "::" + _0x1d1ab0(_0x1b186f.name) + "\" " + (_0x1b186f.kind === _0x55218f && _0x1b186f.name === _0xbdd625 ? "selected" : "") + ">" + (_0x1b186f.kind === "montaje" ? "Montaje" : "Proyecto") + ": " + _0x1d1ab0(_0x1b186f.name) + (_0x1b186f.tipo ? " [" + _0x1d1ab0(_0x1b186f.tipo) + "]" : "") + (_0x1b186f.status === "finalizado" ? " (Finalizado)" : "") + "</option>").join("") + "\n        </select>\n        <button class=\"cam-btn\" id=\"toggleNuevoTrabajoBtn\" style=\"flex:none; padding:9px 14px; min-height:auto;\">" + (_0x29db0a ? "Cancelar" : "+ Nueva") + "</button>\n      </div>\n      " + (_0x2ef914 ? "\n      <div style=\"display:flex; align-items:center; justify-content:space-between; gap:6px; flex-wrap:wrap; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--text-faint); margin:-2px 0 8px 2px;\">\n        <span>\n          <span style=\"color:" + (_0x2ef914.status === "finalizado" ? "var(--text-muted)" : "var(--success)") + ";\">" + (_0x2ef914.status === "finalizado" ? "Finalizado" : "Activo") + "</span>\n          · " + (_0x55218f === "montaje" ? "Montaje" : "Proyecto") + "\n          " + (_0x2ef914.tipo ? " · " + _0x1d1ab0(_0x2ef914.tipo) : "") + "\n        </span>" + (_0x2df77d() !== "taller" ? "\n        <button class=\"cam-btn\" id=\"toggleMasOpcionesBtn\" style=\"flex:none; padding:4px 10px; font-size:10px; min-height:auto; text-transform:none; letter-spacing:0;\">" + (_0x411628 ? "Ocultar" : "Más opciones") + "</button>" : "") + "\n      </div>\n      " + (_0x411628 && _0x2df77d() !== "taller" ? "\n      <div class=\"project-bar project-bar-inline\" style=\"margin-top:0;\">\n        <button class=\"cam-btn\" id=\"toggleStatusBtn\" style=\"flex:1;\">" + (_0x2ef914.status === "finalizado" ? "Reactivar" : "Finalizar") + "</button>\n        " + (_0x2df77d() === "taller" ? "" : "<button class=\"btn-return\" id=\"deleteGroupBtn\" style=\"flex:1;\">" + _0x56ae2b("eliminar") + "Eliminar</button>") + "\n      </div>\n      " : "") + "\n      " : "") + "\n      " + (_0x29db0a ? "\n      <div class=\"project-bar\" style=\"margin-top:8px;\">\n        <input type=\"text\" id=\"newGroupInput\" placeholder=\"Nombre de la orden o proyecto…\" value=\"" + _0x1d1ab0(_0x4a2438.nombre) + "\">\n        <select id=\"newGroupKind\">\n          <option value=\"montaje\" " + (_0x4a2438.kind !== "proyecto" ? "selected" : "") + ">Montaje/Venta</option>\n          <option value=\"proyecto\" " + (_0x4a2438.kind === "proyecto" ? "selected" : "") + ">Proyecto</option>\n        </select>\n        <button class=\"cam-btn\" id=\"createGroupBtn\">+ Crear</button>\n      </div>\n      " : "") + "\n    ";
   }
   function _0x241b98(_0x4beafe) {
-    const _0x429822 = _0x47d525.mode;
-    const _0x242c16 = _0x47d525.current[_0x429822];
+    const _0x429822 = estado.mode;
+    const _0x242c16 = estado.current[_0x429822];
     const _0x5d9f7d = _0x4beafe.querySelector("#groupFilterInput");
     if (_0x5d9f7d) {
       _0x5d9f7d.addEventListener("input", () => {
@@ -9507,18 +9584,18 @@
         return;
       }
       _0x1e9600 = _0x21c88f;
-      _0x47d525.mode = _0x21c88f;
+      estado.mode = _0x21c88f;
       _0x2f0e01(_0x21c88f, _0x9a19d0);
     });
     _0x4beafe.querySelector("#toggleNuevoTrabajoBtn").addEventListener("click", () => {
       _0x29db0a = !_0x29db0a;
-      _0x474249();
+      render();
     });
     const _0x5664dd = _0x4beafe.querySelector("#toggleMasOpcionesBtn");
     if (_0x5664dd) {
       _0x5664dd.addEventListener("click", () => {
         _0x411628 = !_0x411628;
-        _0x474249();
+        render();
       });
     }
     const _0x245889 = _0x4beafe.querySelector("#newGroupInput");
@@ -9556,7 +9633,7 @@
           };
           _0x29db0a = false;
           _0x1e9600 = _0x34aac0;
-          _0x47d525.mode = _0x34aac0;
+          estado.mode = _0x34aac0;
           _0xc78429(_0x34aac0, _0x19c3d9, _0xd4dca3.trim(), _0x1d8ffc);
         } finally {
           _crearOrdenEnCurso = false;
@@ -9580,23 +9657,23 @@
     }
   }
   function _0x323e0f() {
-    const _0x559be = _0x231ff7("#scannerZone");
-    if (_0x47d525.mode === "mantenimiento" || _0x47d525.mode === "resumen" || _0x47d525.mode === "trabajadores" || _0x2df77d() !== "almacen") {
+    const _0x559be = $("#scannerZone");
+    if (estado.mode === "mantenimiento" || estado.mode === "resumen" || estado.mode === "trabajadores" || _0x2df77d() !== "almacen") {
       _0x559be.innerHTML = "";
       return;
     }
-    const _0x2cfb13 = _0x47d525.mode === "montaje" || _0x47d525.mode === "proyecto" ? _0x47d525.mode : null;
-    const _0x391aec = _0x2cfb13 ? _0x47d525.current[_0x2cfb13] : null;
-    const _0x3b4334 = _0x391aec ? _0x297402(_0x2cfb13, _0x391aec) : null;
+    const _0x2cfb13 = estado.mode === "montaje" || estado.mode === "proyecto" ? estado.mode : null;
+    const _0x391aec = _0x2cfb13 ? estado.current[_0x2cfb13] : null;
+    const _0x3b4334 = _0x391aec ? buscarGrupo(_0x2cfb13, _0x391aec) : null;
     const _0x1ea4cb = !!_0x3b4334 && _0x3b4334.status === "finalizado";
     const _0x514647 = _0x2cfb13 ? _0x1ea037() : null;
     const _0x4664d6 = _0x2cfb13 && !_0x391aec || _0x1ea4cb;
-    const _0xa728ab = _0x2cfb13 && !_0x391aec ? "Selecciona " + (_0x2cfb13 === "montaje" ? "una orden de montaje/venta" : "un proyecto") + " para escanear…" : _0x1ea4cb ? (_0x2cfb13 === "montaje" ? "Orden finalizada" : "Proyecto finalizado") + " — reactívala para seguir registrando…" : _0x47d525.mode === "almacen" ? "Escanea para registrar una entrada de stock…" : _0x47d525.mode === "pedido" ? "Escanea o introduce el código para añadirlo al pedido…" : "Escanea o introduce el código para añadirlo a la solicitud…";
-    const _0x84fca4 = _0x47d525.mode === "almacen" ? _0x345037 === "entrada" ? "Suma al stock. Material nuevo: pide referencia." : "Resta del stock — no deja bajar de 0." : _0x47d525.mode === "pedido" ? "Añade al pedido — no descuenta stock." : "Va a la solicitud pendiente — no descuenta stock aún.";
-    const _0x4ad6be = _0x47d525.mode === "almacen" ? _0x345037 === "entrada" ? "+ Entrada" : "− Salida" : _0x47d525.mode === "pedido" ? "+ Añadir" : "+ Solicitar";
-    const _0x8c9156 = _0x47d525.mode === "almacen" ? _0x345037 === "entrada" ? "var(--success)" : "var(--danger)" : "";
-    _0x559be.innerHTML = "\n      <div class=\"scanner-panel\" style=\"" + (_0x47d525.mode === "almacen" ? "border-left:6px solid " + _0x8c9156 + "; background:linear-gradient(90deg, " + (_0x345037 === "entrada" ? "var(--success-soft)" : "var(--danger-soft)") + ", transparent 220px);" : "") + "\">\n        " + (_0x47d525.mode === "almacen" ? "\n          <div style=\"font-family:'Big Shoulders Display','Arial Narrow',Arial,sans-serif; font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.03em; color:" + _0x8c9156 + "; margin-bottom:8px;\">\n            Modo activo: " + (_0x345037 === "entrada" ? "ENTRADA (suma al stock)" : "SALIDA (resta del stock)") + "\n          </div>\n          <div class=\"scanner-row\" style=\"margin-bottom:8px;\">\n            <button class=\"mode-btn\" data-almacen-scan-modo=\"entrada\" style=\"flex:1; padding:12px; font-size:15px; " + (_0x345037 === "entrada" ? "background:var(--success); color:#0A2016;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">+ ENTRADA</button>\n            <button class=\"mode-btn\" data-almacen-scan-modo=\"salida\" style=\"flex:1; padding:12px; font-size:15px; " + (_0x345037 === "salida" ? "background:var(--danger); color:#2A0C10;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">− SALIDA</button>\n          </div>\n        " : "") + "\n        <div class=\"scanner-row\">\n          <input id=\"scanInput\" type=\"text\" placeholder=\"" + _0xa728ab + "\" " + (_0x4664d6 ? "disabled" : "") + " autocomplete=\"off\" style=\"" + (_0x47d525.mode === "almacen" ? "border-color:" + _0x8c9156 + ";" : "") + "\">\n        </div>\n        <div class=\"scanner-actions\">\n          <button class=\"cam-btn\" id=\"camBtn\" " + (_0x4664d6 ? "disabled" : "") + ">Cámara</button>\n          <button class=\"btn primary\" id=\"scanSubmitBtn\" " + (_0x4664d6 ? "disabled" : "") + ">" + _0x4ad6be + "</button>\n        </div>\n        <label style=\"display:flex; align-items:center; gap:6px; margin-top:8px; font-size:12px; color:var(--text-muted); cursor:pointer;\">\n          <input type=\"checkbox\" id=\"modoRapidoX1Chk\" " + (_0x2ff082 ? "checked" : "") + " style=\"width:16px; height:16px;\"> Modo rápido: cada escaneo cuenta como 1 unidad, sin preguntar\n        </label>\n        <div class=\"scan-hint\">" + _0x84fca4 + "</div>\n        " + (_0x24edec ? "\n          <div class=\"unknown-box\">\n            <span>Nueva referencia para el código <strong>" + _0x1d1ab0(_0x24edec.code) + "</strong>:</span>\n            <input id=\"unknownDesc\" type=\"text\" placeholder=\"Artículo…\">\n            <input id=\"unknownRef\" type=\"text\" placeholder=\"Referencia (opcional)…\">\n            <input id=\"unknownLoc\" type=\"text\" placeholder=\"Ubicación (opcional)…\" list=\"ubicacionesList\">\n            <select id=\"unknownCategoria\" style=\"background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:8px 10px; border-radius:6px;\">\n              <option value=\"\">Categoría…</option>\n              " + _0x23f5f6.map(_0x553a77 => "<option value=\"" + _0x1d1ab0(_0x553a77) + "\">" + _0x1d1ab0(_0x553a77) + "</option>").join("") + "\n            </select>\n            <button class=\"cam-btn\" id=\"confirmUnknownBtn\">Añadir y registrar</button>\n          </div>\n        " : "") + "\n        " + (_0x1dfbd0 ? "\n          <div class=\"unknown-box\" style=\"flex-direction:column; align-items:stretch;\">\n            <span>El código <strong>" + _0x1d1ab0(_0x1dfbd0.code) + "</strong> tiene varias referencias registradas. ¿Cuál es?</span>\n            <div class=\"code-choice-list\">\n              " + _0x1dfbd0.matches.map(_0xa7ff30 => {
-      const _0x36d4fe = _0x47d525.catalog.find(_0x3973d7 => _0x3973d7.id === _0xa7ff30);
+    const _0xa728ab = _0x2cfb13 && !_0x391aec ? "Selecciona " + (_0x2cfb13 === "montaje" ? "una orden de montaje/venta" : "un proyecto") + " para escanear…" : _0x1ea4cb ? (_0x2cfb13 === "montaje" ? "Orden finalizada" : "Proyecto finalizado") + " — reactívala para seguir registrando…" : estado.mode === "almacen" ? "Escanea para registrar una entrada de stock…" : estado.mode === "pedido" ? "Escanea o introduce el código para añadirlo al pedido…" : "Escanea o introduce el código para añadirlo a la solicitud…";
+    const _0x84fca4 = estado.mode === "almacen" ? _0x345037 === "entrada" ? "Suma al stock. Material nuevo: pide referencia." : "Resta del stock — no deja bajar de 0." : estado.mode === "pedido" ? "Añade al pedido — no descuenta stock." : "Va a la solicitud pendiente — no descuenta stock aún.";
+    const _0x4ad6be = estado.mode === "almacen" ? _0x345037 === "entrada" ? "+ Entrada" : "− Salida" : estado.mode === "pedido" ? "+ Añadir" : "+ Solicitar";
+    const _0x8c9156 = estado.mode === "almacen" ? _0x345037 === "entrada" ? "var(--success)" : "var(--danger)" : "";
+    _0x559be.innerHTML = "\n      <div class=\"scanner-panel\" style=\"" + (estado.mode === "almacen" ? "border-left:6px solid " + _0x8c9156 + "; background:linear-gradient(90deg, " + (_0x345037 === "entrada" ? "var(--success-soft)" : "var(--danger-soft)") + ", transparent 220px);" : "") + "\">\n        " + (estado.mode === "almacen" ? "\n          <div style=\"font-family:'Big Shoulders Display','Arial Narrow',Arial,sans-serif; font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.03em; color:" + _0x8c9156 + "; margin-bottom:8px;\">\n            Modo activo: " + (_0x345037 === "entrada" ? "ENTRADA (suma al stock)" : "SALIDA (resta del stock)") + "\n          </div>\n          <div class=\"scanner-row\" style=\"margin-bottom:8px;\">\n            <button class=\"mode-btn\" data-almacen-scan-modo=\"entrada\" style=\"flex:1; padding:12px; font-size:15px; " + (_0x345037 === "entrada" ? "background:var(--success); color:#0A2016;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">+ ENTRADA</button>\n            <button class=\"mode-btn\" data-almacen-scan-modo=\"salida\" style=\"flex:1; padding:12px; font-size:15px; " + (_0x345037 === "salida" ? "background:var(--danger); color:#2A0C10;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">− SALIDA</button>\n          </div>\n        " : "") + "\n        <div class=\"scanner-row\">\n          <input id=\"scanInput\" type=\"text\" placeholder=\"" + _0xa728ab + "\" " + (_0x4664d6 ? "disabled" : "") + " autocomplete=\"off\" style=\"" + (estado.mode === "almacen" ? "border-color:" + _0x8c9156 + ";" : "") + "\">\n        </div>\n        <div class=\"scanner-actions\">\n          <button class=\"cam-btn\" id=\"camBtn\" " + (_0x4664d6 ? "disabled" : "") + ">Cámara</button>\n          <button class=\"btn primary\" id=\"scanSubmitBtn\" " + (_0x4664d6 ? "disabled" : "") + ">" + _0x4ad6be + "</button>\n        </div>\n        <label style=\"display:flex; align-items:center; gap:6px; margin-top:8px; font-size:12px; color:var(--text-muted); cursor:pointer;\">\n          <input type=\"checkbox\" id=\"modoRapidoX1Chk\" " + (_0x2ff082 ? "checked" : "") + " style=\"width:16px; height:16px;\"> Modo rápido: cada escaneo cuenta como 1 unidad, sin preguntar\n        </label>\n        <div class=\"scan-hint\">" + _0x84fca4 + "</div>\n        " + (_0x24edec ? "\n          <div class=\"unknown-box\">\n            <span>Nueva referencia para el código <strong>" + _0x1d1ab0(_0x24edec.code) + "</strong>:</span>\n            <input id=\"unknownDesc\" type=\"text\" placeholder=\"Artículo…\">\n            <input id=\"unknownRef\" type=\"text\" placeholder=\"Referencia (opcional)…\">\n            <input id=\"unknownLoc\" type=\"text\" placeholder=\"Ubicación (opcional)…\" list=\"ubicacionesList\">\n            <select id=\"unknownCategoria\" style=\"background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:8px 10px; border-radius:6px;\">\n              <option value=\"\">Categoría…</option>\n              " + _0x23f5f6.map(_0x553a77 => "<option value=\"" + _0x1d1ab0(_0x553a77) + "\">" + _0x1d1ab0(_0x553a77) + "</option>").join("") + "\n            </select>\n            <button class=\"cam-btn\" id=\"confirmUnknownBtn\">Añadir y registrar</button>\n          </div>\n        " : "") + "\n        " + (_0x1dfbd0 ? "\n          <div class=\"unknown-box\" style=\"flex-direction:column; align-items:stretch;\">\n            <span>El código <strong>" + _0x1d1ab0(_0x1dfbd0.code) + "</strong> tiene varias referencias registradas. ¿Cuál es?</span>\n            <div class=\"code-choice-list\">\n              " + _0x1dfbd0.matches.map(_0xa7ff30 => {
+      const _0x36d4fe = estado.catalog.find(_0x3973d7 => _0x3973d7.id === _0xa7ff30);
       if (!_0x36d4fe) {
         return "";
       }
@@ -9608,13 +9685,13 @@
         _0x323e0f();
       });
     });
-    const _0x2d8ec0 = _0x231ff7("#modoRapidoX1Chk");
+    const _0x2d8ec0 = $("#modoRapidoX1Chk");
     if (_0x2d8ec0) {
       _0x2d8ec0.addEventListener("change", _0x59ba7e => {
         _0x2ff082 = _0x59ba7e.target.checked;
       });
     }
-    const _0x156ae7 = _0x231ff7("#scanInput");
+    const _0x156ae7 = $("#scanInput");
     if (_0x156ae7) {
       _0x156ae7.addEventListener("keydown", _0x47ebb2 => {
         if (_0x47ebb2.key === "Enter") {
@@ -9644,7 +9721,7 @@
         _0x156ae7.focus();
       });
     }
-    const _0x3efee8 = _0x231ff7("#scanSubmitBtn");
+    const _0x3efee8 = $("#scanSubmitBtn");
     if (_0x3efee8) {
       _0x3efee8.addEventListener("click", () => {
         const _0xea2c1b = _0x156ae7.value;
@@ -9652,39 +9729,39 @@
         _0x1803b3(_0xea2c1b);
       });
     }
-    const _0x4b1e6b = _0x231ff7("#camBtn");
+    const _0x4b1e6b = $("#camBtn");
     if (_0x4b1e6b) {
       _0x4b1e6b.addEventListener("click", () => _0xe99bca(_0x1803b3));
     }
-    const _0x631bff = _0x231ff7("#confirmUnknownBtn");
+    const _0x631bff = $("#confirmUnknownBtn");
     if (_0x631bff) {
       _0x631bff.addEventListener("click", _0x4192c8);
-      _0x231ff7("#unknownDesc").addEventListener("keydown", _0x548517 => {
+      $("#unknownDesc").addEventListener("keydown", _0x548517 => {
         if (_0x548517.key === "Enter") {
           _0x548517.preventDefault();
           _0x4192c8();
         }
       });
-      _0x231ff7("#unknownRef").addEventListener("keydown", _0x170dae => {
+      $("#unknownRef").addEventListener("keydown", _0x170dae => {
         if (_0x170dae.key === "Enter") {
           _0x170dae.preventDefault();
           _0x4192c8();
         }
       });
-      _0x231ff7("#unknownLoc").addEventListener("keydown", _0x677d0e => {
+      $("#unknownLoc").addEventListener("keydown", _0x677d0e => {
         if (_0x677d0e.key === "Enter") {
           _0x677d0e.preventDefault();
           _0x4192c8();
         }
       });
-      _0x231ff7("#unknownDesc").focus({
+      $("#unknownDesc").focus({
         preventScroll: true
       });
     }
     if (_0x1dfbd0) {
       _0x559be.querySelectorAll("[data-choice-item]").forEach(_0x336eae => {
         _0x336eae.addEventListener("click", () => {
-          const _0x4b8924 = _0x47d525.catalog.find(_0x28bee3 => _0x28bee3.id === _0x336eae.dataset.choiceItem);
+          const _0x4b8924 = estado.catalog.find(_0x28bee3 => _0x28bee3.id === _0x336eae.dataset.choiceItem);
           _0x1dfbd0 = null;
           if (_0x4b8924) {
             _0x2d3f0d(_0x4b8924);
@@ -9692,7 +9769,7 @@
           _0x323e0f();
         });
       });
-      const _0xa94b22 = _0x231ff7("#choiceCreateNewBtn");
+      const _0xa94b22 = $("#choiceCreateNewBtn");
       if (_0xa94b22) {
         _0xa94b22.addEventListener("click", () => {
           const _0x57f8ab = _0x1dfbd0.code;
@@ -9706,15 +9783,15 @@
     }
   }
   function _0x198ddf() {
-    if (_0x47d525.mode === "montaje") {
-      if (_0x47d525.current.montaje) {
-        return "Montaje/Venta: " + _0x1d1ab0(_0x47d525.current.montaje);
+    if (estado.mode === "montaje") {
+      if (estado.current.montaje) {
+        return "Montaje/Venta: " + _0x1d1ab0(estado.current.montaje);
       } else {
         return "Orden de montaje/venta";
       }
     }
-    if (_0x47d525.current.proyecto) {
-      return "Proyecto: " + _0x1d1ab0(_0x47d525.current.proyecto);
+    if (estado.current.proyecto) {
+      return "Proyecto: " + _0x1d1ab0(estado.current.proyecto);
     } else {
       return "Proyecto";
     }
@@ -9726,17 +9803,17 @@
   let _0x30947e = false;
   let _0x101019 = false;
   function _0x1c3cca() {
-    if (_0x47d525.mode !== "almacen") {
+    if (estado.mode !== "almacen") {
       return;
     }
-    const _0x231638 = _0x231ff7("#mainList");
+    const _0x231638 = $("#mainList");
     const _0x2580ea = _0x1a8b0d.trim().toLowerCase();
-    const _0x1318d4 = _0x47d525.catalog.filter(_0x2dce44 => !_0x2580ea || _0x2dce44.code.toLowerCase().includes(_0x2580ea) || _0x2dce44.desc.toLowerCase().includes(_0x2580ea) || _0x2dce44.referencia && _0x2dce44.referencia.toLowerCase().includes(_0x2580ea)).filter(_0x110031 => !_0x1b0226 || _0x110031.categoria === _0x1b0226).filter(_0x4e3e62 => !_0x30947e || _0x4e3e62.qty <= 0).filter(_0x6ac846 => !_0x101019 || !_0x6ac846.location).slice().sort((_0x562039, _0x5b6cd2) => _0x562039.code.localeCompare(_0x5b6cd2.code));
+    const _0x1318d4 = estado.catalog.filter(_0x2dce44 => !_0x2580ea || _0x2dce44.code.toLowerCase().includes(_0x2580ea) || _0x2dce44.desc.toLowerCase().includes(_0x2580ea) || _0x2dce44.referencia && _0x2dce44.referencia.toLowerCase().includes(_0x2580ea)).filter(_0x110031 => !_0x1b0226 || _0x110031.categoria === _0x1b0226).filter(_0x4e3e62 => !_0x30947e || _0x4e3e62.qty <= 0).filter(_0x6ac846 => !_0x101019 || !_0x6ac846.location).slice().sort((_0x562039, _0x5b6cd2) => _0x562039.code.localeCompare(_0x5b6cd2.code));
     const _0x39c62a = _0x1318d4.slice(0, _0x2ba7a9);
     const _0x4641a7 = _0x39c62a.map(_0x4a3c61 => "\n      <div class=\"stock-row\">\n        <input type=\"checkbox\" class=\"stock-select\" data-select-id=\"" + _0x4a3c61.id + "\" " + (_0xf103fd.has(_0x4a3c61.id) ? "checked" : "") + " style=\"flex:none; width:16px; height:16px; margin-right:4px;\">\n        <div class=\"row-main\">\n          <div class=\"row-code\">" + _0x1d1ab0(_0x4a3c61.code) + (_0x4a3c61.marca ? " · <span style=\"color:var(--text-faint); font-weight:400;\">" + _0x1d1ab0(_0x4a3c61.marca) + "</span>" : "") + "</div>\n          <div class=\"row-desc\">" + (_0x1d1ab0(_0x4a3c61.desc) || "<span style=\"color:var(--text-faint); font-style:italic;\">Sin artículo — pulsa \"Editar\" o edítalo desde el Excel</span>") + "</div>\n          " + (_0x4a3c61.referencia ? "<div style=\"font-size:11px; color:var(--text-faint); margin-top:1px;\">Ref: " + _0x1d1ab0(_0x4a3c61.referencia) + "</div>" : "") + "\n        </div>\n        <div class=\"row-actions\">\n          <span class=\"stock-loc " + (_0x4a3c61.location ? "set" : "unset") + "\">" + (_0x1d1ab0(_0x4a3c61.location) || "Sin ubicar") + "</span>\n          " + (_0x4a3c61.categoria ? "<span class=\"stock-loc set\">Cat: " + _0x1d1ab0(_0x4a3c61.categoria) + "</span>" : "") + "\n          <span class=\"stock-qty " + (_0x4a3c61.qty > 0 ? "ok" : "low") + "\">" + _0x4a3c61.qty + "</span>\n          <button class=\"cam-btn\" style=\"padding:9px 14px; font-size:13px; min-height:44px;\" data-edit-btn=\"" + _0x4a3c61.id + "\">" + _0x56ae2b("editar") + "Editar</button>\n          <button class=\"cam-btn\" style=\"padding:9px 14px; font-size:13px; min-height:44px;\" data-qty-btn=\"" + _0x4a3c61.id + "\">Cambiar cantidad</button>\n        </div>\n      </div>\n    ").join("") + (_0x1318d4.length > _0x39c62a.length ? "\n      <button class=\"cam-btn\" id=\"stockLoadMoreBtn\" style=\"width:100%; margin-top:4px;\">Cargar más (quedan " + (_0x1318d4.length - _0x39c62a.length) + ")</button>\n    " : "");
     _0x231638.innerHTML = "\n      " + (_0xf103fd.size ? "\n      <div class=\"panel\" style=\"margin-bottom:14px;\">\n        <p class=\"panel-title\">" + _0xf103fd.size + " referencia(s) seleccionada(s)</p>\n        <div class=\"backup-row\">\n          <button class=\"cam-btn\" id=\"bulkLocBtn\">Cambiar ubicación a todas</button>\n          <button class=\"cam-btn\" id=\"bulkQtyBtn\">Cambiar cantidad a todas</button>\n          <button class=\"btn-return\" id=\"bulkDelBtn\">Eliminar seleccionadas</button>\n        </div>\n      </div>" : "") + "\n\n      <div class=\"panel\" style=\"margin-bottom:14px;\">\n        <p class=\"panel-title\">Filtros</p>\n        <div class=\"manual-stock-form\" style=\"margin-top:0;\">\n          <select id=\"stockFiltroCategoriaSel\">\n            <option value=\"\">Todas las categorías</option>\n            " + _0x23f5f6.map(_0x5599e4 => "<option value=\"" + _0x1d1ab0(_0x5599e4) + "\" " + (_0x1b0226 === _0x5599e4 ? "selected" : "") + ">" + _0x1d1ab0(_0x5599e4) + "</option>").join("") + "\n          </select>\n          <label style=\"display:flex; align-items:center; gap:6px; flex:1; min-width:150px; font-size:13px; color:var(--text-primary);\">\n            <input type=\"checkbox\" id=\"stockFiltroBajoChk\" " + (_0x30947e ? "checked" : "") + " style=\"width:16px; height:16px;\"> Solo stock bajo (0)\n          </label>\n          <label style=\"display:flex; align-items:center; gap:6px; flex:1; min-width:150px; font-size:13px; color:var(--text-primary);\">\n            <input type=\"checkbox\" id=\"stockFiltroSinUbicarChk\" " + (_0x101019 ? "checked" : "") + " style=\"width:16px; height:16px;\"> Solo sin ubicar\n          </label>\n          " + (_0x1b0226 || _0x30947e || _0x101019 ? "<button class=\"cam-btn\" id=\"stockFiltroLimpiarBtn\" style=\"flex:none;\">Quitar filtros</button>" : "") + "\n        </div>\n      </div>\n\n      <div class=\"ticket\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\"><label style=\"cursor:pointer; display:flex; align-items:center; gap:5px;\"><input type=\"checkbox\" id=\"selectAllStock\" style=\"width:15px; height:15px;\"> Stock actual</label></span>\n          <span class=\"ticket-title\">" + _0x1318d4.length + " referencias</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + (_0x4641a7 || "<div class=\"empty-state\">" + (_0x2580ea || _0x1b0226 || _0x30947e || _0x101019 ? "Sin coincidencias con estos filtros." : "Todavía no hay materiales en el stock. Añade uno abajo o importa tu Excel.") + "</div>") + "\n        </div>\n      </div>\n\n      <div class=\"panel\" style=\"margin-top:14px;\">\n        <p class=\"panel-title\">Añadir stock manualmente</p>\n        <div class=\"manual-stock-form\">\n          <input type=\"text\" name=\"mCode\" id=\"mCode\" placeholder=\"Código\">\n          <input type=\"text\" name=\"mDesc\" id=\"mDesc\" placeholder=\"Artículo\">\n          <input type=\"text\" name=\"mRef\" id=\"mRef\" placeholder=\"Referencia (opcional)\">\n          <input type=\"text\" name=\"mLoc\" id=\"mLoc\" placeholder=\"Ubicación (ej. Pasillo 3 - B2)\" list=\"ubicacionesList\">\n          <input type=\"number\" name=\"mQty\" id=\"mQty\" placeholder=\"Cant.\" min=\"1\" value=\"1\">\n          <select id=\"mCategoria\">\n            <option value=\"\">Categoría…</option>\n            " + _0x23f5f6.map(_0x37c48c => "<option value=\"" + _0x1d1ab0(_0x37c48c) + "\">" + _0x1d1ab0(_0x37c48c) + "</option>").join("") + "\n          </select>\n          <button class=\"cam-btn\" id=\"addManualBtn\">+ Registrar entrada</button>\n        </div>\n      </div>\n    <button class=\"cam-btn\" id=\"almacenMasOpcionesBtn\" style=\"width:100%; margin-top:10px;\">" + (_0x1c3cca.masOp ? "Ocultar opciones" : "Más opciones (bobinas, cables…)") + "</button>\n    <div id=\"almacenMasOpcionesZone\" style=\"" + (_0x1c3cca.masOp ? "" : "display:none;") + "\"></div>\n    ";
     (function () {
-      const _0xzonaMasOp = _0x231ff7("#almacenMasOpcionesZone");
+      const _0xzonaMasOp = $("#almacenMasOpcionesZone");
       if (_0xzonaMasOp) {
         _0xzonaMasOp.insertAdjacentHTML("beforeend", _0x4abf6f());
         _0xzonaMasOp.insertAdjacentHTML("beforeend", _0xa19f12());
@@ -9752,7 +9829,7 @@
         _0x1c3cca();
       });
     });
-    const _0x3da4db = _0x231ff7("#bulkLocBtn");
+    const _0x3da4db = $("#bulkLocBtn");
     if (_0x3da4db) {
       _0x3da4db.addEventListener("click", async () => {
         const _0x52e198 = await _0x3b375f("Nueva ubicación para " + _0xf103fd.size + " referencias:");
@@ -9760,17 +9837,17 @@
           return;
         }
         _0xf103fd.forEach(_0x2a94f1 => {
-          const _0x3a8019 = _0x47d525.catalog.find(_0x3e2afc => _0x3e2afc.id === _0x2a94f1);
+          const _0x3a8019 = estado.catalog.find(_0x3e2afc => _0x3e2afc.id === _0x2a94f1);
           if (_0x3a8019) {
             _0x3a8019.location = _0x52e198.trim();
           }
         });
-        _0x4bebe2();
+        guardarCatalogo();
         _0xf103fd.clear();
-        _0x474249();
+        render();
       });
     }
-    const _0x385c8e = _0x231ff7("#bulkQtyBtn");
+    const _0x385c8e = $("#bulkQtyBtn");
     if (_0x385c8e) {
       _0x385c8e.addEventListener("click", async () => {
         const _0x1f1b25 = await _0x3b375f("Nueva cantidad para las " + _0xf103fd.size + " referencias seleccionadas (se pone igual en todas):");
@@ -9779,7 +9856,7 @@
         }
         const _0x3e2b29 = Math.max(0, parseInt(_0x1f1b25, 10) || 0);
         _0xf103fd.forEach(_0x4ef393 => {
-          const _0x49e930 = _0x47d525.catalog.find(_0x46f4d4 => _0x46f4d4.id === _0x4ef393);
+          const _0x49e930 = estado.catalog.find(_0x46f4d4 => _0x46f4d4.id === _0x4ef393);
           if (!_0x49e930) {
             return;
           }
@@ -9789,39 +9866,39 @@
           }
         });
         _0xf103fd.clear();
-        _0x474249();
+        render();
       });
     }
-    const _0x3b8195 = _0x231ff7("#bulkDelBtn");
+    const _0x3b8195 = $("#bulkDelBtn");
     if (_0x3b8195) {
       _0x3b8195.addEventListener("click", async () => {
         if (!(await _0x2cc777("¿Eliminar " + _0xf103fd.size + " referencias del stock? Esta acción no se puede deshacer."))) {
           return;
         }
         _0xf103fd.forEach(_0xd8313f => {
-          const _0x2cd8fe = _0x47d525.catalog.find(_0x2a0608 => _0x2a0608.id === _0xd8313f);
+          const _0x2cd8fe = estado.catalog.find(_0x2a0608 => _0x2a0608.id === _0xd8313f);
           if (_0x2cd8fe) {
-            _0x47d525.movements.unshift({
-              id: _0x588d17(),
+            estado.movements.unshift({
+              id: nuevoId(),
               code: _0x2cd8fe.code,
               desc: _0x2cd8fe.desc,
               qty: _0x2cd8fe.qty,
               type: "eliminado",
               origin: "Almacén (eliminación en bloque)",
-              ts: _0x347a69(),
+              ts: fechaHoraTexto(),
               tsMs: Date.now(),
-              usuario: _0x4496b3()
+              usuario: usuarioActual()
             });
           }
         });
         _0x240f8a();
-        _0x47d525.catalog = _0x47d525.catalog.filter(_0x35723d => !_0xf103fd.has(_0x35723d.id));
-        _0x4bebe2();
+        estado.catalog = estado.catalog.filter(_0x35723d => !_0xf103fd.has(_0x35723d.id));
+        guardarCatalogo();
         _0xf103fd.clear();
-        _0x474249();
+        render();
       });
     }
-    const _0x4b7670 = _0x231ff7("#stockFiltroCategoriaSel");
+    const _0x4b7670 = $("#stockFiltroCategoriaSel");
     if (_0x4b7670) {
       _0x4b7670.addEventListener("change", _0x11b118 => {
         _0x1b0226 = _0x11b118.target.value;
@@ -9829,7 +9906,7 @@
         _0x1c3cca();
       });
     }
-    const _0x131899 = _0x231ff7("#stockFiltroBajoChk");
+    const _0x131899 = $("#stockFiltroBajoChk");
     if (_0x131899) {
       _0x131899.addEventListener("change", _0x4a487d => {
         _0x30947e = _0x4a487d.target.checked;
@@ -9837,7 +9914,7 @@
         _0x1c3cca();
       });
     }
-    const _0x369228 = _0x231ff7("#stockFiltroSinUbicarChk");
+    const _0x369228 = $("#stockFiltroSinUbicarChk");
     if (_0x369228) {
       _0x369228.addEventListener("change", _0x5379b9 => {
         _0x101019 = _0x5379b9.target.checked;
@@ -9845,7 +9922,7 @@
         _0x1c3cca();
       });
     }
-    const _0x123302 = _0x231ff7("#stockFiltroLimpiarBtn");
+    const _0x123302 = $("#stockFiltroLimpiarBtn");
     if (_0x123302) {
       _0x123302.addEventListener("click", () => {
         _0x1b0226 = "";
@@ -9855,7 +9932,7 @@
         _0x1c3cca();
       });
     }
-    const _0x453712 = _0x231ff7("#selectAllStock");
+    const _0x453712 = $("#selectAllStock");
     if (_0x453712) {
       _0x453712.checked = _0x1318d4.length > 0 && _0x1318d4.every(_0x5be985 => _0xf103fd.has(_0x5be985.id));
       _0x453712.addEventListener("change", () => {
@@ -9867,7 +9944,7 @@
         _0x1c3cca();
       });
     }
-    const _0x1d77ce = _0x231ff7("#stockLoadMoreBtn");
+    const _0x1d77ce = $("#stockLoadMoreBtn");
     if (_0x1d77ce) {
       _0x1d77ce.addEventListener("click", () => {
         _0x2ba7a9 += 80;
@@ -9880,54 +9957,54 @@
     _0x231638.querySelectorAll("[data-qty-btn]").forEach(_0x57690c => {
       _0x57690c.addEventListener("click", () => _0x4fac24(_0x57690c.dataset.qtyBtn));
     });
-    _0x231ff7("#addManualBtn").addEventListener("click", () => {
-      _0x5a53db(_0x231ff7("#mCode").value, _0x231ff7("#mDesc").value, _0x231ff7("#mQty").value, _0x231ff7("#mLoc").value, _0x231ff7("#mCategoria").value, _0x231ff7("#mRef").value);
-      _0x231ff7("#mCode").value = "";
-      _0x231ff7("#mDesc").value = "";
-      _0x231ff7("#mRef").value = "";
-      _0x231ff7("#mLoc").value = "";
-      _0x231ff7("#mQty").value = "1";
-      _0x231ff7("#mCategoria").value = "";
-      _0x231ff7("#mCode").focus({
+    $("#addManualBtn").addEventListener("click", () => {
+      _0x5a53db($("#mCode").value, $("#mDesc").value, $("#mQty").value, $("#mLoc").value, $("#mCategoria").value, $("#mRef").value);
+      $("#mCode").value = "";
+      $("#mDesc").value = "";
+      $("#mRef").value = "";
+      $("#mLoc").value = "";
+      $("#mQty").value = "1";
+      $("#mCategoria").value = "";
+      $("#mCode").focus({
         preventScroll: true
       });
     });
-    _0x231ff7("#addBobinaBtn").addEventListener("click", () => {
-      _0x3af2da(_0x231ff7("#bCodigo").value, _0x231ff7("#bDesc").value, _0x231ff7("#bMatricula").value, _0x231ff7("#bFecha").value);
-      _0x231ff7("#bCodigo").value = "";
-      _0x231ff7("#bDesc").value = "";
-      _0x231ff7("#bMatricula").value = "";
-      _0x231ff7("#bFecha").value = "";
+    $("#addBobinaBtn").addEventListener("click", () => {
+      _0x3af2da($("#bCodigo").value, $("#bDesc").value, $("#bMatricula").value, $("#bFecha").value);
+      $("#bCodigo").value = "";
+      $("#bDesc").value = "";
+      $("#bMatricula").value = "";
+      $("#bFecha").value = "";
     });
-    const _0xe68aab = _0x231ff7("#bCodigo");
+    const _0xe68aab = $("#bCodigo");
     if (_0xe68aab) {
       _0xe68aab.addEventListener("change", () => {
-        const _0x3982e4 = _0x4746f7(_0xe68aab.value.trim());
-        if (_0x3982e4 && !_0x231ff7("#bDesc").value.trim()) {
-          _0x231ff7("#bDesc").value = _0x3982e4.desc;
+        const _0x3982e4 = buscarPorCodigo(_0xe68aab.value.trim());
+        if (_0x3982e4 && !$("#bDesc").value.trim()) {
+          $("#bDesc").value = _0x3982e4.desc;
         }
       });
       _0xe68aab.addEventListener("keydown", _0x1dbe15 => {
         if (_0x1dbe15.key === "Enter") {
           _0x1dbe15.preventDefault();
           _0xe68aab.dispatchEvent(new Event("change"));
-          _0x231ff7("#bMatricula").focus({
+          $("#bMatricula").focus({
             preventScroll: true
           });
         }
       });
     }
-    const _0x501dc9 = _0x231ff7("#bCamBtn");
+    const _0x501dc9 = $("#bCamBtn");
     if (_0x501dc9) {
       _0x501dc9.addEventListener("click", () => _0xe99bca(_0x593f14 => {
-        _0x231ff7("#bCodigo").value = _0x593f14;
+        $("#bCodigo").value = _0x593f14;
         _0xe68aab.dispatchEvent(new Event("change"));
       }));
     }
     _0x231638.querySelectorAll("[data-bobina-del]").forEach(_0x2c5cc8 => {
       _0x2c5cc8.addEventListener("click", () => _0x5d5280(_0x2c5cc8.dataset.bobinaDel));
     });
-    const _0x4d4219 = _0x231ff7("#cablesSearch");
+    const _0x4d4219 = $("#cablesSearch");
     if (_0x4d4219) {
       _0x4d4219.addEventListener("input", () => {
         _0x506050 = _0x4d4219.value;
@@ -9935,18 +10012,18 @@
       });
     }
     _0x2436d1();
-    const _0x4b290d = _0x231ff7("#addCableBtn");
+    const _0x4b290d = $("#addCableBtn");
     if (_0x4b290d) {
       _0x4b290d.addEventListener("click", () => {
-        _0x5a53db(_0x231ff7("#cabCodigo").value, _0x231ff7("#cabArticulo").value, _0x231ff7("#cabQty").value, _0x231ff7("#cabLoc").value, "Manguera o cable", _0x231ff7("#cabRef").value);
-        _0x231ff7("#cabCodigo").value = "";
-        _0x231ff7("#cabArticulo").value = "";
-        _0x231ff7("#cabRef").value = "";
-        _0x231ff7("#cabQty").value = "1";
-        _0x231ff7("#cabLoc").value = "";
+        _0x5a53db($("#cabCodigo").value, $("#cabArticulo").value, $("#cabQty").value, $("#cabLoc").value, "Manguera o cable", $("#cabRef").value);
+        $("#cabCodigo").value = "";
+        $("#cabArticulo").value = "";
+        $("#cabRef").value = "";
+        $("#cabQty").value = "1";
+        $("#cabLoc").value = "";
       });
     }
-    const _0xbtnMasOpAlmacen = _0x231ff7("#almacenMasOpcionesBtn");
+    const _0xbtnMasOpAlmacen = $("#almacenMasOpcionesBtn");
     if (_0xbtnMasOpAlmacen) {
       _0xbtnMasOpAlmacen.addEventListener("click", () => {
         _0x1c3cca.masOp = !_0x1c3cca.masOp;
@@ -9987,25 +10064,25 @@
     })();
   }
   function _0x4abf6f() {
-    const _0x13f80e = _0x47d525.bobinas.slice().sort((_0x17c289, _0x1c45a7) => _0x17c289.expira.localeCompare(_0x1c45a7.expira));
+    const _0x13f80e = estado.bobinas.slice().sort((_0x17c289, _0x1c45a7) => _0x17c289.expira.localeCompare(_0x1c45a7.expira));
     const _0x380069 = _0x13f80e.map(_0x5d3d4d => {
       const _0x58412e = _0x1a6d34(_0x5d3d4d.expira);
-      const _0x135633 = _0x58412e < 0 ? "low" : _0x58412e <= _0x47d525.settings.bobinaAvisoDias ? "low" : "ok";
+      const _0x135633 = _0x58412e < 0 ? "low" : _0x58412e <= estado.settings.bobinaAvisoDias ? "low" : "ok";
       const _0x5a615f = _0x58412e < 0 ? "vencida hace " + Math.abs(_0x58412e) + " días" : _0x58412e === 0 ? "vence hoy" : "quedan " + _0x58412e + " días";
       return "\n        <div class=\"stock-row\">\n          <div class=\"row-main\">\n            <div class=\"row-code\">" + (_0x1d1ab0(_0x5d3d4d.codigo) || "—") + " · " + _0x1d1ab0(_0x5d3d4d.matricula) + "</div>\n            <div class=\"row-desc\">" + _0x1d1ab0(_0x5d3d4d.desc) + "</div>\n            <div class=\"row-ts\">Devolver antes del " + _0x5d3d4d.expira + " — " + _0x5a615f + "</div>\n          </div>\n          <div class=\"row-actions\">\n            <span class=\"stock-qty " + _0x135633 + "\">" + (_0x58412e < 0 ? "Vencida: " : "") + _0x5d3d4d.expira + "</span>\n            <button class=\"btn-return\" style=\"padding:9px 14px; font-size:13px; min-height:44px;\" data-bobina-del=\"" + _0x5d3d4d.id + "\">" + _0x56ae2b("eliminar") + "Eliminar</button>\n          </div>\n        </div>\n      ";
     }).join("");
-    return "\n      <div class=\"panel\" style=\"margin-top:14px;\">\n        <p class=\"panel-title\">Bobinas (con fecha de devolución)</p>\n        <div class=\"manual-stock-form\">\n          <input type=\"text\" id=\"bCodigo\" placeholder=\"Código\">\n          <button class=\"cam-btn\" id=\"bCamBtn\" style=\"flex:none; padding:9px 12px;\">Cám.</button>\n          <input type=\"text\" id=\"bDesc\" placeholder=\"Referencia\" style=\"flex:2; min-width:140px;\">\n          <input type=\"text\" id=\"bMatricula\" placeholder=\"Matrícula\" style=\"flex:1; min-width:100px;\">\n          <input type=\"date\" id=\"bFecha\" style=\"flex:1; min-width:150px;\">\n          <button class=\"cam-btn\" id=\"addBobinaBtn\">+ Registrar bobina</button>\n        </div>\n        <div class=\"scan-hint\" style=\"margin-top:6px;\">Si el código ya existe en stock, la referencia se rellena sola.</div>\n      </div>\n\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\">Bobinas registradas</span>\n          <span class=\"ticket-title\">" + _0x47d525.bobinas.length + "</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + (_0x380069 || "<div class=\"empty-state\">Todavía no hay bobinas registradas.</div>") + "\n        </div>\n      </div>\n    ";
+    return "\n      <div class=\"panel\" style=\"margin-top:14px;\">\n        <p class=\"panel-title\">Bobinas (con fecha de devolución)</p>\n        <div class=\"manual-stock-form\">\n          <input type=\"text\" id=\"bCodigo\" placeholder=\"Código\">\n          <button class=\"cam-btn\" id=\"bCamBtn\" style=\"flex:none; padding:9px 12px;\">Cám.</button>\n          <input type=\"text\" id=\"bDesc\" placeholder=\"Referencia\" style=\"flex:2; min-width:140px;\">\n          <input type=\"text\" id=\"bMatricula\" placeholder=\"Matrícula\" style=\"flex:1; min-width:100px;\">\n          <input type=\"date\" id=\"bFecha\" style=\"flex:1; min-width:150px;\">\n          <button class=\"cam-btn\" id=\"addBobinaBtn\">+ Registrar bobina</button>\n        </div>\n        <div class=\"scan-hint\" style=\"margin-top:6px;\">Si el código ya existe en stock, la referencia se rellena sola.</div>\n      </div>\n\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\">Bobinas registradas</span>\n          <span class=\"ticket-title\">" + estado.bobinas.length + "</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + (_0x380069 || "<div class=\"empty-state\">Todavía no hay bobinas registradas.</div>") + "\n        </div>\n      </div>\n    ";
   }
   function _0xa19f12() {
     return "\n      <div class=\"panel\" style=\"margin-top:14px;\">\n        <p class=\"panel-title\">Cables y mangueras</p>\n        <input type=\"text\" id=\"cablesSearch\" placeholder=\"Buscar entre los cables/mangueras que ya tengo en stock…\" value=\"" + _0x1d1ab0(_0x506050) + "\" style=\"width:100%; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:9px 10px; border-radius:7px; font-size:13px; margin-bottom:8px;\">\n        <div id=\"cablesResults\" style=\"max-height:240px; overflow-y:auto;\"></div>\n        <p class=\"panel-title\" style=\"margin-top:12px;\">Añadir uno nuevo</p>\n        <div class=\"manual-stock-form\">\n          <input type=\"text\" id=\"cabCodigo\" placeholder=\"Código\">\n          <input type=\"text\" id=\"cabArticulo\" placeholder=\"Artículo (ej. Manguera hidráulica 1/2\\\")\" style=\"flex:2; min-width:140px;\">\n          <input type=\"text\" id=\"cabRef\" placeholder=\"Referencia (opcional)\">\n          <input type=\"text\" id=\"cabLoc\" placeholder=\"Ubicación\" list=\"ubicacionesList\">\n          <input type=\"number\" id=\"cabQty\" placeholder=\"Cant.\" min=\"1\" value=\"1\">\n          <button class=\"cam-btn\" id=\"addCableBtn\">+ Registrar</button>\n        </div>\n      </div>\n    ";
   }
   function _0x2436d1() {
-    const _0xd3cc54 = _0x231ff7("#cablesResults");
+    const _0xd3cc54 = $("#cablesResults");
     if (!_0xd3cc54) {
       return;
     }
     const _0x4ea45e = _0x506050.trim().toLowerCase();
-    const _0x28a956 = _0x47d525.catalog.filter(_0x3d421b => _0x3d421b.categoria === "Manguera o cable");
+    const _0x28a956 = estado.catalog.filter(_0x3d421b => _0x3d421b.categoria === "Manguera o cable");
     const _0x1171a5 = _0x4ea45e ? _0x28a956.filter(_0x1c72ee => _0x1c72ee.code.toLowerCase().includes(_0x4ea45e) || _0x1c72ee.desc.toLowerCase().includes(_0x4ea45e) || _0x1c72ee.referencia && _0x1c72ee.referencia.toLowerCase().includes(_0x4ea45e)) : _0x28a956;
     if (!_0x1171a5.length) {
       _0xd3cc54.innerHTML = "<div style=\"color:var(--text-faint); font-size:12px; padding:6px 0;\">" + (_0x28a956.length ? "Sin coincidencias." : "Todavía no hay cables ni mangueras dados de alta en el stock.") + "</div>";
@@ -10084,43 +10161,43 @@
     });
   }
   function _0x3aef53() {
-    if (_0x47d525.mode !== "resumen") {
+    if (estado.mode !== "resumen") {
       return;
     }
-    const _0x124d8e = _0x231ff7("#mainList");
+    const _0x124d8e = $("#mainList");
     const _0x128c7f = _0x2df77d() === "taller";
     const _0x5527ac = _0x41ba69();
     const _0x63a743 = _0x3fdd17();
-    const _0x408293 = _0x47d525.notifications.filter(_0x35cd1f => !_0x35cd1f.leida).length;
-    const _0xb6e9f6 = _0x47d525.groups.montaje.filter(_0xaae45c => _0xaae45c.status !== "finalizado").length + _0x47d525.groups.proyecto.filter(_0x169122 => _0x169122.status !== "finalizado").length;
+    const _0x408293 = estado.notifications.filter(_0x35cd1f => !_0x35cd1f.leida).length;
+    const _0xb6e9f6 = estado.groups.montaje.filter(_0xaae45c => _0xaae45c.status !== "finalizado").length + estado.groups.proyecto.filter(_0x169122 => _0x169122.status !== "finalizado").length;
     const _0x55e7ed = _0x4fc746();
     const _0x2984ca = _0x55e7ed.filter(_0x4fd852 => _0x4fd852.estado === "atrasada").length;
     const _0x3f4a9c = (_0x49a493, _0x45e06e, _0x251358, _0x2c285a, _0x6ea3c5) => "\n      <div class=\"panel\" style=\"border-left:4px solid " + _0x49a493 + "; cursor:pointer;\" data-ir-a=\"" + _0x6ea3c5 + "\">\n        <p class=\"panel-title\" style=\"margin-bottom:2px;\">" + _0x45e06e + "</p>\n        <div style=\"display:flex; align-items:baseline; gap:8px;\">\n          <span style=\"font-size:26px; font-weight:800; color:" + _0x49a493 + "; font-family:ui-monospace,monospace;\">" + _0x251358 + "</span>\n          <span style=\"font-size:12px; color:var(--text-faint);\">" + _0x2c285a + "</span>\n        </div>\n      </div>\n    ";
-    _0x124d8e.innerHTML = "\n      <div style=\"margin-bottom:12px;\">\n        <p style=\"font-size:12px; color:var(--text-faint); margin:0;\">Lo más urgente de un vistazo — toca cualquier tarjeta para ir directo ahí.</p>\n      </div>\n      " + (_0x128c7f ? "" : _0x3f4a9c(_0x5527ac.length || _0x63a743.length ? "var(--danger)" : "var(--success)", "Almacén", _0x5527ac.length, _0x5527ac.length === 1 ? "material con stock bajo" : "materiales con stock bajo", "almacen")) + "\n      " + (!_0x128c7f && _0x63a743.length ? _0x3f4a9c("var(--warning)", "Bobinas", _0x63a743.length, _0x63a743.length === 1 ? "a punto de expirar" : "a punto de expirar", "almacen") : "") + "\n      " + _0x3f4a9c(_0x408293 ? "var(--accent)" : "var(--success)", "Trabajo", _0x408293, (_0x408293 === 1 ? "aviso sin leer" : "avisos sin leer") + " · " + _0xb6e9f6 + " orden(es) activa(s)", "trabajo") + "\n      " + _0x3f4a9c(_0x47d525.pedidoItems.length ? "var(--accent)" : "var(--success)", "Pedido", _0x47d525.pedidoItems.length, _0x47d525.pedidoItems.length === 1 ? "línea pendiente" : "líneas pendientes", "pedido") + "\n      " + (_0x47d525.vehiculos.length ? _0x3f4a9c(_0x2984ca ? "var(--danger)" : _0x55e7ed.length ? "var(--warning)" : "var(--success)", "Mantenimiento", _0x55e7ed.length, _0x2984ca ? _0x2984ca + " atrasada(s)" : "revisión(es) pendiente(s)", "mantenimiento") : "") + "\n    ";
+    _0x124d8e.innerHTML = "\n      <div style=\"margin-bottom:12px;\">\n        <p style=\"font-size:12px; color:var(--text-faint); margin:0;\">Lo más urgente de un vistazo — toca cualquier tarjeta para ir directo ahí.</p>\n      </div>\n      " + (_0x128c7f ? "" : _0x3f4a9c(_0x5527ac.length || _0x63a743.length ? "var(--danger)" : "var(--success)", "Almacén", _0x5527ac.length, _0x5527ac.length === 1 ? "material con stock bajo" : "materiales con stock bajo", "almacen")) + "\n      " + (!_0x128c7f && _0x63a743.length ? _0x3f4a9c("var(--warning)", "Bobinas", _0x63a743.length, _0x63a743.length === 1 ? "a punto de expirar" : "a punto de expirar", "almacen") : "") + "\n      " + _0x3f4a9c(_0x408293 ? "var(--accent)" : "var(--success)", "Trabajo", _0x408293, (_0x408293 === 1 ? "aviso sin leer" : "avisos sin leer") + " · " + _0xb6e9f6 + " orden(es) activa(s)", "trabajo") + "\n      " + _0x3f4a9c(estado.pedidoItems.length ? "var(--accent)" : "var(--success)", "Pedido", estado.pedidoItems.length, estado.pedidoItems.length === 1 ? "línea pendiente" : "líneas pendientes", "pedido") + "\n      " + (estado.vehiculos.length ? _0x3f4a9c(_0x2984ca ? "var(--danger)" : _0x55e7ed.length ? "var(--warning)" : "var(--success)", "Mantenimiento", _0x55e7ed.length, _0x2984ca ? _0x2984ca + " atrasada(s)" : "revisión(es) pendiente(s)", "mantenimiento") : "") + "\n    ";
     _0x124d8e.querySelectorAll("[data-ir-a]").forEach(_0x26ba70 => {
       _0x26ba70.addEventListener("click", () => {
         if (_0x128c7f && _0x26ba70.dataset.irA === "almacen") {
           return;
         }
-        _0x47d525.mode = _0x26ba70.dataset.irA === "trabajo" ? _0x1e9600 : _0x26ba70.dataset.irA;
+        estado.mode = _0x26ba70.dataset.irA === "trabajo" ? _0x1e9600 : _0x26ba70.dataset.irA;
         _0x430fb2();
-        _0x474249();
+        render();
       });
     });
   }
   function _0x327d31() {
-    if (_0x47d525.mode !== "mantenimiento") {
+    if (estado.mode !== "mantenimiento") {
       return;
     }
-    const _0x101ace = _0x231ff7("#mainList");
-    if (!_0x47d525.vehiculos.length) {
+    const _0x101ace = $("#mainList");
+    if (!estado.vehiculos.length) {
       _0x101ace.innerHTML = "\n        <div class=\"project-bar\">\n          <button class=\"cam-btn\" id=\"addVehiculoBtn\" style=\"flex:1;\">+ Añadir vehículo</button>\n        </div>\n        <div class=\"empty-state\">Todavía no hay ningún vehículo. Añade el primero para empezar a llevar su mantenimiento.</div>\n      ";
-      _0x231ff7("#addVehiculoBtn").addEventListener("click", _0x4f1e92);
+      $("#addVehiculoBtn").addEventListener("click", _0x4f1e92);
       return;
     }
-    const _0x1972b3 = _0x267a5a() || _0x47d525.vehiculos[0];
-    if (_0x1972b3.id !== _0x47d525.vehiculoActualId) {
-      _0x47d525.vehiculoActualId = _0x1972b3.id;
+    const _0x1972b3 = _0x267a5a() || estado.vehiculos[0];
+    if (_0x1972b3.id !== estado.vehiculoActualId) {
+      estado.vehiculoActualId = _0x1972b3.id;
       _0x430fb2();
     }
     const _0x2e9928 = _0x1972b3.kmActual || 0;
@@ -10132,32 +10209,32 @@
     const _0x5df632 = _0x36c069.filter(_0x5af261 => _0x5af261.calc.estado === "atrasada").length;
     const _0x409ede = _0x36c069.filter(_0x107869 => _0x107869.calc.estado === "pronto").length;
     const _0x17692b = _0x36c069.filter(_0x468f35 => _0x468f35.calc.estado === "ok").length;
-    _0x101ace.innerHTML = "\n      <div class=\"project-bar\">\n        <select id=\"vehiculoSelect\" style=\"flex:1;\">\n          " + _0x47d525.vehiculos.map(_0x5d2845 => "<option value=\"" + _0x5d2845.id + "\" " + (_0x5d2845.id === _0x1972b3.id ? "selected" : "") + ">" + _0x1d1ab0(_0x5d2845.matricula) + (_0x5d2845.marca || _0x5d2845.modelo ? " — " + _0x1d1ab0(_0x5d2845.marca || "") + " " + _0x1d1ab0(_0x5d2845.modelo || "") : "") + "</option>").join("") + "\n        </select>\n        <button class=\"cam-btn\" id=\"addVehiculoBtn\" style=\"flex:none; padding:9px 14px; min-height:auto;\">+ Nuevo</button>\n      </div>\n      <div class=\"project-bar\" style=\"margin-top:0;\">\n        <label for=\"kmActualInput\" style=\"font-size:12px; font-weight:700; color:var(--text-faint); white-space:nowrap;\">Km actuales:</label>\n        <input type=\"number\" id=\"kmActualInput\" value=\"" + _0x2e9928 + "\" min=\"0\" style=\"flex:1;\">\n        <button class=\"cam-btn\" id=\"editVehiculoBtn\" style=\"flex:none; padding:9px 14px; min-height:auto;\">" + _0x56ae2b("editar") + "Editar</button>\n        <button class=\"btn-return\" id=\"delVehiculoBtn\" style=\"flex:none; padding:9px 14px; min-height:auto;\">Eliminar vehículo</button>\n      </div>\n\n      <div class=\"panel\">\n        <p class=\"panel-title\">Resumen</p>\n        <div class=\"stat-row\"><span>Atrasadas</span><span class=\"num\" style=\"color:var(--danger);\">" + _0x5df632 + "</span></div>\n        <div class=\"stat-row\"><span>Pronto</span><span class=\"num\" style=\"color:var(--warning);\">" + _0x409ede + "</span></div>\n        <div class=\"stat-row\"><span>Al día</span><span class=\"num\" style=\"color:var(--success);\">" + _0x17692b + "</span></div>\n      </div>\n\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Mantenimiento — " + _0x1d1ab0(_0x1972b3.matricula) + "</span></div>\n        <div class=\"ticket-body\">\n          " + (_0x36c069.length ? _0x36c069.map(_0xa8f528).join("") : "<div class=\"empty-state\">Añade la primera tarea de mantenimiento abajo.</div>") + "\n        </div>\n      </div>\n      <button class=\"cam-btn\" id=\"addTareaMantBtn\" style=\"width:100%; margin-top:10px;\">+ Añadir tarea de mantenimiento</button>\n\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\" id=\"toggleFotosBtn\" style=\"cursor:pointer;\">\n          <span class=\"ticket-title\">Fotos de " + _0x1d1ab0(_0x1972b3.matricula) + ((_0x1972b3.fotos || []).length ? " (" + _0x1972b3.fotos.length + ")" : "") + "</span>\n          <span class=\"ticket-title\">" + (_0xcbd78e ? "Ocultar" : "Ver") + "</span>\n        </div>\n        " + (_0xcbd78e ? "\n        <div class=\"ticket-body\">\n          " + ((_0x1972b3.fotos || []).length ? "\n          <div style=\"display:grid; grid-template-columns:repeat(auto-fill, minmax(90px, 1fr)); gap:8px; padding:12px 14px;\">\n            " + (_0x1972b3.fotos || []).map((_0x13fec3, _0x235626) => "\n              <div style=\"position:relative;\">\n                <img src=\"" + _0x13fec3 + "\" style=\"width:100%; aspect-ratio:1; object-fit:cover; border-radius:6px; border:1px solid var(--border); cursor:pointer;\" data-ver-foto=\"" + _0x235626 + "\">\n                <button class=\"btn-return\" data-del-foto=\"" + _0x235626 + "\" style=\"position:absolute; top:2px; right:2px; padding:2px 6px; font-size:10px; min-height:auto;\">×</button>\n              </div>\n            ").join("") + "\n          </div>\n          " : "<div class=\"empty-state\">Todavía no hay ninguna foto de este vehículo.</div>") + "\n          <div style=\"padding:0 14px 14px;\">\n            <input type=\"file\" id=\"fotoInput\" accept=\"image/*\" capture=\"environment\" style=\"display:none;\">\n            <button class=\"cam-btn\" id=\"addFotoBtn\" style=\"width:100%;\">+ Añadir foto</button>\n          </div>\n        </div>\n        " : "") + "\n      </div>\n    ";
-    _0x231ff7("#vehiculoSelect").addEventListener("change", _0x21152f => {
-      _0x47d525.vehiculoActualId = _0x21152f.target.value;
+    _0x101ace.innerHTML = "\n      <div class=\"project-bar\">\n        <select id=\"vehiculoSelect\" style=\"flex:1;\">\n          " + estado.vehiculos.map(_0x5d2845 => "<option value=\"" + _0x5d2845.id + "\" " + (_0x5d2845.id === _0x1972b3.id ? "selected" : "") + ">" + _0x1d1ab0(_0x5d2845.matricula) + (_0x5d2845.marca || _0x5d2845.modelo ? " — " + _0x1d1ab0(_0x5d2845.marca || "") + " " + _0x1d1ab0(_0x5d2845.modelo || "") : "") + "</option>").join("") + "\n        </select>\n        <button class=\"cam-btn\" id=\"addVehiculoBtn\" style=\"flex:none; padding:9px 14px; min-height:auto;\">+ Nuevo</button>\n      </div>\n      <div class=\"project-bar\" style=\"margin-top:0;\">\n        <label for=\"kmActualInput\" style=\"font-size:12px; font-weight:700; color:var(--text-faint); white-space:nowrap;\">Km actuales:</label>\n        <input type=\"number\" id=\"kmActualInput\" value=\"" + _0x2e9928 + "\" min=\"0\" style=\"flex:1;\">\n        <button class=\"cam-btn\" id=\"editVehiculoBtn\" style=\"flex:none; padding:9px 14px; min-height:auto;\">" + _0x56ae2b("editar") + "Editar</button>\n        <button class=\"btn-return\" id=\"delVehiculoBtn\" style=\"flex:none; padding:9px 14px; min-height:auto;\">Eliminar vehículo</button>\n      </div>\n\n      <div class=\"panel\">\n        <p class=\"panel-title\">Resumen</p>\n        <div class=\"stat-row\"><span>Atrasadas</span><span class=\"num\" style=\"color:var(--danger);\">" + _0x5df632 + "</span></div>\n        <div class=\"stat-row\"><span>Pronto</span><span class=\"num\" style=\"color:var(--warning);\">" + _0x409ede + "</span></div>\n        <div class=\"stat-row\"><span>Al día</span><span class=\"num\" style=\"color:var(--success);\">" + _0x17692b + "</span></div>\n      </div>\n\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Mantenimiento — " + _0x1d1ab0(_0x1972b3.matricula) + "</span></div>\n        <div class=\"ticket-body\">\n          " + (_0x36c069.length ? _0x36c069.map(_0xa8f528).join("") : "<div class=\"empty-state\">Añade la primera tarea de mantenimiento abajo.</div>") + "\n        </div>\n      </div>\n      <button class=\"cam-btn\" id=\"addTareaMantBtn\" style=\"width:100%; margin-top:10px;\">+ Añadir tarea de mantenimiento</button>\n\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\" id=\"toggleFotosBtn\" style=\"cursor:pointer;\">\n          <span class=\"ticket-title\">Fotos de " + _0x1d1ab0(_0x1972b3.matricula) + ((_0x1972b3.fotos || []).length ? " (" + _0x1972b3.fotos.length + ")" : "") + "</span>\n          <span class=\"ticket-title\">" + (_0xcbd78e ? "Ocultar" : "Ver") + "</span>\n        </div>\n        " + (_0xcbd78e ? "\n        <div class=\"ticket-body\">\n          " + ((_0x1972b3.fotos || []).length ? "\n          <div style=\"display:grid; grid-template-columns:repeat(auto-fill, minmax(90px, 1fr)); gap:8px; padding:12px 14px;\">\n            " + (_0x1972b3.fotos || []).map((_0x13fec3, _0x235626) => "\n              <div style=\"position:relative;\">\n                <img src=\"" + _0x13fec3 + "\" style=\"width:100%; aspect-ratio:1; object-fit:cover; border-radius:6px; border:1px solid var(--border); cursor:pointer;\" data-ver-foto=\"" + _0x235626 + "\">\n                <button class=\"btn-return\" data-del-foto=\"" + _0x235626 + "\" style=\"position:absolute; top:2px; right:2px; padding:2px 6px; font-size:10px; min-height:auto;\">×</button>\n              </div>\n            ").join("") + "\n          </div>\n          " : "<div class=\"empty-state\">Todavía no hay ninguna foto de este vehículo.</div>") + "\n          <div style=\"padding:0 14px 14px;\">\n            <input type=\"file\" id=\"fotoInput\" accept=\"image/*\" capture=\"environment\" style=\"display:none;\">\n            <button class=\"cam-btn\" id=\"addFotoBtn\" style=\"width:100%;\">+ Añadir foto</button>\n          </div>\n        </div>\n        " : "") + "\n      </div>\n    ";
+    $("#vehiculoSelect").addEventListener("change", _0x21152f => {
+      estado.vehiculoActualId = _0x21152f.target.value;
       _0x430fb2();
-      _0x474249();
+      render();
     });
-    _0x231ff7("#addVehiculoBtn").addEventListener("click", _0x4f1e92);
-    _0x231ff7("#editVehiculoBtn").addEventListener("click", () => _0x4f1e92(_0x1972b3.id));
-    _0x231ff7("#delVehiculoBtn").addEventListener("click", async () => {
+    $("#addVehiculoBtn").addEventListener("click", _0x4f1e92);
+    $("#editVehiculoBtn").addEventListener("click", () => _0x4f1e92(_0x1972b3.id));
+    $("#delVehiculoBtn").addEventListener("click", async () => {
       if (!(await _0x2cc777("¿Eliminar \"" + _0x1972b3.matricula + "\" y todas sus tareas de mantenimiento? No se puede deshacer."))) {
         return;
       }
-      _0x47d525.vehiculos = _0x47d525.vehiculos.filter(_0x5d4fa8 => _0x5d4fa8.id !== _0x1972b3.id);
-      _0x47d525.tareasMantenimiento = _0x47d525.tareasMantenimiento.filter(_0x1cc00c => _0x1cc00c.vehiculoId !== _0x1972b3.id);
-      _0x47d525.vehiculoActualId = _0x47d525.vehiculos.length ? _0x47d525.vehiculos[0].id : null;
+      estado.vehiculos = estado.vehiculos.filter(_0x5d4fa8 => _0x5d4fa8.id !== _0x1972b3.id);
+      estado.tareasMantenimiento = estado.tareasMantenimiento.filter(_0x1cc00c => _0x1cc00c.vehiculoId !== _0x1972b3.id);
+      estado.vehiculoActualId = estado.vehiculos.length ? estado.vehiculos[0].id : null;
       _0x932e35();
       _0x3e790f();
       _0x430fb2();
-      _0x474249();
+      render();
     });
-    _0x231ff7("#kmActualInput").addEventListener("change", _0x21f1df => {
+    $("#kmActualInput").addEventListener("change", _0x21f1df => {
       _0x1972b3.kmActual = Math.max(0, parseInt(_0x21f1df.target.value, 10) || 0);
       _0x932e35();
-      _0x474249();
+      render();
     });
-    _0x231ff7("#addTareaMantBtn").addEventListener("click", () => _0x5e4b81());
+    $("#addTareaMantBtn").addEventListener("click", () => _0x5e4b81());
     _0x101ace.querySelectorAll("[data-hecho-tarea-id]").forEach(_0x19763e => {
       _0x19763e.addEventListener("click", () => _0x38920a(_0x19763e.dataset.hechoTareaId));
     });
@@ -10166,24 +10243,24 @@
         if (!(await _0x2cc777("¿Eliminar esta tarea de mantenimiento?"))) {
           return;
         }
-        _0x47d525.tareasMantenimiento = _0x47d525.tareasMantenimiento.filter(_0x77ee06 => _0x77ee06.id !== _0x2acfe8.dataset.delTareaId);
+        estado.tareasMantenimiento = estado.tareasMantenimiento.filter(_0x77ee06 => _0x77ee06.id !== _0x2acfe8.dataset.delTareaId);
         _0x3e790f();
-        _0x474249();
+        render();
       });
     });
     _0x101ace.querySelectorAll("[data-editar-tarea-id]").forEach(_0x2bb84b => {
       _0x2bb84b.addEventListener("click", () => _0x5e4b81(_0x2bb84b.dataset.editarTareaId));
     });
-    const _0x4bcdb4 = _0x231ff7("#toggleFotosBtn");
+    const _0x4bcdb4 = $("#toggleFotosBtn");
     if (_0x4bcdb4) {
       _0x4bcdb4.addEventListener("click", () => {
         _0xcbd78e = !_0xcbd78e;
-        _0x474249();
+        render();
       });
     }
-    const _0x3cb796 = _0x231ff7("#fotoInput");
+    const _0x3cb796 = $("#fotoInput");
     if (_0x3cb796) {
-      _0x231ff7("#addFotoBtn").addEventListener("click", () => _0x3cb796.click());
+      $("#addFotoBtn").addEventListener("click", () => _0x3cb796.click());
       _0x3cb796.addEventListener("change", async () => {
         const _0x11fc60 = _0x3cb796.files[0];
         if (!_0x11fc60) {
@@ -10198,7 +10275,7 @@
             _0x1972b3.fotos = _0x1972b3.fotos.slice(0, 30);
           }
           _0x932e35();
-          _0x474249();
+          render();
         } catch (_0x1720ba) {
           _0x279f78("No se pudo guardar la foto: " + _0x1720ba.message);
         }
@@ -10215,7 +10292,7 @@
         }
         _0x1972b3.fotos.splice(parseInt(_0x45e8cc.dataset.delFoto, 10), 1);
         _0x932e35();
-        _0x474249();
+        render();
       });
     });
   }
@@ -10247,42 +10324,42 @@
     return "\n      <div style=\"display:flex; align-items:center; gap:10px; padding:12px 14px; border-bottom:1px dashed var(--border); border-left:3px solid " + _0x317941 + ";\">\n        <div style=\"flex:1; min-width:0; cursor:pointer;\" data-editar-tarea-id=\"" + _0x5f1501.id + "\">\n          <div style=\"font-weight:700; font-size:13.5px;\">" + _0x1d1ab0(_0x5f1501.nombre) + "</div>\n          <div style=\"font-size:11.5px; color:var(--text-faint); margin-top:2px;\">" + (_0x21b7b9.join(" · ") || "sin intervalo definido") + (_0x24c3f3.length ? " · última vez: " + _0x24c3f3.join(" · ") : "") + "</div>\n        </div>\n        <div style=\"text-align:right; flex:none;\">\n          <span style=\"font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:20px; background:color-mix(in srgb, " + _0x317941 + " 16%, transparent); color:" + _0x317941 + ";\">" + _0x30cf5a + "</span>\n          <div style=\"font-size:11px; color:var(--text-faint); margin-top:4px; font-family:ui-monospace,monospace;\">" + (_0x151dfb.join(" · ") || "—") + "</div>\n        </div>\n        <div style=\"display:flex; flex-direction:column; gap:4px; flex:none;\">\n          <button class=\"cam-btn\" data-hecho-tarea-id=\"" + _0x5f1501.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">Hecho</button>\n          <button class=\"btn-return\" data-del-tarea-id=\"" + _0x5f1501.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">" + _0x56ae2b("eliminar") + "Eliminar</button>\n        </div>\n      </div>\n    ";
   }
   function _0x4f1e92(_0x3a87c0) {
-    const _0x5c555c = _0x3a87c0 ? _0x47d525.vehiculos.find(_0x10c01b => _0x10c01b.id === _0x3a87c0) : null;
-    const _0x3d40a2 = _0x231ff7("#mantOverlay");
-    const _0xdb2066 = _0x231ff7("#mantOverlayCard");
+    const _0x5c555c = _0x3a87c0 ? estado.vehiculos.find(_0x10c01b => _0x10c01b.id === _0x3a87c0) : null;
+    const _0x3d40a2 = $("#mantOverlay");
+    const _0xdb2066 = $("#mantOverlayCard");
     _0xdb2066.innerHTML = "\n      <p class=\"panel-title\">" + (_0x5c555c ? "Editar vehículo" : "Añadir vehículo") + "</p>\n      <div class=\"scanner-row\" style=\"margin-bottom:8px;\">\n        <input type=\"text\" id=\"vMatricula\" placeholder=\"Matrícula\" value=\"" + (_0x5c555c ? _0x1d1ab0(_0x5c555c.matricula || "") : "") + "\" style=\"flex:1;\">\n        <input type=\"number\" id=\"vKm\" placeholder=\"Km actuales\" min=\"0\" value=\"" + (_0x5c555c ? _0x5c555c.kmActual || 0 : "") + "\" style=\"flex:1;\">\n      </div>\n      <div class=\"scanner-row\" style=\"margin-bottom:12px;\">\n        <input type=\"text\" id=\"vMarca\" placeholder=\"Marca\" value=\"" + (_0x5c555c ? _0x1d1ab0(_0x5c555c.marca || "") : "") + "\" style=\"flex:1;\">\n        <input type=\"text\" id=\"vModelo\" placeholder=\"Modelo\" value=\"" + (_0x5c555c ? _0x1d1ab0(_0x5c555c.modelo || "") : "") + "\" style=\"flex:1;\">\n        <input type=\"number\" id=\"vAnio\" placeholder=\"Año\" value=\"" + (_0x5c555c ? _0x1d1ab0(_0x5c555c.anio || "") : "") + "\" style=\"flex:1;\">\n      </div>\n      <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 6px 2px;\">Mecánico habitual (opcional)</p>\n      <div class=\"scanner-row\" style=\"margin-bottom:12px;\">\n        <input type=\"text\" id=\"vMecanicoNombre\" placeholder=\"Nombre o taller\" value=\"" + (_0x5c555c ? _0x1d1ab0(_0x5c555c.mecanicoNombre || "") : "") + "\" style=\"flex:1;\">\n        <input type=\"text\" id=\"vMecanicoContacto\" placeholder=\"Teléfono o email\" value=\"" + (_0x5c555c ? _0x1d1ab0(_0x5c555c.mecanicoContacto || "") : "") + "\" style=\"flex:1;\">\n      </div>\n      <div class=\"scanner-row\">\n        <button class=\"btn-return\" id=\"vCancelar\" style=\"flex:1;\">Cancelar</button>\n        <button class=\"btn primary\" id=\"vGuardar\" style=\"flex:1;\">" + (_0x5c555c ? "Guardar" : "Añadir") + "</button>\n      </div>\n    ";
     _0x3d40a2.style.display = "flex";
-    _0x231ff7("#vCancelar").addEventListener("click", () => _0x3d40a2.style.display = "none");
-    _0x231ff7("#vGuardar").addEventListener("click", () => {
-      const _0x303798 = _0x231ff7("#vMatricula").value.trim();
+    $("#vCancelar").addEventListener("click", () => _0x3d40a2.style.display = "none");
+    $("#vGuardar").addEventListener("click", () => {
+      const _0x303798 = $("#vMatricula").value.trim();
       if (!_0x303798) {
         _0x279f78("Escribe la matrícula del vehículo.");
         return;
       }
       const _0x1e95c8 = {
         matricula: _0x303798,
-        marca: _0x231ff7("#vMarca").value.trim(),
-        modelo: _0x231ff7("#vModelo").value.trim(),
-        anio: _0x231ff7("#vAnio").value.trim(),
-        kmActual: Math.max(0, parseInt(_0x231ff7("#vKm").value, 10) || 0),
-        mecanicoNombre: _0x231ff7("#vMecanicoNombre").value.trim(),
-        mecanicoContacto: _0x231ff7("#vMecanicoContacto").value.trim()
+        marca: $("#vMarca").value.trim(),
+        modelo: $("#vModelo").value.trim(),
+        anio: $("#vAnio").value.trim(),
+        kmActual: Math.max(0, parseInt($("#vKm").value, 10) || 0),
+        mecanicoNombre: $("#vMecanicoNombre").value.trim(),
+        mecanicoContacto: $("#vMecanicoContacto").value.trim()
       };
       if (_0x5c555c) {
         Object.assign(_0x5c555c, _0x1e95c8);
       } else {
         const _0x749646 = {
-          id: _0x588d17(),
+          id: nuevoId(),
           fotos: [],
           ..._0x1e95c8
         };
-        _0x47d525.vehiculos.push(_0x749646);
-        _0x47d525.vehiculoActualId = _0x749646.id;
+        estado.vehiculos.push(_0x749646);
+        estado.vehiculoActualId = _0x749646.id;
         _0x430fb2();
       }
       _0x932e35();
       _0x3d40a2.style.display = "none";
-      _0x474249();
+      render();
     });
   }
   function _0x5e4b81(_0x11c1ae) {
@@ -10290,32 +10367,32 @@
     if (!_0xf3330b) {
       return;
     }
-    const _0x2863cd = _0x11c1ae ? _0x47d525.tareasMantenimiento.find(_0x4df2ce => _0x4df2ce.id === _0x11c1ae) : null;
-    const _0x17dfae = _0x231ff7("#mantOverlay");
-    const _0x25238d = _0x231ff7("#mantOverlayCard");
+    const _0x2863cd = _0x11c1ae ? estado.tareasMantenimiento.find(_0x4df2ce => _0x4df2ce.id === _0x11c1ae) : null;
+    const _0x17dfae = $("#mantOverlay");
+    const _0x25238d = $("#mantOverlayCard");
     _0x25238d.innerHTML = "\n      <p class=\"panel-title\">" + (_0x2863cd ? "Editar tarea" : "Añadir tarea de mantenimiento") + "</p>\n      " + (!_0x2863cd ? "\n      <select id=\"tPreset\" style=\"width:100%; margin-bottom:8px;\">\n        <option value=\"\">— Escribir a mano —</option>\n        " + _0x539500.map((_0xa5a8d8, _0x43f4a0) => "<option value=\"" + _0x43f4a0 + "\">" + _0x1d1ab0(_0xa5a8d8.nombre) + "</option>").join("") + "\n      </select>\n      " : "") + "\n      <input type=\"text\" id=\"tNombre\" placeholder=\"Nombre de la tarea\" value=\"" + (_0x2863cd ? _0x1d1ab0(_0x2863cd.nombre) : "") + "\" style=\"width:100%; margin-bottom:8px;\">\n      <div class=\"scanner-row\" style=\"margin-bottom:8px;\">\n        <input type=\"number\" id=\"tKm\" placeholder=\"Cada cuántos km\" min=\"0\" value=\"" + (_0x2863cd && _0x2863cd.intervaloKm ? _0x2863cd.intervaloKm : "") + "\" style=\"flex:1;\">\n        <input type=\"number\" id=\"tMeses\" placeholder=\"Cada cuántos meses\" min=\"0\" value=\"" + (_0x2863cd && _0x2863cd.intervaloMeses ? _0x2863cd.intervaloMeses : "") + "\" style=\"flex:1;\">\n      </div>\n      <p style=\"font-size:11.5px; color:var(--text-faint); margin:-4px 0 10px;\">Rellena uno de los dos, o los dos — avisa con lo que llegue antes.</p>\n      <div class=\"scanner-row\" style=\"margin-bottom:12px;\">\n        <input type=\"number\" id=\"tUltimoKm\" placeholder=\"Km la última vez\" min=\"0\" value=\"" + (_0x2863cd && _0x2863cd.ultimoKm != null ? _0x2863cd.ultimoKm : _0xf3330b.kmActual || 0) + "\" style=\"flex:1;\">\n        <input type=\"date\" id=\"tUltimaFecha\" value=\"" + (_0x2863cd && _0x2863cd.ultimaFecha ? _0x2863cd.ultimaFecha : _0x535f33()) + "\" style=\"flex:1;\">\n      </div>\n      <div class=\"scanner-row\">\n        <button class=\"btn-return\" id=\"tCancelar\" style=\"flex:1;\">Cancelar</button>\n        <button class=\"btn primary\" id=\"tGuardar\" style=\"flex:1;\">" + (_0x2863cd ? "Guardar" : "Añadir") + "</button>\n      </div>\n    ";
     _0x17dfae.style.display = "flex";
-    const _0x4b99ab = _0x231ff7("#tPreset");
+    const _0x4b99ab = $("#tPreset");
     if (_0x4b99ab) {
       _0x4b99ab.addEventListener("change", () => {
         if (_0x4b99ab.value === "") {
           return;
         }
         const _0x5a851b = _0x539500[parseInt(_0x4b99ab.value, 10)];
-        _0x231ff7("#tNombre").value = _0x5a851b.nombre;
-        _0x231ff7("#tKm").value = _0x5a851b.km || "";
-        _0x231ff7("#tMeses").value = _0x5a851b.meses || "";
+        $("#tNombre").value = _0x5a851b.nombre;
+        $("#tKm").value = _0x5a851b.km || "";
+        $("#tMeses").value = _0x5a851b.meses || "";
       });
     }
-    _0x231ff7("#tCancelar").addEventListener("click", () => _0x17dfae.style.display = "none");
-    _0x231ff7("#tGuardar").addEventListener("click", () => {
-      const _0x84cb62 = _0x231ff7("#tNombre").value.trim();
+    $("#tCancelar").addEventListener("click", () => _0x17dfae.style.display = "none");
+    $("#tGuardar").addEventListener("click", () => {
+      const _0x84cb62 = $("#tNombre").value.trim();
       if (!_0x84cb62) {
         _0x279f78("Escribe el nombre de la tarea.");
         return;
       }
-      const _0x285ac4 = parseInt(_0x231ff7("#tKm").value, 10);
-      const _0x12b1cb = parseInt(_0x231ff7("#tMeses").value, 10);
+      const _0x285ac4 = parseInt($("#tKm").value, 10);
+      const _0x12b1cb = parseInt($("#tMeses").value, 10);
       if (!_0x285ac4 && !_0x12b1cb) {
         _0x279f78("Indica al menos un intervalo, en km o en meses, para poder avisarte.");
         return;
@@ -10324,54 +10401,54 @@
         nombre: _0x84cb62,
         intervaloKm: _0x285ac4 || null,
         intervaloMeses: _0x12b1cb || null,
-        ultimoKm: _0x231ff7("#tUltimoKm").value !== "" ? parseInt(_0x231ff7("#tUltimoKm").value, 10) : null,
-        ultimaFecha: _0x231ff7("#tUltimaFecha").value || null
+        ultimoKm: $("#tUltimoKm").value !== "" ? parseInt($("#tUltimoKm").value, 10) : null,
+        ultimaFecha: $("#tUltimaFecha").value || null
       };
       if (_0x2863cd) {
         Object.assign(_0x2863cd, _0x5a728c);
       } else {
-        _0x47d525.tareasMantenimiento.push({
-          id: _0x588d17(),
+        estado.tareasMantenimiento.push({
+          id: nuevoId(),
           vehiculoId: _0xf3330b.id,
           ..._0x5a728c
         });
       }
       _0x3e790f();
       _0x17dfae.style.display = "none";
-      _0x474249();
+      render();
     });
   }
   function _0x38920a(_0x13996c) {
-    const _0x4fd70c = _0x47d525.tareasMantenimiento.find(_0x287f0d => _0x287f0d.id === _0x13996c);
+    const _0x4fd70c = estado.tareasMantenimiento.find(_0x287f0d => _0x287f0d.id === _0x13996c);
     const _0xeece32 = _0x267a5a();
     if (!_0x4fd70c || !_0xeece32) {
       return;
     }
-    const _0x3a73ee = _0x231ff7("#mantOverlay");
-    const _0x7d155b = _0x231ff7("#mantOverlayCard");
+    const _0x3a73ee = $("#mantOverlay");
+    const _0x7d155b = $("#mantOverlayCard");
     _0x7d155b.innerHTML = "\n      <p class=\"panel-title\">Marcar \"" + _0x1d1ab0(_0x4fd70c.nombre) + "\" como hecho</p>\n      <div class=\"scanner-row\" style=\"margin-bottom:12px;\">\n        <input type=\"number\" id=\"dKm\" placeholder=\"Km en ese momento\" min=\"0\" value=\"" + (_0xeece32.kmActual || 0) + "\" style=\"flex:1;\">\n        <input type=\"date\" id=\"dFecha\" value=\"" + _0x535f33() + "\" style=\"flex:1;\">\n      </div>\n      <div class=\"scanner-row\">\n        <button class=\"btn-return\" id=\"dCancelar\" style=\"flex:1;\">Cancelar</button>\n        <button class=\"btn primary\" id=\"dGuardar\" style=\"flex:1;\">" + _0x56ae2b("guardar") + "Guardar</button>\n      </div>\n    ";
     _0x3a73ee.style.display = "flex";
-    _0x231ff7("#dCancelar").addEventListener("click", () => _0x3a73ee.style.display = "none");
-    _0x231ff7("#dGuardar").addEventListener("click", () => {
-      _0x4fd70c.ultimoKm = Math.max(0, parseInt(_0x231ff7("#dKm").value, 10) || 0);
-      _0x4fd70c.ultimaFecha = _0x231ff7("#dFecha").value || _0x535f33();
+    $("#dCancelar").addEventListener("click", () => _0x3a73ee.style.display = "none");
+    $("#dGuardar").addEventListener("click", () => {
+      _0x4fd70c.ultimoKm = Math.max(0, parseInt($("#dKm").value, 10) || 0);
+      _0x4fd70c.ultimaFecha = $("#dFecha").value || _0x535f33();
       if (_0x4fd70c.ultimoKm > (_0xeece32.kmActual || 0)) {
         _0xeece32.kmActual = _0x4fd70c.ultimoKm;
         _0x932e35();
       }
       _0x3e790f();
       _0x3a73ee.style.display = "none";
-      _0x474249();
+      render();
     });
   }
   function _0x4a9ee1() {
-    if (_0x47d525.mode !== "pedido") {
+    if (estado.mode !== "pedido") {
       return;
     }
-    const _0x3a71dc = _0x231ff7("#mainList");
-    const _0x1538e9 = _0x47d525.pedidoItems.map(_0x49a1a4 => "\n      <div class=\"ticket-row\" data-id=\"" + _0x49a1a4.id + "\">\n        <div class=\"row-main\">\n          <div class=\"row-code\">" + _0x1d1ab0(_0x49a1a4.code) + "</div>\n          <div class=\"row-desc\">" + _0x1d1ab0(_0x49a1a4.desc) + "</div>\n        </div>\n        <div class=\"row-qty\">x" + _0x49a1a4.qty + "</div>\n        <button class=\"btn-return\" data-pedido-del=\"" + _0x49a1a4.id + "\">Quitar</button>\n      </div>\n    ").join("");
-    const _0x5976cf = "\n      <div class=\"scanner-row\" style=\"margin-bottom:10px; flex-wrap:wrap;\">\n        <button class=\"mode-btn\" data-pedido-view=\"chat\" style=\"flex:none; padding:8px 16px; " + (_0x4a2938 === "chat" ? "background:var(--accent); color:#2A0800;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Chat</button>\n        <button class=\"mode-btn\" data-pedido-view=\"lista\" style=\"flex:none; padding:8px 16px; " + (_0x4a2938 === "lista" ? "background:var(--accent); color:#2A0800;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Lista (" + _0x47d525.pedidoItems.length + ")</button>\n      </div>\n    ";
-    const _0x3e2599 = _0x4a2938 === "chat" ? "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Chat</span></div>\n        <div class=\"ticket-body\">" + _0x17a460(_0x47d525.pedidoChat) + "</div>\n        <div style=\"display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border);\">\n          <input type=\"text\" id=\"chatMensajeInput\" placeholder=\"Describe qué hace falta pedir…\" style=\"flex:2; min-width:0;\">\n          <input type=\"number\" id=\"chatCantidadInput\" placeholder=\"Uds\" min=\"1\" value=\"1\" style=\"flex:none; width:64px;\">\n          <button class=\"btn primary\" id=\"chatEnviarBtn\" style=\"width:auto; flex:none;\">" + _0x56ae2b("enviar") + "Enviar</button>\n        </div>\n      </div>\n    " : "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\">Pedido de materiales</span>\n          <span class=\"ticket-title\">" + _0x47d525.pedidoItems.length + " referencias</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + (_0x1538e9 || "<div class=\"empty-state\">Todavía no has añadido nada al pedido. Escanea o busca un material del stock para empezar.</div>") + "\n        </div>\n      </div>\n    ";
+    const _0x3a71dc = $("#mainList");
+    const _0x1538e9 = estado.pedidoItems.map(_0x49a1a4 => "\n      <div class=\"ticket-row\" data-id=\"" + _0x49a1a4.id + "\">\n        <div class=\"row-main\">\n          <div class=\"row-code\">" + _0x1d1ab0(_0x49a1a4.code) + "</div>\n          <div class=\"row-desc\">" + _0x1d1ab0(_0x49a1a4.desc) + "</div>\n        </div>\n        <div class=\"row-qty\">x" + _0x49a1a4.qty + "</div>\n        <button class=\"btn-return\" data-pedido-del=\"" + _0x49a1a4.id + "\">Quitar</button>\n      </div>\n    ").join("");
+    const _0x5976cf = "\n      <div class=\"scanner-row\" style=\"margin-bottom:10px; flex-wrap:wrap;\">\n        <button class=\"mode-btn\" data-pedido-view=\"chat\" style=\"flex:none; padding:8px 16px; " + (_0x4a2938 === "chat" ? "background:var(--accent); color:#2A0800;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Chat</button>\n        <button class=\"mode-btn\" data-pedido-view=\"lista\" style=\"flex:none; padding:8px 16px; " + (_0x4a2938 === "lista" ? "background:var(--accent); color:#2A0800;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Lista (" + estado.pedidoItems.length + ")</button>\n      </div>\n    ";
+    const _0x3e2599 = _0x4a2938 === "chat" ? "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Chat</span></div>\n        <div class=\"ticket-body\">" + _0x17a460(estado.pedidoChat) + "</div>\n        <div style=\"display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border);\">\n          <input type=\"text\" id=\"chatMensajeInput\" placeholder=\"Describe qué hace falta pedir…\" style=\"flex:2; min-width:0;\">\n          <input type=\"number\" id=\"chatCantidadInput\" placeholder=\"Uds\" min=\"1\" value=\"1\" style=\"flex:none; width:64px;\">\n          <button class=\"btn primary\" id=\"chatEnviarBtn\" style=\"width:auto; flex:none;\">" + _0x56ae2b("enviar") + "Enviar</button>\n        </div>\n      </div>\n    " : "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\">Pedido de materiales</span>\n          <span class=\"ticket-title\">" + estado.pedidoItems.length + " referencias</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + (_0x1538e9 || "<div class=\"empty-state\">Todavía no has añadido nada al pedido. Escanea o busca un material del stock para empezar.</div>") + "\n        </div>\n      </div>\n    ";
     _0x3a71dc.innerHTML = _0x5976cf + _0x3e2599;
     _0x10279f(_0x3a71dc);
     _0x3a71dc.querySelectorAll("[data-pedido-view]").forEach(_0x363990 => {
@@ -10380,11 +10457,11 @@
         _0x4a9ee1();
       });
     });
-    const _0x1e3e46 = _0x231ff7("#chatEnviarBtn");
+    const _0x1e3e46 = $("#chatEnviarBtn");
     if (_0x1e3e46) {
       _0x1e3e46.addEventListener("click", _0x36610a);
     }
-    const _0x4dfed2 = _0x231ff7("#chatMensajeInput");
+    const _0x4dfed2 = $("#chatMensajeInput");
     if (_0x4dfed2) {
       _0x4dfed2.addEventListener("keydown", _0x16542a => {
         if (_0x16542a.key === "Enter") {
@@ -10403,10 +10480,10 @@
   }
   function _0x8db8ba_impl() {
     let _0x5f4a21 = null;
-    if (_0x47d525.mode !== "montaje" && _0x47d525.mode !== "proyecto") {
+    if (estado.mode !== "montaje" && estado.mode !== "proyecto") {
       return;
     }
-    const _0x1b7047 = _0x231ff7("#mainList");
+    const _0x1b7047 = $("#mainList");
     const _0x196921 = _0x33d6d2();
     const _0x4368d0 = _0x1ea037();
     if (!_0x4368d0) {
@@ -10425,13 +10502,13 @@
       _0x4895bf = "\n        <div class=\"ticket\">\n          <div class=\"ticket-header\">\n            <span class=\"ticket-title\">Chat</span>\n          </div>\n          <div class=\"ticket-body\">" + _0x17a460(_0x4368d0.chat, {
         target: _0x4368d0,
         puedeAsociar: !_0xe5dca9
-      }) + "</div>\n          " + (_0x47d525.materialesRapidos.length ? "\n          <div style=\"padding:10px 14px; border-top:1px solid var(--border);\">\n            <p style=\"font-size:11px; font-weight:700; color:var(--text-faint); text-transform:uppercase; letter-spacing:.03em; margin:0 0 8px 2px;\">Lista rápida</p>\n            <div style=\"display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto;\">\n              " + _0x47d525.materialesRapidos.map(_0x2fccc7 => "\n                <label style=\"display:flex; align-items:center; gap:8px; font-size:12.5px;\">\n                  <input type=\"checkbox\" class=\"rapido-check\" data-rapido-id=\"" + _0x2fccc7.id + "\" style=\"width:16px; height:16px; flex:none;\">\n                  <span style=\"flex:1;\">" + _0x1d1ab0(_0x2fccc7.nombre) + "</span>\n                  <input type=\"number\" class=\"rapido-qty\" data-rapido-qty=\"" + _0x2fccc7.id + "\" value=\"1\" min=\"1\" style=\"width:52px; flex:none;\">\n                </label>\n              ").join("") + "\n            </div>\n            <button class=\"cam-btn\" id=\"anadirRapidosBtn\" style=\"width:100%; margin-top:8px;\">Añadir seleccionados</button>\n          </div>\n          " : "") + "\n          <div style=\"display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border);\">\n            <textarea id=\"chatMensajeInput\" rows=\"2\" placeholder=\"Escribe qué hace falta: un artículo por línea o separados por comas…\" style=\"flex:2; min-width:0;\"></textarea>\n            <button type=\"button\" id=\"chatReservaToggleBtn\" class=\"cam-btn\" style=\"flex:none; padding:8px 12px; font-size:12px;\">Reserva</button>\n            <button class=\"btn primary\" id=\"chatEnviarBtn\" style=\"width:auto; flex:none;\">" + _0x56ae2b("enviar") + "Enviar</button>\n          </div>\n        </div>\n      ";
+      }) + "</div>\n          " + (estado.materialesRapidos.length ? "\n          <div style=\"padding:10px 14px; border-top:1px solid var(--border);\">\n            <p style=\"font-size:11px; font-weight:700; color:var(--text-faint); text-transform:uppercase; letter-spacing:.03em; margin:0 0 8px 2px;\">Lista rápida</p>\n            <div style=\"display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto;\">\n              " + estado.materialesRapidos.map(_0x2fccc7 => "\n                <label style=\"display:flex; align-items:center; gap:8px; font-size:12.5px;\">\n                  <input type=\"checkbox\" class=\"rapido-check\" data-rapido-id=\"" + _0x2fccc7.id + "\" style=\"width:16px; height:16px; flex:none;\">\n                  <span style=\"flex:1;\">" + _0x1d1ab0(_0x2fccc7.nombre) + "</span>\n                  <input type=\"number\" class=\"rapido-qty\" data-rapido-qty=\"" + _0x2fccc7.id + "\" value=\"1\" min=\"1\" style=\"width:52px; flex:none;\">\n                </label>\n              ").join("") + "\n            </div>\n            <button class=\"cam-btn\" id=\"anadirRapidosBtn\" style=\"width:100%; margin-top:8px;\">Añadir seleccionados</button>\n          </div>\n          " : "") + "\n          <div style=\"display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border);\">\n            <textarea id=\"chatMensajeInput\" rows=\"2\" placeholder=\"Escribe qué hace falta: un artículo por línea o separados por comas…\" style=\"flex:2; min-width:0;\"></textarea>\n            <button type=\"button\" id=\"chatReservaToggleBtn\" class=\"cam-btn\" style=\"flex:none; padding:8px 12px; font-size:12px;\">Reserva</button>\n            <button class=\"btn primary\" id=\"chatEnviarBtn\" style=\"width:auto; flex:none;\">" + _0x56ae2b("enviar") + "Enviar</button>\n          </div>\n        </div>\n      ";
     } else if (_0x5592da === "hoja") {
-      const _0x2b90c7 = _0x47d525.current[_0x47d525.mode] || "";
+      const _0x2b90c7 = estado.current[estado.mode] || "";
       const _0x4b4727 = _0x4368d0.pendiente.items.map(_0x358905 => ({
         id: _0x358905.id,
         esPendiente: true,
-        fecha: _0x358905.fechaGuardado || _0x347a69(),
+        fecha: _0x358905.fechaGuardado || fechaHoraTexto(),
         articulo: _0x358905.textoLibre ? "" : _0x358905.code + " — " + _0x358905.desc,
         referencia: _0x358905.textoLibre ? "" : _0x358905.referencia || "",
         textoLibre: _0x358905.textoLibre || "",
@@ -10469,7 +10546,7 @@
         bloqueada: true
       }));
       _0x5f4a21 = [..._0x4b4727, ..._0x2576c3];
-      _0x4895bf = "\n        <div class=\"ticket\">\n          <div class=\"ticket-header\">\n            <span class=\"ticket-title\">Hoja de pedido de materiales</span>\n            <span class=\"ticket-title\">OT: " + _0x1d1ab0(_0x2b90c7) + ((_0x297402(_0x47d525.mode, _0x2b90c7) || {}).tipo ? " · " + _0x1d1ab0(_0x297402(_0x47d525.mode, _0x2b90c7).tipo) : "") + "</span>\n          </div>\n          <div style=\"display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid var(--border);\">\n            <label for=\"hojaPlanoInput\" style=\"font-size:12px; font-weight:700; color:var(--text-faint); white-space:nowrap;\">Plano:</label>\n            <input type=\"text\" id=\"hojaPlanoInput\" placeholder=\"Nº de plano de toda la orden\" value=\"" + _0x1d1ab0((_0x297402(_0x47d525.mode, _0x2b90c7) || {}).plano || "") + "\" style=\"flex:1;\">\n          </div>\n          <div class=\"ticket-body\" style=\"overflow-x:auto;\">\n            " + (_0x5f4a21.length ? "\n            " + (!_0xe5dca9 ? "\n            <div class=\"scanner-row\" style=\"margin-bottom:8px; align-items:center;\">\n              <span style=\"font-size:12px; color:var(--text-faint); flex:1;\">" + (_0x236c29.size ? _0x236c29.size + " línea(s) seleccionada(s)" : "Marca varias líneas para ponerles Escandallo/Pedido a la vez") + "</span>\n              " + (_0x236c29.size ? "\n                <button class=\"cam-btn\" id=\"marcarEscandalloBtn\" style=\"flex:none;\">Marcar como Escandallo</button>\n                <button class=\"cam-btn\" id=\"marcarPedidoBtn\" style=\"flex:none;\">Marcar como Pedido</button>\n                <button class=\"btn-return\" id=\"quitarMarcaBtn\" style=\"flex:none;\">Quitar marca</button>\n                <button class=\"cam-btn\" id=\"marcarProveedorBtn\" style=\"flex:none;\">Enviar a Proveedor</button>\n                <button class=\"cam-btn\" id=\"marcarHojaBtn\" style=\"flex:none;\">Volver a Hoja de pedido</button>\n              " : "") + "\n            </div>\n            " : "") + "\n            <table class=\"hoja-pedido-table\">\n              <thead>\n                <tr>" + (_0xe5dca9 ? "" : "<th></th>") + "<th>OT</th><th>Fecha</th><th>Artículo</th><th>Referencia</th><th>Cantidad</th><th>Reserva</th><th>Escandallo/Pedido</th><th>Recibido</th></tr>\n              </thead>\n              <tbody>\n                " + _0x5f4a21.map(_0x9b12df => {
+      _0x4895bf = "\n        <div class=\"ticket\">\n          <div class=\"ticket-header\">\n            <span class=\"ticket-title\">Hoja de pedido de materiales</span>\n            <span class=\"ticket-title\">OT: " + _0x1d1ab0(_0x2b90c7) + ((buscarGrupo(estado.mode, _0x2b90c7) || {}).tipo ? " · " + _0x1d1ab0(buscarGrupo(estado.mode, _0x2b90c7).tipo) : "") + "</span>\n          </div>\n          <div style=\"display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid var(--border);\">\n            <label for=\"hojaPlanoInput\" style=\"font-size:12px; font-weight:700; color:var(--text-faint); white-space:nowrap;\">Plano:</label>\n            <input type=\"text\" id=\"hojaPlanoInput\" placeholder=\"Nº de plano de toda la orden\" value=\"" + _0x1d1ab0((buscarGrupo(estado.mode, _0x2b90c7) || {}).plano || "") + "\" style=\"flex:1;\">\n          </div>\n          <div class=\"ticket-body\" style=\"overflow-x:auto;\">\n            " + (_0x5f4a21.length ? "\n            " + (!_0xe5dca9 ? "\n            <div class=\"scanner-row\" style=\"margin-bottom:8px; align-items:center;\">\n              <span style=\"font-size:12px; color:var(--text-faint); flex:1;\">" + (_0x236c29.size ? _0x236c29.size + " línea(s) seleccionada(s)" : "Marca varias líneas para ponerles Escandallo/Pedido a la vez") + "</span>\n              " + (_0x236c29.size ? "\n                <button class=\"cam-btn\" id=\"marcarEscandalloBtn\" style=\"flex:none;\">Marcar como Escandallo</button>\n                <button class=\"cam-btn\" id=\"marcarPedidoBtn\" style=\"flex:none;\">Marcar como Pedido</button>\n                <button class=\"btn-return\" id=\"quitarMarcaBtn\" style=\"flex:none;\">Quitar marca</button>\n                <button class=\"cam-btn\" id=\"marcarProveedorBtn\" style=\"flex:none;\">Enviar a Proveedor</button>\n                <button class=\"cam-btn\" id=\"marcarHojaBtn\" style=\"flex:none;\">Volver a Hoja de pedido</button>\n              " : "") + "\n            </div>\n            " : "") + "\n            <table class=\"hoja-pedido-table\">\n              <thead>\n                <tr>" + (_0xe5dca9 ? "" : "<th></th>") + "<th>OT</th><th>Fecha</th><th>Artículo</th><th>Referencia</th><th>Cantidad</th><th>Reserva</th><th>Escandallo/Pedido</th><th>Recibido</th></tr>\n              </thead>\n              <tbody>\n                " + _0x5f4a21.map(_0x9b12df => {
         const _0x3570ca = _0x9b12df.textoLibre ? "<em>" + _0x1d1ab0(_0x9b12df.textoLibre) + "</em> <span style=\"color:var(--danger); font-size:10.5px;\">(sin referencia)</span>" : _0x1d1ab0(_0x9b12df.articulo);
         const _0x1f8e54 = _0x9b12df.textoLibre ? _0xe5dca9 ? "—" : "<button class=\"cam-btn\" style=\"padding:7px 12px; font-size:12px;\" data-asignar-ref=\"" + _0x9b12df.id + "\">Asignar referencia</button>" : _0x1d1ab0(_0x9b12df.referencia);
         const _0x175e6b = _0xe5dca9 ? _0x9b12df.escandalloPedido ? _0x1d1ab0(_0x9b12df.escandalloPedido) + (_0x9b12df.escandalloPedidoNumero ? " Nº " + _0x1d1ab0(_0x9b12df.escandalloPedidoNumero) : "") : "—" : "\n                        <select class=\"hoja-num\" data-hoja-id=\"" + _0x9b12df.id + "\" data-hoja-texto=\"escandalloPedido\" style=\"margin-bottom:4px;\">\n                          <option value=\"\" " + (!_0x9b12df.escandalloPedido ? "selected" : "") + ">—</option>\n                          <option value=\"Escandallo\" " + (_0x9b12df.escandalloPedido === "Escandallo" ? "selected" : "") + ">Escandallo</option>\n                          <option value=\"Pedido\" " + (_0x9b12df.escandalloPedido === "Pedido" ? "selected" : "") + ">Pedido</option>\n                        </select>\n                        <input type=\"text\" value=\"" + _0x1d1ab0(_0x9b12df.escandalloPedidoNumero) + "\" class=\"hoja-num\" data-hoja-id=\"" + _0x9b12df.id + "\" data-hoja-texto=\"escandalloPedidoNumero\" placeholder=\"Nº\" style=\"min-width:80px;\">\n                      ";
@@ -10487,19 +10564,22 @@
     }
     const _0x37393c = _0x1a8185 ? "\n      <div class=\"panel\" style=\"border-color:var(--accent); margin-top:14px;\">\n        <p class=\"panel-title\">Material reconocido — elige a qué artículo corresponde cada línea (proveedor: " + _0x1d1ab0(_0x1a8185.proveedor) + ")</p>\n        <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 10px 0;\">Escribe el código si corresponde a algo del stock — se sirve de verdad y descuenta esa cantidad. Si lo dejas en blanco, la línea queda como material faltante en esta orden, sin tocar el stock.</p>\n        <div style=\"max-height:320px; overflow-y:auto; margin-bottom:10px;\">\n          " + _0x1a8185.plan.map(_0x5de4e8 => "\n            <div style=\"padding:8px 0; border-bottom:1px dashed var(--border);\">\n              <div style=\"display:flex; flex-wrap:wrap; align-items:center; gap:10px;\">\n                <div style=\"order:1; flex:1; min-width:150px; font-size:12.5px; line-height:1.4;\">\"" + _0x1d1ab0(_0x5de4e8.texto) + "\"" + (_0x5de4e8.codigoSugerido ? " <span style=\"color:var(--text-faint);\">(ya se relacionó antes con " + _0x1d1ab0(_0x5de4e8.codigoSugerido) + ")</span>" : "") + "</div>\n                <input type=\"text\" list=\"catalogCodesList\" placeholder=\"Código del stock (vacío = falta)\" style=\"order:3; flex-basis:100%; width:100%; margin-top:4px; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:8px 10px; border-radius:6px; font-size:13px;\" value=\"" + _0x1d1ab0(_0x5de4e8.codigoSugerido) + "\" data-ocr-codigo=\"" + _0x5de4e8.id + "\">\n                <input type=\"number\" min=\"1\" style=\"order:2; width:78px; flex:none; text-align:center; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:8px 6px; border-radius:6px; font-size:13px;\" value=\"" + _0x5de4e8.cantidad + "\" data-ocr-cantidad=\"" + _0x5de4e8.id + "\">\n              </div>\n            </div>\n          ").join("") + "\n        </div>\n        <button class=\"btn primary\" id=\"applyOcrPlanBtn\">Confirmar</button>\n        <button class=\"btn ghost-danger\" id=\"cancelOcrPlanBtn\">Cancelar</button>\n      </div>\n    " : "";
     const _0x944ffb = (_0x4368d0.materialesFaltantes || []).length ? "\n      <div class=\"ticket\" style=\"margin-top:14px; border-left-color:var(--warning);\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Material faltante (" + _0x4368d0.materialesFaltantes.length + ")</span></div>\n        <div class=\"ticket-body\">\n          " + _0x4368d0.materialesFaltantes.map(_0x3b0770 => "\n            <div style=\"display:flex; align-items:center; gap:10px; padding:11px 14px; border-bottom:1px dashed var(--border);\">\n              <div style=\"flex:1; min-width:0;\">\n                <div style=\"font-weight:700; font-size:13px;\">" + _0x1d1ab0(_0x3b0770.descripcion) + "</div>\n                <div style=\"font-size:11px; color:var(--text-faint); margin-top:2px;\">" + _0x3b0770.cantidad + " uds · proveedor " + _0x1d1ab0(_0x3b0770.proveedor) + " · " + _0x3b0770.fecha + "</div>\n              </div>\n              <button class=\"cam-btn\" data-pedir-faltante=\"" + _0x3b0770.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">Pedir</button>\n              <button class=\"btn-return\" data-quitar-faltante=\"" + _0x3b0770.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">Quitar</button>\n            </div>\n          ").join("") + "\n        </div>\n      </div>\n    " : "";
+    // Esquemas que manda la app hermana para esta OT (ya filtrados a https al recibirlos)
+    const __esquemasOT = (buscarGrupo(estado.mode, estado.current[estado.mode] || "") || {}).esquemas || [];
+    const __seccionEsquemas = __esquemasOT.length ? "\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Esquemas de la OT</span><span class=\"ticket-title\">" + __esquemasOT.length + "</span></div>\n        <div class=\"ticket-body\">" + __esquemasOT.map(__e => "\n          <div style=\"display:flex; align-items:center; gap:10px; padding:11px 14px; border-bottom:1px dashed var(--border);\"><div style=\"flex:1; min-width:0; font-weight:700; font-size:13px;\">" + _0x1d1ab0(__e.nombre) + "</div><a class=\"cam-btn\" href=\"" + _0x1d1ab0(__e.url) + "\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"padding:6px 10px; font-size:11px; min-height:auto; text-decoration:none;\">Abrir</a></div>").join("") + "\n        </div>\n      </div>\n    " : "";
     const _0x12fefa = (_0x4368d0.documentos || []).length;
     const _0x583e89 = _0x2df77d() === "taller" ? "" : "\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\" id=\"toggleDocumentosBtn\" style=\"cursor:pointer;\">\n          <span class=\"ticket-title\">Documentos escaneados" + (_0x12fefa ? " (" + _0x12fefa + ")" : "") + "</span>\n          <span class=\"ticket-title\">" + (_0x15a759 ? "Ocultar" : "Ver") + "</span>\n        </div>\n        " + (_0x15a759 ? "\n        <div class=\"ticket-body\">\n          " + (_0x12fefa ? (_0x4368d0.documentos || []).map(_0x44966c => "\n            <div style=\"display:flex; align-items:center; gap:10px; padding:11px 14px; border-bottom:1px dashed var(--border);\">\n              <div style=\"flex:1; min-width:0;\">\n                <div style=\"font-weight:700; font-size:13px;\">" + _0x1d1ab0(_0x44966c.nombre) + "</div>\n                <div style=\"font-size:11px; color:var(--text-faint); margin-top:2px;\">" + _0x44966c.fecha + " · " + _0x44966c.paginas + " página(s)</div>\n              </div>\n              <button class=\"cam-btn\" data-ver-doc=\"" + _0x44966c.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">Ver</button>\n              <button class=\"btn-return\" data-del-doc=\"" + _0x44966c.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">" + _0x56ae2b("eliminar") + "Eliminar</button>\n            </div>\n          ").join("") : "<div class=\"empty-state\">Todavía no hay ningún documento escaneado para esta orden/proyecto.</div>") + "\n          <div style=\"padding:12px 14px;\">\n            <button class=\"cam-btn\" id=\"escanearDocBtn\" style=\"width:100%;\">Escanear documento</button>\n          </div>\n        </div>\n        " : "") + "\n      </div>\n    ";
     const __lineasProveedor = (typeof _0x5f4a21 !== "undefined" && _0x5f4a21 ? _0x5f4a21 : []).filter(__r => __r.destino === "proveedor");
     const __seccionProveedor = __lineasProveedor.length ? "\n      <div class=\"ticket\" style=\"margin-top:14px; border-left-color:var(--accent);\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Proveedor</span><span class=\"ticket-title\">" + __lineasProveedor.length + " línea(s)</span></div>\n        <div class=\"ticket-body\">" + __lineasProveedor.map(__r => "\n          <div style=\"display:flex; align-items:center; gap:10px; padding:11px 14px; border-bottom:1px dashed var(--border);\"><div style=\"flex:1; min-width:0;\"><div style=\"font-weight:700; font-size:13px;\">" + _0x1d1ab0(__r.textoLibre ? __r.textoLibre : __r.articulo) + "</div><div style=\"font-size:11px; color:var(--text-faint); margin-top:2px;\">Cantidad: " + __r.cantidad + (__r.reserva ? " · Reserva: " + __r.reserva : "") + (__r.recibidoCantidad != null ? " · Recibido: " + __r.recibidoCantidad : "") + "</div>" + (__r.pendienteReclamar ? "<span class=\"badge\" style=\"background:var(--warning); color:#000; font-size:10px; padding:2px 6px; border-radius:4px; margin-top:4px; display:inline-block;\">Pendiente-reclamar</span>" : "") + (__r.avisoDevolverReserva ? "<span class=\"badge\" style=\"background:var(--accent); color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; margin-top:4px; display:inline-block; margin-left:4px;\">Para devolver a reserva</span>" : "") + "</div><input type=\"text\" placeholder=\"Proveedor\" value=\"" + _0x1d1ab0(__r.proveedorNombre || "") + "\" data-proveedor-nombre=\"" + __r.id + "\" style=\"flex:none; width:140px; font-size:12px; padding:6px 8px;\"></div>").join("") + "\n        </div>\n      </div>\n    " : "";
     const __lineasOCRProveedor = _0x1a8185 && _0x1a8185.proveedorLineas ? _0x1a8185.proveedorLineas : [];
     const __panelProveedorOCR = __lineasOCRProveedor.length ? "\n      <div class=\"panel\" style=\"border-color:var(--accent); margin-top:14px;\">\n        <p class=\"panel-title\">Proveedor — confirma cantidad recibida por línea</p>\n        <div style=\"max-height:320px; overflow-y:auto;\">" + __lineasOCRProveedor.map(__l => "\n          <div style=\"display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px dashed var(--border);\"><div style=\"flex:1; min-width:0; font-size:12.5px;\">" + _0x1d1ab0(__l.texto) + " <span style=\"color:var(--text-faint);\">(pedido: " + __l.cantidadPedida + ")</span></div><input type=\"number\" min=\"0\" data-ocr-proveedor-cantidad=\"" + __l.id + "\" value=\"" + __l.cantidadDetectada + "\" style=\"width:78px; flex:none; text-align:center; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:8px 6px; border-radius:6px; font-size:13px;\"></div>").join("") + "\n        </div>\n      </div>\n    " : "";
-    _0x1b7047.innerHTML = _0x196921 + _0x2616e9 + _0x4895bf + _0x222547 + _0x37393c + _0x944ffb + _0x583e89 + __seccionProveedor + __panelProveedorOCR;
+    _0x1b7047.innerHTML = _0x196921 + _0x2616e9 + _0x4895bf + _0x222547 + _0x37393c + _0x944ffb + __seccionEsquemas + _0x583e89 + __seccionProveedor + __panelProveedorOCR;
     _0x241b98(_0x1b7047);
-    const _0x52c60a = _0x231ff7("#applyOcrPlanBtn");
+    const _0x52c60a = $("#applyOcrPlanBtn");
     if (_0x52c60a) {
       _0x52c60a.addEventListener("click", _0xb68b);
     }
-    const _0x528b87 = _0x231ff7("#cancelOcrPlanBtn");
+    const _0x528b87 = $("#cancelOcrPlanBtn");
     if (_0x528b87) {
       _0x528b87.addEventListener("click", _0x3e7902);
     }
@@ -10509,15 +10589,15 @@
     _0x1b7047.querySelectorAll("[data-quitar-faltante]").forEach(_0x569c65 => {
       _0x569c65.addEventListener("click", () => _0x3426fa(_0x569c65.dataset.quitarFaltante));
     });
-    const _0x5bc6c5 = _0x231ff7("#toggleDocumentosBtn");
+    const _0x5bc6c5 = $("#toggleDocumentosBtn");
     if (_0x5bc6c5) {
       _0x5bc6c5.addEventListener("click", () => {
         _0x15a759 = !_0x15a759;
-        _0x474249();
+        render();
       });
     }
     _0x10279f(_0x1b7047);
-    const _0x1550c8 = _0x231ff7("#escanearDocBtn");
+    const _0x1550c8 = $("#escanearDocBtn");
     if (_0x1550c8) {
       _0x1550c8.addEventListener("click", _0x1c65e1);
     }
@@ -10536,17 +10616,17 @@
         }
         _0x4368d0.documentos = (_0x4368d0.documentos || []).filter(_0x3a4ca8 => _0x3a4ca8.id !== _0x5c3de6.dataset.delDoc);
         _0x29f0a4();
-        _0x474249();
+        render();
       });
     });
     _0x1b7047.querySelectorAll("[data-pendiente-del]").forEach(_0x25d184 => {
       _0x25d184.addEventListener("click", () => {
         _0x4368d0.pendiente.items = _0x4368d0.pendiente.items.filter(_0x44f1aa => _0x44f1aa.id !== _0x25d184.dataset.pendienteDel);
         _0x29f0a4();
-        _0x474249();
+        render();
       });
     });
-    const _0xac418 = _0x231ff7("#prepareGroupDeliveryBtn");
+    const _0xac418 = $("#prepareGroupDeliveryBtn");
     if (_0xac418) {
       _0xac418.addEventListener("click", _0x308988);
     }
@@ -10556,11 +10636,11 @@
         _0x8db8ba();
       });
     });
-    const _0x3bed56 = _0x231ff7("#chatEnviarBtn");
+    const _0x3bed56 = $("#chatEnviarBtn");
     if (_0x3bed56) {
       _0x3bed56.addEventListener("click", _0x1b4d13);
     }
-    const __btnReservaChat = _0x231ff7("#chatReservaToggleBtn");
+    const __btnReservaChat = $("#chatReservaToggleBtn");
     if (__btnReservaChat) {
       if (_0x1b4d13.reservaActiva) {
         __btnReservaChat.style.background = "var(--accent)";
@@ -10578,7 +10658,7 @@
         _0x8db8ba();
       });
     }
-    const _0x5ecf7e = _0x231ff7("#anadirRapidosBtn");
+    const _0x5ecf7e = $("#anadirRapidosBtn");
     if (_0x5ecf7e) {
       _0x5ecf7e.addEventListener("click", _0x50972b);
     }
@@ -10618,18 +10698,18 @@
           }
         }
         _0x29f0a4();
-        _0x474249();
+        render();
       });
     });
-    const _0x3814b5 = _0x231ff7("#hojaPlanoInput");
+    const _0x3814b5 = $("#hojaPlanoInput");
     if (_0x3814b5) {
       _0x3814b5.addEventListener("change", () => {
-        const _0x19d718 = _0x297402(_0x47d525.mode, _0x47d525.current[_0x47d525.mode]);
+        const _0x19d718 = buscarGrupo(estado.mode, estado.current[estado.mode]);
         if (!_0x19d718) {
           return;
         }
         _0x19d718.plano = _0x3814b5.value.trim();
-        _0x5cfc4b(_0x47d525.mode);
+        guardarListaGrupos(estado.mode);
       });
     }
     _0x1b7047.querySelectorAll("[data-select-hoja-id]").forEach(_0x574282 => {
@@ -10639,7 +10719,7 @@
         } else {
           _0x236c29.delete(_0x574282.dataset.selectHojaId);
         }
-        _0x474249();
+        render();
       });
     });
     const _0x14f824 = async _0x105a4b => {
@@ -10659,21 +10739,21 @@
       });
       _0x236c29.clear();
       _0x29f0a4();
-      _0x474249();
+      render();
     };
-    const _0x196d9e = _0x231ff7("#marcarEscandalloBtn");
+    const _0x196d9e = $("#marcarEscandalloBtn");
     if (_0x196d9e) {
       _0x196d9e.addEventListener("click", () => _0x14f824("Escandallo"));
     }
-    const _0x413881 = _0x231ff7("#marcarPedidoBtn");
+    const _0x413881 = $("#marcarPedidoBtn");
     if (_0x413881) {
       _0x413881.addEventListener("click", () => _0x14f824("Pedido"));
     }
-    const _0x47e6a3 = _0x231ff7("#quitarMarcaBtn");
+    const _0x47e6a3 = $("#quitarMarcaBtn");
     if (_0x47e6a3) {
       _0x47e6a3.addEventListener("click", () => _0x14f824(""));
     }
-    const __btnProveedor = _0x231ff7("#marcarProveedorBtn");
+    const __btnProveedor = $("#marcarProveedorBtn");
     if (__btnProveedor) {
       __btnProveedor.addEventListener("click", () => {
         _0x236c29.forEach(__id => {
@@ -10684,10 +10764,10 @@
         });
         _0x236c29.clear();
         _0x29f0a4();
-        _0x474249();
+        render();
       });
     }
-    const __btnHoja = _0x231ff7("#marcarHojaBtn");
+    const __btnHoja = $("#marcarHojaBtn");
     if (__btnHoja) {
       __btnHoja.addEventListener("click", () => {
         _0x236c29.forEach(__id => {
@@ -10698,7 +10778,7 @@
         });
         _0x236c29.clear();
         _0x29f0a4();
-        _0x474249();
+        render();
       });
     }
     _0x1b7047.querySelectorAll("[data-proveedor-nombre]").forEach(__inp => {
@@ -10715,7 +10795,7 @@
         _0x308988();
       });
     });
-    const _0x1eeba0 = _0x231ff7("#saveHojaPedidoBtn");
+    const _0x1eeba0 = $("#saveHojaPedidoBtn");
     if (_0x1eeba0) {
       _0x1eeba0.addEventListener("click", () => {
         if (_0x1eeba0.disabled) {
@@ -10725,7 +10805,7 @@
         _0x1e1e26();
       });
     }
-    const _0x4f00ec = _0x231ff7("#addFreeTextBtn");
+    const _0x4f00ec = $("#addFreeTextBtn");
     if (_0x4f00ec) {
       _0x4f00ec.addEventListener("click", _0x3b5c75);
     }
@@ -10734,23 +10814,23 @@
     });
   }
   function _0xe20c0f() {
-    const _0x13ac6b = _0x231ff7("#sidePanel");
-    if (_0x47d525.mode === "almacen") {
-      const _0x5e2d34 = _0x47d525.catalog.filter(_0x4ecd13 => _0x4ecd13.qty <= 0).length;
-      const _0x3bf112 = _0x47d525.movements.slice(0, 10).map(_0xeec882 => "\n        <div class=\"movement-row\">\n          <span class=\"tag-" + _0xeec882.type + "\">" + _0x11c4a1(_0xeec882.type) + "</span>\n          <span class=\"m-code\">" + _0x1d1ab0(_0xeec882.code) + " <span style=\"color:var(--text-faint);\">x" + _0xeec882.qty + "</span></span>\n          <span style=\"color:var(--text-faint); font-size:11px;\">" + _0xeec882.ts + (_0xeec882.usuario ? " · " + _0x1d1ab0(_0xeec882.usuario) : "") + "</span>\n          <span class=\"m-desc\">" + _0x1d1ab0(_0xeec882.desc) + "</span>\n          <span class=\"m-origin\">" + _0x1d1ab0(_0xeec882.origin) + "</span>\n        </div>\n      ").join("");
-      _0x13ac6b.innerHTML = "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Resumen de stock</p>\n          <div class=\"stat-row\"><span>Referencias en stock</span><span class=\"num\">" + _0x47d525.catalog.length + "</span></div>\n          <div class=\"stat-row\"><span>Referencias a 0 o negativo</span><span class=\"num\">" + _0x5e2d34 + "</span></div>\n          <div class=\"stat-row\"><span>Valor total del inventario</span><span class=\"num\">" + _0x47d525.catalog.reduce((_0x338635, _0xadcaa0) => _0x338635 + (_0xadcaa0.qty > 0 ? _0xadcaa0.qty * (_0xadcaa0.coste || 0) : 0), 0).toFixed(2) + "€</span></div>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Últimos movimientos</p>\n          " + (_0x3bf112 || "<div style=\"color:var(--text-faint); font-size:12.5px;\">Sin movimientos todavía.</div>") + "\n          " + (_0x47d525.movementsArchive.length ? "\n          <p style=\"font-size:11px; color:var(--text-faint); margin-top:8px;\">\n            Histórico más antiguo archivado por mes: " + _0x47d525.movementsArchive.slice(0, 3).map(_0x204573 => _0x204573.month + " (" + _0x204573.entradas + " entr. / " + _0x204573.salidas + " sal.)").join(" · ") + (_0x47d525.movementsArchive.length > 3 ? "…" : "") + "\n          </p>" : "") + "\n        </div>\n\n        <button class=\"cam-btn\" id=\"masOpcionesAlmacenBtn\" style=\"width:100%;\">" + (_0x39b15b ? "Ocultar más opciones" : "Más opciones") + "</button>\n\n        " + (_0x39b15b ? "\n        <div class=\"panel\" style=\"margin-top:14px;\">\n          <p class=\"panel-title\">Exportar / Importar</p>\n          <button class=\"btn primary\" id=\"exportStockBtn\">Exportar stock y movimientos</button>\n          <label class=\"btn\" style=\"text-align:center; display:block;\">\n            Importar catálogo (añade y actualiza, no borra)\n            <input type=\"file\" id=\"catalogFile\" accept=\".xlsx,.xls,.csv\" style=\"display:none;\">\n          </label>\n          <input type=\"text\" id=\"catalogSearch\" placeholder=\"Buscar en el stock…\" value=\"" + _0x1a8b0d + "\" style=\"width:100%; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:9px 10px; border-radius:7px; font-size:13px; margin-top:4px;\">\n        </div>\n\n        <div class=\"panel\" style=\"border-color:var(--danger);\">\n          <p class=\"panel-title\" style=\"color:var(--danger);\">Sobrescribir todo el stock</p>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 8px 0;\">El stock queda igual que el Excel: cantidades exactas, borra lo que no esté.</p>\n          <label class=\"btn ghost-danger\" style=\"text-align:center; display:block;\">\n            Sobrescribir con este Excel\n            <input type=\"file\" id=\"overwriteCatalogFile\" accept=\".xlsx,.xls,.csv\" style=\"display:none;\">\n          </label>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Copia de seguridad</p>\n          <div class=\"backup-row\">\n            <button class=\"btn\" id=\"exportBackupBtn\">Descargar todo</button>\n            <label class=\"btn\" style=\"text-align:center; display:block;\">\n              Restaurar\n              <input type=\"file\" id=\"backupFile\" accept=\".json\" style=\"display:none;\">\n            </label>\n          </div>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Avisos</p>\n          <div class=\"manual-stock-form\" style=\"flex-direction:column;\">\n            <label style=\"font-size:11.5px; color:var(--text-muted);\">Avisar con cuántos días de margen antes de la devolución de una bobina</label>\n            <input type=\"number\" id=\"setBobinaDias\" min=\"0\" value=\"" + _0x47d525.settings.bobinaAvisoDias + "\">\n            <label style=\"font-size:11.5px; color:var(--text-muted); margin-top:6px;\">Considerar stock bajo con esta cantidad o menos</label>\n            <input type=\"number\" id=\"setStockUmbral\" min=\"0\" value=\"" + _0x47d525.settings.stockBajoUmbral + "\">\n            <label style=\"font-size:11.5px; color:var(--text-muted); margin-top:6px;\">Hora del día (0-23) a partir de la cual se hace la comprobación diaria</label>\n            <input type=\"number\" id=\"setAvisoHora\" min=\"0\" max=\"23\" value=\"" + _0x47d525.settings.avisoHora + "\">\n            <label style=\"font-size:11.5px; color:var(--text-muted); margin-top:6px;\">Correo al que quiero que me lleguen los avisos</label>\n            <input type=\"email\" id=\"setEmailDestino\" placeholder=\"tu@email.com\" value=\"" + _0x47d525.settings.emailDestino + "\">\n            <label style=\"display:flex; align-items:center; gap:6px; margin-top:8px; font-size:12.5px; color:var(--text-primary);\">\n              <input type=\"checkbox\" id=\"setSonidoEscaneo\" " + (_0x47d525.settings.sonidoEscaneo ? "checked" : "") + " style=\"width:16px; height:16px;\"> Pitido al escanear con éxito\n            </label>\n            <button class=\"btn primary\" id=\"saveSettingsBtn\" style=\"margin-top:8px;\">Guardar avisos</button>\n          </div>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Ubicaciones</p>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 8px 0;\">Lista para autocompletar — la ubicación sigue siendo texto libre, esto solo evita erratas.</p>\n          <div class=\"manual-stock-form\" style=\"margin-top:0;\">\n            <input type=\"text\" id=\"nuevaUbicacionInput\" placeholder=\"Nueva ubicación (ej. Pasillo 3 - B2)\">\n            <button class=\"cam-btn\" id=\"addUbicacionBtn\" style=\"flex:none;\">+ Añadir</button>\n          </div>\n          " + (_0x47d525.ubicaciones.length ? "\n          <div style=\"margin-top:10px; max-height:160px; overflow-y:auto;\">\n            " + _0x47d525.ubicaciones.map(_0x22784c => "\n              <div style=\"display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px dashed var(--border); font-size:12.5px;\">\n                <span>" + _0x1d1ab0(_0x22784c) + "</span>\n                <button class=\"btn-return\" data-ubicacion-del=\"" + _0x1d1ab0(_0x22784c) + "\" style=\"padding:4px 9px; font-size:10.5px; min-height:auto;\">Quitar</button>\n              </div>\n            ").join("") + "\n          </div>" : "<p style=\"font-size:11.5px; color:var(--text-faint); margin-top:8px;\">Todavía no hay ninguna en la lista.</p>") + "\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Lista rápida (Trabajo)</p>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 8px 0;\">Materiales frecuentes para elegir de un vistazo junto al chat de cualquier orden o proyecto.</p>\n          <div class=\"manual-stock-form\" style=\"margin-top:0;\">\n            <input type=\"text\" id=\"nuevoRapidoCodigo\" placeholder=\"Código (opcional)\">\n            <input type=\"text\" id=\"nuevoRapidoNombre\" placeholder=\"Nombre a mostrar\">\n            <button class=\"cam-btn\" id=\"addRapidoBtn\" style=\"flex:none;\">+ Añadir</button>\n          </div>\n          " + (_0x47d525.materialesRapidos.length ? "\n          <div style=\"margin-top:10px; max-height:160px; overflow-y:auto;\">\n            " + _0x47d525.materialesRapidos.map(_0x1f6978 => "\n              <div style=\"display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px dashed var(--border); font-size:12.5px;\">\n                <span>" + _0x1d1ab0(_0x1f6978.nombre) + (_0x1f6978.codigo ? " <span style=\"color:var(--text-faint);\">(" + _0x1d1ab0(_0x1f6978.codigo) + ")</span>" : "") + "</span>\n                <button class=\"btn-return\" data-rapido-del=\"" + _0x1f6978.id + "\" style=\"padding:4px 9px; font-size:10.5px; min-height:auto;\">Quitar</button>\n              </div>\n            ").join("") + "\n          </div>" : "<p style=\"font-size:11.5px; color:var(--text-faint); margin-top:8px;\">Todavía no hay ningún material en la lista.</p>") + "\n        </div>\n\n        " + (_0x5b23b1 ? (() => {
-        const _0x2d9f54 = _0x47d525.catalog.filter(_0xcd95ea => !_0xcd95ea.origenA3);
-        return "\n          <div class=\"panel\">\n            <p class=\"panel-title\">Salud de datos frente a A3</p>\n            <div class=\"stat-row\"><span>Artículos confirmados en A3</span><span class=\"num\" style=\"color:var(--success);\">" + (_0x47d525.catalog.length - _0x2d9f54.length) + "</span></div>\n            <div class=\"stat-row\"><span>Dados de alta a mano, sin confirmar</span><span class=\"num\" style=\"color:" + (_0x2d9f54.length ? "var(--warning)" : "var(--success)") + ";\">" + _0x2d9f54.length + "</span></div>\n            " + (_0x2d9f54.length ? "\n            <p style=\"font-size:11.5px; color:var(--text-faint); margin:8px 0;\">Su código todavía no ha llegado desde A3 — puede ser un artículo nuevo pendiente de dar de alta allí, un código con una errata, o un duplicado.</p>\n            <div style=\"max-height:180px; overflow-y:auto;\">\n              " + _0x2d9f54.slice(0, 30).map(_0x395629 => "\n                <div style=\"padding:5px 0; border-bottom:1px dashed var(--border); font-size:12px;\">\n                  <span style=\"font-weight:700;\">" + _0x1d1ab0(_0x395629.code) + "</span> — " + _0x1d1ab0(_0x395629.desc) + "\n                </div>\n              ").join("") + "\n              " + (_0x2d9f54.length > 30 ? "<p style=\"font-size:11px; color:var(--text-faint); margin-top:6px;\">… y " + (_0x2d9f54.length - 30) + " más.</p>" : "") + "\n            </div>\n            " : "") + "\n          </div>";
-      })() : "") + "\n\n        " + (_0x47d525.groups.montaje.length || _0x47d525.groups.proyecto.length ? "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Histórico general</p>\n          " + (_0x47d525.groups.montaje.length ? "\n          <div class=\"stat-row\"><span>Órdenes de montaje</span><span class=\"num\">" + _0x47d525.groups.montaje.length + "</span></div>\n          <button class=\"btn\" id=\"exportAllMontajeBtn\">Exportar todas las órdenes</button>\n          " : "") + "\n          " + (_0x47d525.groups.proyecto.length ? "\n          <div class=\"stat-row\"><span>Proyectos creados</span><span class=\"num\">" + _0x47d525.groups.proyecto.length + "</span></div>\n          <button class=\"btn\" id=\"exportAllProyectoBtn\">Exportar todos los proyectos</button>\n          " : "") + "\n        </div>" : "") + "\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Actividad (últimos 30 días)</p>\n          " + _0x27a88a() + "\n        </div>\n        " : "") + "\n      ";
-      _0x231ff7("#masOpcionesAlmacenBtn").addEventListener("click", () => {
+    const _0x13ac6b = $("#sidePanel");
+    if (estado.mode === "almacen") {
+      const _0x5e2d34 = estado.catalog.filter(_0x4ecd13 => _0x4ecd13.qty <= 0).length;
+      const _0x3bf112 = estado.movements.slice(0, 10).map(_0xeec882 => "\n        <div class=\"movement-row\">\n          <span class=\"tag-" + _0xeec882.type + "\">" + _0x11c4a1(_0xeec882.type) + "</span>\n          <span class=\"m-code\">" + _0x1d1ab0(_0xeec882.code) + " <span style=\"color:var(--text-faint);\">x" + _0xeec882.qty + "</span></span>\n          <span style=\"color:var(--text-faint); font-size:11px;\">" + _0xeec882.ts + (_0xeec882.usuario ? " · " + _0x1d1ab0(_0xeec882.usuario) : "") + "</span>\n          <span class=\"m-desc\">" + _0x1d1ab0(_0xeec882.desc) + "</span>\n          <span class=\"m-origin\">" + _0x1d1ab0(_0xeec882.origin) + "</span>\n        </div>\n      ").join("");
+      _0x13ac6b.innerHTML = "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Resumen de stock</p>\n          <div class=\"stat-row\"><span>Referencias en stock</span><span class=\"num\">" + estado.catalog.length + "</span></div>\n          <div class=\"stat-row\"><span>Referencias a 0 o negativo</span><span class=\"num\">" + _0x5e2d34 + "</span></div>\n          <div class=\"stat-row\"><span>Valor total del inventario</span><span class=\"num\">" + estado.catalog.reduce((_0x338635, _0xadcaa0) => _0x338635 + (_0xadcaa0.qty > 0 ? _0xadcaa0.qty * (_0xadcaa0.coste || 0) : 0), 0).toFixed(2) + "€</span></div>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Últimos movimientos</p>\n          " + (_0x3bf112 || "<div style=\"color:var(--text-faint); font-size:12.5px;\">Sin movimientos todavía.</div>") + "\n          " + (estado.movementsArchive.length ? "\n          <p style=\"font-size:11px; color:var(--text-faint); margin-top:8px;\">\n            Histórico más antiguo archivado por mes: " + estado.movementsArchive.slice(0, 3).map(_0x204573 => _0x204573.month + " (" + _0x204573.entradas + " entr. / " + _0x204573.salidas + " sal.)").join(" · ") + (estado.movementsArchive.length > 3 ? "…" : "") + "\n          </p>" : "") + "\n        </div>\n\n        <button class=\"cam-btn\" id=\"masOpcionesAlmacenBtn\" style=\"width:100%;\">" + (_0x39b15b ? "Ocultar más opciones" : "Más opciones") + "</button>\n\n        " + (_0x39b15b ? "\n        <div class=\"panel\" style=\"margin-top:14px;\">\n          <p class=\"panel-title\">Exportar / Importar</p>\n          <button class=\"btn primary\" id=\"exportStockBtn\">Exportar stock y movimientos</button>\n          <label class=\"btn\" style=\"text-align:center; display:block;\">\n            Importar catálogo (añade y actualiza, no borra)\n            <input type=\"file\" id=\"catalogFile\" accept=\".xlsx,.xls,.csv\" style=\"display:none;\">\n          </label>\n          <input type=\"text\" id=\"catalogSearch\" placeholder=\"Buscar en el stock…\" value=\"" + _0x1a8b0d + "\" style=\"width:100%; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:9px 10px; border-radius:7px; font-size:13px; margin-top:4px;\">\n        </div>\n\n        <div class=\"panel\" style=\"border-color:var(--danger);\">\n          <p class=\"panel-title\" style=\"color:var(--danger);\">Sobrescribir todo el stock</p>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 8px 0;\">El stock queda igual que el Excel: cantidades exactas, borra lo que no esté.</p>\n          <label class=\"btn ghost-danger\" style=\"text-align:center; display:block;\">\n            Sobrescribir con este Excel\n            <input type=\"file\" id=\"overwriteCatalogFile\" accept=\".xlsx,.xls,.csv\" style=\"display:none;\">\n          </label>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Copia de seguridad</p>\n          <div class=\"backup-row\">\n            <button class=\"btn\" id=\"exportBackupBtn\">Descargar todo</button>\n            <label class=\"btn\" style=\"text-align:center; display:block;\">\n              Restaurar\n              <input type=\"file\" id=\"backupFile\" accept=\".json\" style=\"display:none;\">\n            </label>\n          </div>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Avisos</p>\n          <div class=\"manual-stock-form\" style=\"flex-direction:column;\">\n            <label style=\"font-size:11.5px; color:var(--text-muted);\">Avisar con cuántos días de margen antes de la devolución de una bobina</label>\n            <input type=\"number\" id=\"setBobinaDias\" min=\"0\" value=\"" + estado.settings.bobinaAvisoDias + "\">\n            <label style=\"font-size:11.5px; color:var(--text-muted); margin-top:6px;\">Considerar stock bajo con esta cantidad o menos</label>\n            <input type=\"number\" id=\"setStockUmbral\" min=\"0\" value=\"" + estado.settings.stockBajoUmbral + "\">\n            <label style=\"font-size:11.5px; color:var(--text-muted); margin-top:6px;\">Hora del día (0-23) a partir de la cual se hace la comprobación diaria</label>\n            <input type=\"number\" id=\"setAvisoHora\" min=\"0\" max=\"23\" value=\"" + estado.settings.avisoHora + "\">\n            <label style=\"font-size:11.5px; color:var(--text-muted); margin-top:6px;\">Correo al que quiero que me lleguen los avisos</label>\n            <input type=\"email\" id=\"setEmailDestino\" placeholder=\"tu@email.com\" value=\"" + estado.settings.emailDestino + "\">\n            <label style=\"display:flex; align-items:center; gap:6px; margin-top:8px; font-size:12.5px; color:var(--text-primary);\">\n              <input type=\"checkbox\" id=\"setSonidoEscaneo\" " + (estado.settings.sonidoEscaneo ? "checked" : "") + " style=\"width:16px; height:16px;\"> Pitido al escanear con éxito\n            </label>\n            <button class=\"btn primary\" id=\"saveSettingsBtn\" style=\"margin-top:8px;\">Guardar avisos</button>\n          </div>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Ubicaciones</p>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 8px 0;\">Lista para autocompletar — la ubicación sigue siendo texto libre, esto solo evita erratas.</p>\n          <div class=\"manual-stock-form\" style=\"margin-top:0;\">\n            <input type=\"text\" id=\"nuevaUbicacionInput\" placeholder=\"Nueva ubicación (ej. Pasillo 3 - B2)\">\n            <button class=\"cam-btn\" id=\"addUbicacionBtn\" style=\"flex:none;\">+ Añadir</button>\n          </div>\n          " + (estado.ubicaciones.length ? "\n          <div style=\"margin-top:10px; max-height:160px; overflow-y:auto;\">\n            " + estado.ubicaciones.map(_0x22784c => "\n              <div style=\"display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px dashed var(--border); font-size:12.5px;\">\n                <span>" + _0x1d1ab0(_0x22784c) + "</span>\n                <button class=\"btn-return\" data-ubicacion-del=\"" + _0x1d1ab0(_0x22784c) + "\" style=\"padding:4px 9px; font-size:10.5px; min-height:auto;\">Quitar</button>\n              </div>\n            ").join("") + "\n          </div>" : "<p style=\"font-size:11.5px; color:var(--text-faint); margin-top:8px;\">Todavía no hay ninguna en la lista.</p>") + "\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Lista rápida (Trabajo)</p>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 8px 0;\">Materiales frecuentes para elegir de un vistazo junto al chat de cualquier orden o proyecto.</p>\n          <div class=\"manual-stock-form\" style=\"margin-top:0;\">\n            <input type=\"text\" id=\"nuevoRapidoCodigo\" placeholder=\"Código (opcional)\">\n            <input type=\"text\" id=\"nuevoRapidoNombre\" placeholder=\"Nombre a mostrar\">\n            <button class=\"cam-btn\" id=\"addRapidoBtn\" style=\"flex:none;\">+ Añadir</button>\n          </div>\n          " + (estado.materialesRapidos.length ? "\n          <div style=\"margin-top:10px; max-height:160px; overflow-y:auto;\">\n            " + estado.materialesRapidos.map(_0x1f6978 => "\n              <div style=\"display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px dashed var(--border); font-size:12.5px;\">\n                <span>" + _0x1d1ab0(_0x1f6978.nombre) + (_0x1f6978.codigo ? " <span style=\"color:var(--text-faint);\">(" + _0x1d1ab0(_0x1f6978.codigo) + ")</span>" : "") + "</span>\n                <button class=\"btn-return\" data-rapido-del=\"" + _0x1f6978.id + "\" style=\"padding:4px 9px; font-size:10.5px; min-height:auto;\">Quitar</button>\n              </div>\n            ").join("") + "\n          </div>" : "<p style=\"font-size:11.5px; color:var(--text-faint); margin-top:8px;\">Todavía no hay ningún material en la lista.</p>") + "\n        </div>\n\n        " + (hayBackend ? (() => {
+        const _0x2d9f54 = estado.catalog.filter(_0xcd95ea => !_0xcd95ea.origenA3);
+        return "\n          <div class=\"panel\">\n            <p class=\"panel-title\">Salud de datos frente a A3</p>\n            <div class=\"stat-row\"><span>Artículos confirmados en A3</span><span class=\"num\" style=\"color:var(--success);\">" + (estado.catalog.length - _0x2d9f54.length) + "</span></div>\n            <div class=\"stat-row\"><span>Dados de alta a mano, sin confirmar</span><span class=\"num\" style=\"color:" + (_0x2d9f54.length ? "var(--warning)" : "var(--success)") + ";\">" + _0x2d9f54.length + "</span></div>\n            " + (_0x2d9f54.length ? "\n            <p style=\"font-size:11.5px; color:var(--text-faint); margin:8px 0;\">Su código todavía no ha llegado desde A3 — puede ser un artículo nuevo pendiente de dar de alta allí, un código con una errata, o un duplicado.</p>\n            <div style=\"max-height:180px; overflow-y:auto;\">\n              " + _0x2d9f54.slice(0, 30).map(_0x395629 => "\n                <div style=\"padding:5px 0; border-bottom:1px dashed var(--border); font-size:12px;\">\n                  <span style=\"font-weight:700;\">" + _0x1d1ab0(_0x395629.code) + "</span> — " + _0x1d1ab0(_0x395629.desc) + "\n                </div>\n              ").join("") + "\n              " + (_0x2d9f54.length > 30 ? "<p style=\"font-size:11px; color:var(--text-faint); margin-top:6px;\">… y " + (_0x2d9f54.length - 30) + " más.</p>" : "") + "\n            </div>\n            " : "") + "\n          </div>";
+      })() : "") + "\n\n        " + (estado.groups.montaje.length || estado.groups.proyecto.length ? "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Histórico general</p>\n          " + (estado.groups.montaje.length ? "\n          <div class=\"stat-row\"><span>Órdenes de montaje</span><span class=\"num\">" + estado.groups.montaje.length + "</span></div>\n          <button class=\"btn\" id=\"exportAllMontajeBtn\">Exportar todas las órdenes</button>\n          " : "") + "\n          " + (estado.groups.proyecto.length ? "\n          <div class=\"stat-row\"><span>Proyectos creados</span><span class=\"num\">" + estado.groups.proyecto.length + "</span></div>\n          <button class=\"btn\" id=\"exportAllProyectoBtn\">Exportar todos los proyectos</button>\n          " : "") + "\n        </div>" : "") + "\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Actividad (últimos 30 días)</p>\n          " + _0x27a88a() + "\n        </div>\n        " : "") + "\n      ";
+      $("#masOpcionesAlmacenBtn").addEventListener("click", () => {
         _0x39b15b = !_0x39b15b;
-        _0x474249();
+        render();
       });
-      const _0x326d1b = _0x231ff7("#exportStockBtn");
+      const _0x326d1b = $("#exportStockBtn");
       if (_0x326d1b) {
         _0x326d1b.addEventListener("click", _0x54b127);
       }
-      const _0x5eb647 = _0x231ff7("#catalogFile");
+      const _0x5eb647 = $("#catalogFile");
       if (_0x5eb647) {
         _0x5eb647.addEventListener("change", _0x3238c1 => {
           if (_0x3238c1.target.files[0]) {
@@ -10758,7 +10838,7 @@
           }
         });
       }
-      const _0x393efa = _0x231ff7("#overwriteCatalogFile");
+      const _0x393efa = $("#overwriteCatalogFile");
       if (_0x393efa) {
         _0x393efa.addEventListener("change", _0x206d1a => {
           if (_0x206d1a.target.files[0]) {
@@ -10767,11 +10847,11 @@
           _0x206d1a.target.value = "";
         });
       }
-      const _0x19a426 = _0x231ff7("#exportBackupBtn");
+      const _0x19a426 = $("#exportBackupBtn");
       if (_0x19a426) {
         _0x19a426.addEventListener("click", _0x4c08ae);
       }
-      const _0x51b855 = _0x231ff7("#backupFile");
+      const _0x51b855 = $("#backupFile");
       if (_0x51b855) {
         _0x51b855.addEventListener("change", _0x41cbdc => {
           if (_0x41cbdc.target.files[0]) {
@@ -10779,21 +10859,21 @@
           }
         });
       }
-      const _0x459f01 = _0x231ff7("#saveSettingsBtn");
+      const _0x459f01 = $("#saveSettingsBtn");
       if (_0x459f01) {
         _0x459f01.addEventListener("click", () => {
-          _0x47d525.settings.bobinaAvisoDias = Math.max(0, parseInt(_0x231ff7("#setBobinaDias").value, 10) || 0);
-          _0x47d525.settings.sonidoEscaneo = _0x231ff7("#setSonidoEscaneo").checked;
-          _0x47d525.settings.stockBajoUmbral = Math.max(0, parseInt(_0x231ff7("#setStockUmbral").value, 10) || 0);
-          _0x47d525.settings.avisoHora = Math.min(23, Math.max(0, parseInt(_0x231ff7("#setAvisoHora").value, 10) || 0));
-          _0x47d525.settings.emailDestino = _0x231ff7("#setEmailDestino").value.trim();
+          estado.settings.bobinaAvisoDias = Math.max(0, parseInt($("#setBobinaDias").value, 10) || 0);
+          estado.settings.sonidoEscaneo = $("#setSonidoEscaneo").checked;
+          estado.settings.stockBajoUmbral = Math.max(0, parseInt($("#setStockUmbral").value, 10) || 0);
+          estado.settings.avisoHora = Math.min(23, Math.max(0, parseInt($("#setAvisoHora").value, 10) || 0));
+          estado.settings.emailDestino = $("#setEmailDestino").value.trim();
           _0x37360d();
           _0x279f78("Configuración de avisos guardada.");
-          _0x474249();
+          render();
         });
       }
-      const _0x2641d4 = _0x231ff7("#addUbicacionBtn");
-      const _0x396f4e = _0x231ff7("#nuevaUbicacionInput");
+      const _0x2641d4 = $("#addUbicacionBtn");
+      const _0x396f4e = $("#nuevaUbicacionInput");
       if (_0x2641d4) {
         _0x2641d4.addEventListener("click", () => {
           _0x1a6410(_0x396f4e.value);
@@ -10812,9 +10892,9 @@
       _0x13ac6b.querySelectorAll("[data-ubicacion-del]").forEach(_0x16966b => {
         _0x16966b.addEventListener("click", () => _0x401198(_0x16966b.dataset.ubicacionDel));
       });
-      const _0x1bbe33 = _0x231ff7("#addRapidoBtn");
-      const _0x21438b = _0x231ff7("#nuevoRapidoCodigo");
-      const _0xf70977 = _0x231ff7("#nuevoRapidoNombre");
+      const _0x1bbe33 = $("#addRapidoBtn");
+      const _0x21438b = $("#nuevoRapidoCodigo");
+      const _0xf70977 = $("#nuevoRapidoNombre");
       if (_0x1bbe33) {
         _0x1bbe33.addEventListener("click", () => {
           _0x1bf731(_0x21438b.value, _0xf70977.value);
@@ -10825,7 +10905,7 @@
       _0x13ac6b.querySelectorAll("[data-rapido-del]").forEach(_0x4ea113 => {
         _0x4ea113.addEventListener("click", () => _0x311314(_0x4ea113.dataset.rapidoDel));
       });
-      const _0x200e4b = _0x231ff7("#catalogSearch");
+      const _0x200e4b = $("#catalogSearch");
       const _0x27a6f1 = _0x5cfc5(() => _0x1c3cca(), 220);
       if (_0x200e4b) {
         _0x200e4b.addEventListener("input", _0x44091e => {
@@ -10834,24 +10914,24 @@
           _0x27a6f1();
         });
       }
-      const _0x3214ef = _0x231ff7("#exportAllMontajeBtn");
+      const _0x3214ef = $("#exportAllMontajeBtn");
       if (_0x3214ef) {
         _0x3214ef.addEventListener("click", () => _0x5c71d9("montaje"));
       }
-      const _0x1364c6 = _0x231ff7("#exportAllProyectoBtn");
+      const _0x1364c6 = $("#exportAllProyectoBtn");
       if (_0x1364c6) {
         _0x1364c6.addEventListener("click", () => _0x5c71d9("proyecto"));
       }
       return;
     }
-    if (_0x47d525.mode === "pedido") {
-      const _0x120c96 = _0x47d525.pedidoItems.reduce((_0xebbf94, _0x492dd4) => _0xebbf94 + _0x492dd4.qty, 0);
-      _0x13ac6b.innerHTML = "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Resumen del pedido</p>\n          <div class=\"stat-row\"><span>Referencias</span><span class=\"num\">" + _0x47d525.pedidoItems.length + "</span></div>\n          <div class=\"stat-row\"><span>Unidades totales</span><span class=\"num\">" + _0x120c96 + "</span></div>\n        </div>\n        <div class=\"panel\">\n          <p class=\"panel-title\">Enviar</p>\n          <button class=\"btn primary\" id=\"sendPedidoBtn\">Enviar pedido por correo</button>\n          <button class=\"btn ghost-danger\" id=\"clearPedidoBtn\">Vaciar pedido</button>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin-top:8px;\">" + (_0x47d525.settings.emailDestino ? "Se envía a " + _0x47d525.settings.emailDestino + "." : "Falta configurar el correo en Almacén → Avisos.") + "</p>\n        </div>\n      ";
-      _0x231ff7("#sendPedidoBtn").addEventListener("click", _0x59a0b6);
-      _0x231ff7("#clearPedidoBtn").addEventListener("click", _0x26d93b);
+    if (estado.mode === "pedido") {
+      const _0x120c96 = estado.pedidoItems.reduce((_0xebbf94, _0x492dd4) => _0xebbf94 + _0x492dd4.qty, 0);
+      _0x13ac6b.innerHTML = "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Resumen del pedido</p>\n          <div class=\"stat-row\"><span>Referencias</span><span class=\"num\">" + estado.pedidoItems.length + "</span></div>\n          <div class=\"stat-row\"><span>Unidades totales</span><span class=\"num\">" + _0x120c96 + "</span></div>\n        </div>\n        <div class=\"panel\">\n          <p class=\"panel-title\">Enviar</p>\n          <button class=\"btn primary\" id=\"sendPedidoBtn\">Enviar pedido por correo</button>\n          <button class=\"btn ghost-danger\" id=\"clearPedidoBtn\">Vaciar pedido</button>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin-top:8px;\">" + (estado.settings.emailDestino ? "Se envía a " + estado.settings.emailDestino + "." : "Falta configurar el correo en Almacén → Avisos.") + "</p>\n        </div>\n      ";
+      $("#sendPedidoBtn").addEventListener("click", _0x59a0b6);
+      $("#clearPedidoBtn").addEventListener("click", _0x26d93b);
       return;
     }
-    if (_0x47d525.mode === "mantenimiento") {
+    if (estado.mode === "mantenimiento") {
       const _0x1a1107 = _0x267a5a();
       if (!_0x1a1107) {
         _0x13ac6b.innerHTML = "";
@@ -10864,7 +10944,7 @@
       _0x13ac6b.innerHTML = "\n        <div class=\"panel\">\n          <p class=\"panel-title\">" + _0x1d1ab0(_0x1a1107.matricula) + "</p>\n          <div class=\"stat-row\"><span>Marca / modelo</span><span class=\"num\" style=\"font-size:12px;\">" + _0x1d1ab0(_0x1a1107.marca || "—") + " " + _0x1d1ab0(_0x1a1107.modelo || "") + "</span></div>\n          <div class=\"stat-row\"><span>Año</span><span class=\"num\">" + _0x1d1ab0(_0x1a1107.anio || "—") + "</span></div>\n          <div class=\"stat-row\"><span>Km actuales</span><span class=\"num\">" + (_0x1a1107.kmActual || 0).toLocaleString("es-ES") + "</span></div>\n        </div>\n        " + (_0x1a1107.mecanicoNombre || _0x1a1107.mecanicoContacto ? "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Mecánico habitual</p>\n          " + (_0x1a1107.mecanicoNombre ? "<div class=\"stat-row\"><span>Nombre</span><span class=\"num\" style=\"font-size:12px;\">" + _0x1d1ab0(_0x1a1107.mecanicoNombre) + "</span></div>" : "") + "\n          " + (_0x1a1107.mecanicoContacto ? "<div class=\"stat-row\"><span>Contacto</span><span class=\"num\" style=\"font-size:12px;\">" + _0x1d1ab0(_0x1a1107.mecanicoContacto) + "</span></div>" : "") + "\n        </div>\n        " : "") + "\n        " + (_0x219008.length ? "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Próximas revisiones</p>\n          " + _0x219008.map(_0x54aa01 => "<div class=\"stat-row\"><span>" + _0x1d1ab0(_0x54aa01.nombre) + "</span><span class=\"num\" style=\"color:" + (_0x54aa01.calc.estado === "atrasada" ? "var(--danger)" : "var(--warning)") + ";\">" + (_0x54aa01.calc.estado === "atrasada" ? "Atrasada" : "Pronto") + "</span></div>").join("") + "\n        </div>\n        " : "") + "\n      ";
       return;
     }
-    if (_0x47d525.mode === "resumen") {
+    if (estado.mode === "resumen") {
       _0x13ac6b.innerHTML = "";
       return;
     }
@@ -10876,36 +10956,36 @@
       const _0x550752 = _0x3d7c30.kind === "ok" ? "var(--success)" : _0x3d7c30.kind === "nueva" || _0x3d7c30.kind === "sin-stock" ? "var(--danger)" : "var(--accent)";
       return "<div style=\"font-size:12px; padding:5px 0; border-bottom:1px dashed var(--border);\">\n              <strong>" + _0x1d1ab0(_0x3d7c30.code || "(sin código)") + "</strong> · " + _0x1d1ab0(_0x3d7c30.desc || "") + " · " + _0x3d7c30.requested + " uds\n              <div style=\"color:" + _0x550752 + ";\">" + _0x36151e + "</div>\n            </div>";
     }).join("") + "\n        </div>\n        <button class=\"btn primary\" id=\"applyOrderPlanBtn\">Confirmar y aplicar</button>\n        <button class=\"btn ghost-danger\" id=\"cancelOrderPlanBtn\">Cancelar</button>\n      </div>\n    " : "";
-    _0x13ac6b.innerHTML = _0x5a7b39 + ("\n      <div class=\"panel\">\n        <p class=\"panel-title\">Resumen</p>\n        <div class=\"stat-row\"><span>Solicitud pendiente</span><span class=\"num\">" + (_0x3a7b10 ? _0x3a7b10.pendiente.items.reduce((_0x51442e, _0x376934) => _0x51442e + _0x376934.qty, 0) : 0) + " uds</span></div>\n        <div class=\"stat-row\"><span>Unidades servidas</span><span class=\"num\">" + _0xdc07e8 + "</span></div>\n        <div class=\"stat-row\"><span>Unidades devueltas</span><span class=\"num\">" + _0x57870e + "</span></div>\n        <div class=\"stat-row\"><span>Referencias en stock</span><span class=\"num\">" + _0x47d525.catalog.length + "</span></div>\n      </div>\n\n      <button class=\"cam-btn\" id=\"masOpcionesTrabajoLateralBtn\" style=\"width:100%;\">" + (_0x363017 ? "Ocultar más opciones" : "Más opciones") + "</button>\n\n      " + (_0x363017 ? "\n      <div class=\"panel\" style=\"margin-top:14px;\">\n        <p class=\"panel-title\">Exportar / Gestionar</p>\n        <button class=\"btn primary\" id=\"exportBtn\" " + (_0x3a7b10 ? "" : "disabled") + ">Exportar a Excel</button>\n        <button class=\"btn ghost-danger\" id=\"clearBtn\" " + (_0x3a7b10 ? "" : "disabled") + ">Vaciar esta lista</button>\n      </div>\n\n      <div class=\"panel\">\n        <p class=\"panel-title\">Crear " + (_0x47d525.mode === "montaje" ? "orden" : "líneas") + " desde archivo</p>\n        <label class=\"btn\" style=\"text-align:center; display:block; " + (_0x3a7b10 ? "" : "opacity:.5; pointer-events:none;") + "\">\n          Subir Excel / CSV / PDF\n          <input type=\"file\" id=\"orderFile\" accept=\".xlsx,.xls,.csv,.pdf\" style=\"display:none;\" " + (_0x3a7b10 ? "" : "disabled") + ">\n        </label>\n        <p style=\"font-size:11.5px; color:var(--text-faint); margin-top:6px;\">\n          Busca por código o referencia. El PDF es \"mejor esfuerzo\" — si falla, usa el Excel/CSV.\n        </p>\n      </div>\n\n      <div class=\"panel\">\n        <p class=\"panel-title\">Buscar en el stock</p>\n        <input type=\"text\" id=\"catalogSearch\" placeholder=\"Buscar por código o referencia…\" value=\"" + _0x1a8b0d + "\" style=\"width:100%; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:9px 10px; border-radius:7px; font-size:13px;\">\n        <div id=\"catalogResults\" style=\"margin-top:8px; max-height:220px; overflow-y:auto;\"></div>\n      </div>\n\n      " + (_0x47d525.groups[_0x47d525.mode].length ? "\n      <div class=\"panel\">\n        <p class=\"panel-title\">Histórico general</p>\n        <div class=\"stat-row\"><span>" + (_0x47d525.mode === "montaje" ? "Órdenes creadas" : "Proyectos creados") + "</span><span class=\"num\">" + _0x47d525.groups[_0x47d525.mode].length + "</span></div>\n        <button class=\"btn\" id=\"exportAllBtn\">" + (_0x47d525.mode === "montaje" ? "Exportar todas las órdenes" : "Exportar todos los proyectos") + "</button>\n      </div>" : "") + "\n\n      " + (() => {
-      const _0x5ce0ff = _0x47d525.deliveries.filter(_0xd487c3 => _0xd487c3.groupKind === _0x47d525.mode && _0xd487c3.groupName === _0x47d525.current[_0x47d525.mode]).slice(0, 8);
+    _0x13ac6b.innerHTML = _0x5a7b39 + ("\n      <div class=\"panel\">\n        <p class=\"panel-title\">Resumen</p>\n        <div class=\"stat-row\"><span>Solicitud pendiente</span><span class=\"num\">" + (_0x3a7b10 ? _0x3a7b10.pendiente.items.reduce((_0x51442e, _0x376934) => _0x51442e + _0x376934.qty, 0) : 0) + " uds</span></div>\n        <div class=\"stat-row\"><span>Unidades servidas</span><span class=\"num\">" + _0xdc07e8 + "</span></div>\n        <div class=\"stat-row\"><span>Unidades devueltas</span><span class=\"num\">" + _0x57870e + "</span></div>\n        <div class=\"stat-row\"><span>Referencias en stock</span><span class=\"num\">" + estado.catalog.length + "</span></div>\n      </div>\n\n      <button class=\"cam-btn\" id=\"masOpcionesTrabajoLateralBtn\" style=\"width:100%;\">" + (_0x363017 ? "Ocultar más opciones" : "Más opciones") + "</button>\n\n      " + (_0x363017 ? "\n      <div class=\"panel\" style=\"margin-top:14px;\">\n        <p class=\"panel-title\">Exportar / Gestionar</p>\n        <button class=\"btn primary\" id=\"exportBtn\" " + (_0x3a7b10 ? "" : "disabled") + ">Exportar a Excel</button>\n        <button class=\"btn ghost-danger\" id=\"clearBtn\" " + (_0x3a7b10 ? "" : "disabled") + ">Vaciar esta lista</button>\n      </div>\n\n      <div class=\"panel\">\n        <p class=\"panel-title\">Crear " + (estado.mode === "montaje" ? "orden" : "líneas") + " desde archivo</p>\n        <label class=\"btn\" style=\"text-align:center; display:block; " + (_0x3a7b10 ? "" : "opacity:.5; pointer-events:none;") + "\">\n          Subir Excel / CSV / PDF\n          <input type=\"file\" id=\"orderFile\" accept=\".xlsx,.xls,.csv,.pdf\" style=\"display:none;\" " + (_0x3a7b10 ? "" : "disabled") + ">\n        </label>\n        <p style=\"font-size:11.5px; color:var(--text-faint); margin-top:6px;\">\n          Busca por código o referencia. El PDF es \"mejor esfuerzo\" — si falla, usa el Excel/CSV.\n        </p>\n      </div>\n\n      <div class=\"panel\">\n        <p class=\"panel-title\">Buscar en el stock</p>\n        <input type=\"text\" id=\"catalogSearch\" placeholder=\"Buscar por código o referencia…\" value=\"" + _0x1a8b0d + "\" style=\"width:100%; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:9px 10px; border-radius:7px; font-size:13px;\">\n        <div id=\"catalogResults\" style=\"margin-top:8px; max-height:220px; overflow-y:auto;\"></div>\n      </div>\n\n      " + (estado.groups[estado.mode].length ? "\n      <div class=\"panel\">\n        <p class=\"panel-title\">Histórico general</p>\n        <div class=\"stat-row\"><span>" + (estado.mode === "montaje" ? "Órdenes creadas" : "Proyectos creados") + "</span><span class=\"num\">" + estado.groups[estado.mode].length + "</span></div>\n        <button class=\"btn\" id=\"exportAllBtn\">" + (estado.mode === "montaje" ? "Exportar todas las órdenes" : "Exportar todos los proyectos") + "</button>\n      </div>" : "") + "\n\n      " + (() => {
+      const _0x5ce0ff = estado.deliveries.filter(_0xd487c3 => _0xd487c3.groupKind === estado.mode && _0xd487c3.groupName === estado.current[estado.mode]).slice(0, 8);
       if (!_0x5ce0ff.length) {
         return "";
       }
       return "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Entregas firmadas (esta orden/proyecto)</p>\n          " + _0x5ce0ff.map(_0xe4bef7 => "\n            <div style=\"padding:8px 0; border-bottom:1px dashed var(--border); font-size:12px; display:flex; gap:8px; align-items:center;\">\n              <img src=\"" + _0xe4bef7.signature + "\" alt=\"firma\" style=\"width:52px; height:32px; object-fit:contain; background:#fff; border-radius:4px; border:1px solid var(--border);\">\n              <div style=\"flex:1;\">\n                <div>Pedido: " + _0x1d1ab0(_0xe4bef7.requesterName || "—") + " · Recogió: " + _0x1d1ab0(_0xe4bef7.recipientName || "—") + "</div>\n                <div style=\"color:var(--text-faint); font-size:11px;\">" + _0xe4bef7.ts + " · " + _0xe4bef7.items.length + " ref.</div>\n              </div>\n            </div>\n          ").join("") + "\n          <button class=\"btn\" id=\"exportDeliveriesBtn\" style=\"margin-top:8px;\">Exportar historial de entregas</button>\n        </div>";
     })() + "\n      " : "") + "\n    ");
-    const _0x129374 = _0x231ff7("#masOpcionesTrabajoLateralBtn");
+    const _0x129374 = $("#masOpcionesTrabajoLateralBtn");
     if (_0x129374) {
       _0x129374.addEventListener("click", () => {
         _0x363017 = !_0x363017;
-        _0x474249();
+        render();
       });
     }
-    const _0x5b4a35 = _0x231ff7("#exportBtn");
+    const _0x5b4a35 = $("#exportBtn");
     if (_0x5b4a35) {
       _0x5b4a35.addEventListener("click", () => {
-        const _0x2a1a5e = _0x47d525.current[_0x47d525.mode] || _0x47d525.mode;
-        _0x55e21e(_0x3a7b10, "materiales_" + _0x1e8f19(_0x2a1a5e) + "_" + Date.now() + ".xlsx", _0x2a1a5e);
+        const _0x2a1a5e = estado.current[estado.mode] || estado.mode;
+        _0x55e21e(_0x3a7b10, "materiales_" + aSlug(_0x2a1a5e) + "_" + Date.now() + ".xlsx", _0x2a1a5e);
       });
     }
-    const _0xe713b2 = _0x231ff7("#clearBtn");
+    const _0xe713b2 = $("#clearBtn");
     if (_0xe713b2) {
       _0xe713b2.addEventListener("click", _0x17cb6c);
     }
-    const _0x535398 = _0x231ff7("#exportDeliveriesBtn");
+    const _0x535398 = $("#exportDeliveriesBtn");
     if (_0x535398) {
       _0x535398.addEventListener("click", _0x3131a5);
     }
-    const _0xedb5dd = _0x231ff7("#orderFile");
+    const _0xedb5dd = $("#orderFile");
     if (_0xedb5dd) {
       _0xedb5dd.addEventListener("change", _0x5eae90 => {
         if (_0x5eae90.target.files[0]) {
@@ -10914,15 +10994,15 @@
         _0x5eae90.target.value = "";
       });
     }
-    const _0x44058c = _0x231ff7("#applyOrderPlanBtn");
+    const _0x44058c = $("#applyOrderPlanBtn");
     if (_0x44058c) {
       _0x44058c.addEventListener("click", _0x1305ba);
     }
-    const _0x37e43e = _0x231ff7("#cancelOrderPlanBtn");
+    const _0x37e43e = $("#cancelOrderPlanBtn");
     if (_0x37e43e) {
       _0x37e43e.addEventListener("click", _0x58f658);
     }
-    const _0x32dcff = _0x231ff7("#catalogSearch");
+    const _0x32dcff = $("#catalogSearch");
     if (_0x32dcff) {
       const _0x17fd94 = _0x5cfc5(() => _0x42ddc6(), 220);
       _0x32dcff.addEventListener("input", _0x236369 => {
@@ -10931,13 +11011,13 @@
       });
     }
     _0x42ddc6();
-    const _0x15168d = _0x231ff7("#exportAllBtn");
+    const _0x15168d = $("#exportAllBtn");
     if (_0x15168d) {
-      _0x15168d.addEventListener("click", () => _0x5c71d9(_0x47d525.mode));
+      _0x15168d.addEventListener("click", () => _0x5c71d9(estado.mode));
     }
   }
   function _0x42ddc6() {
-    const _0x538deb = _0x231ff7("#catalogResults");
+    const _0x538deb = $("#catalogResults");
     if (!_0x538deb) {
       return;
     }
@@ -10946,7 +11026,7 @@
       _0x538deb.innerHTML = "";
       return;
     }
-    const _0x53bac6 = _0x47d525.catalog.filter(_0x143cab => _0x143cab.code.toLowerCase().includes(_0x397aba) || _0x143cab.desc.toLowerCase().includes(_0x397aba) || _0x143cab.referencia && _0x143cab.referencia.toLowerCase().includes(_0x397aba));
+    const _0x53bac6 = estado.catalog.filter(_0x143cab => _0x143cab.code.toLowerCase().includes(_0x397aba) || _0x143cab.desc.toLowerCase().includes(_0x397aba) || _0x143cab.referencia && _0x143cab.referencia.toLowerCase().includes(_0x397aba));
     if (!_0x53bac6.length) {
       _0x538deb.innerHTML = "<div style=\"color:var(--text-faint); font-size:12.5px;\">Sin coincidencias.</div>";
       return;
