@@ -34,7 +34,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;700;800&family=Saira:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Control de Materiales</title>
@@ -163,7 +163,7 @@
   html,html{overscroll-behavior-y:contain;}body{margin:0;padding:0;min-height:100vh; overflow-x:hidden; overflow-y:visible; max-width:100%; background:#0D0E10; overscroll-behavior-y:contain;}
   html.tema-claro,html.tema-claro body{background:#E9E5D8;}
   body{
-    font-family:"Rajdhani",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-family:var(--letra);
     color:var(--text-primary);
     -webkit-font-smoothing:antialiased;
   }
@@ -208,7 +208,7 @@
     display:block;
   }
   h1{
-    font-family:"Big Shoulders Display","Arial Narrow",Arial,sans-serif;
+    font-family:var(--letra-cartel);
     text-transform:uppercase;
     letter-spacing:.01em;
     font-size:32px;
@@ -239,7 +239,7 @@
     background:transparent;
     border:none;
     color:var(--text-muted);
-    font-family:"Big Shoulders Display","Arial Narrow",Arial,sans-serif;
+    font-family:var(--letra-cartel);
     text-transform:uppercase;
     letter-spacing:.05em;
     font-size:14px;
@@ -545,7 +545,7 @@
     background:var(--accent-soft);
   }
   .ticket-title{
-    font-family:"Big Shoulders Display","Arial Narrow",Arial,sans-serif;
+    font-family:var(--letra-cartel);
     text-transform:uppercase;
     font-size:13px;
     font-weight:700;
@@ -750,7 +750,7 @@
   .tag-eliminado{background:var(--bg-raised-2); color:var(--text-muted);}
 
   .panel-title{
-    font-family:"Big Shoulders Display","Arial Narrow",Arial,sans-serif;
+    font-family:var(--letra-cartel);
     text-transform:uppercase;
     font-size:12.5px;
     font-weight:700;
@@ -1104,6 +1104,164 @@
   @media (max-width:1000px){
     #autoEnvioBarra{bottom:76px;}
   }
+  /* ═══ Señalética de nave ═══════════════════════════════════════════════════
+     Cada sección es un pasillo señalizado. --zona es el color de la zona (relleno de carteles y
+     de la pestaña activa, siempre con tinta oscura encima); --accent es su versión segura para texto.
+     La cinta amarilla y negra solo aparece en avisos. */
+  :root{
+    --bg-base:#121417; --bg-panel:#1B1F23; --bg-raised:#242A30; --bg-raised-2:#2E353C;
+    --border:#3A424A; --text-primary:#F2F4F5; --text-muted:#A9B1B9; --text-faint:#959EA7;
+    --success:#2FBF71; --success-soft:rgba(47,191,113,.14);
+    --danger:#FF6B5E; --danger-soft:rgba(255,107,94,.14);
+    --warning:#FFB020; --warning-soft:rgba(255,176,32,.14);
+    --cinta:#FFC20E; --tinta:#121417;
+    --zona:#C9D1D8; --accent:#C9D1D8; --accent-dim:#6B747C; --accent-soft:rgba(201,209,216,.14); --lcd-green:var(--zona);
+    --letra-cartel:"Saira Condensed","Arial Narrow",sans-serif;
+    --letra:"Saira",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --radio:3px;
+  }
+  #app.mode-resumen{--zona:#C9D1D8; --accent:#C9D1D8; --accent-soft:rgba(201,209,216,.14);}
+  #app.mode-montaje{--zona:#FF8A1F; --accent:#FF8A1F; --accent-soft:rgba(255,138,31,.14);}
+  #app.mode-proyecto{--zona:#3DA5FF; --accent:#3DA5FF; --accent-soft:rgba(61,165,255,.14);}
+  #app.mode-almacen{--zona:#FFC20E; --accent:#FFC20E; --accent-soft:rgba(255,194,14,.14);}
+  #app.mode-pedido{--zona:#B98CFF; --accent:#B98CFF; --accent-soft:rgba(185,140,255,.14);}
+  #app.mode-mantenimiento{--zona:#3CCB7F; --accent:#3CCB7F; --accent-soft:rgba(60,203,127,.14);}
+  #app.mode-trabajadores{--zona:#2EC4B6; --accent:#2EC4B6; --accent-soft:rgba(46,196,182,.14);}
+
+  html.tema-claro, #app.tema-claro{
+    --bg-base:#E4E6E3; --bg-panel:#FFFFFF; --bg-raised:#F1F2EF; --bg-raised-2:#E3E5E1;
+    --border:#B9BEC2; --text-primary:#121417; --text-muted:#3F464D; --text-faint:#575E65;
+    --success:#1A6B3C; --success-soft:rgba(26,107,60,.12);
+    --danger:#B3261E; --danger-soft:rgba(179,38,30,.10);
+    --warning:#8A5300; --warning-soft:rgba(138,83,0,.12);
+  }
+  #app.tema-claro.mode-resumen{--accent:#4A525A;}
+  #app.tema-claro.mode-montaje{--accent:#9C4208;}
+  #app.tema-claro.mode-proyecto{--accent:#1565C0;}
+  #app.tema-claro.mode-almacen{--accent:#7A5800;}
+  #app.tema-claro.mode-pedido{--accent:#7B3FC4;}
+  #app.tema-claro.mode-mantenimiento{--accent:#1A6B3C;}
+  #app.tema-claro.mode-trabajadores{--accent:#0B6B63;}
+  #app.tema-claro.mode-resumen{--zona:#9AA3AB;}
+
+  body, html.tema-claro body{background:var(--bg-base);}
+  body{font-family:var(--letra); font-variant-numeric:tabular-nums; font-size:15px;}
+  ::selection{background:var(--zona); color:var(--tinta);}
+  input, textarea{caret-color:var(--zona);}
+  ::-webkit-scrollbar-thumb{background:var(--border); border-radius:var(--radio);}
+  #app, #app.tema-claro{background:var(--bg-base);}
+
+  /* Cartel de pasillo: el h1 dice en qué sección estás */
+  .tecnomat-logo{margin-bottom:10px;}
+  .tecnomat-logo-img{height:34px; border-radius:var(--radio);}
+  #app > h1{
+    display:inline-flex; align-items:stretch; gap:0; margin:0 0 12px;
+    background:var(--zona); color:var(--tinta);
+    font-family:var(--letra-cartel); font-weight:800; font-size:28px; line-height:1; letter-spacing:.03em;
+    clip-path:polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+    transition:background-color .25s cubic-bezier(.16,1,.3,1);
+  }
+  #app > h1 .pasillo-ico{display:flex; align-items:center; padding:10px 12px; background:var(--tinta); color:var(--zona);}
+  #app > h1 .pasillo-ico svg{width:24px; height:24px;}
+  #app > h1 .pasillo-txt{display:flex; align-items:center; padding:10px 22px 10px 14px; text-transform:uppercase;}
+  .subtitle{color:var(--text-muted);}
+
+  /* Menú: carril lateral en ordenador, carril de suelo abajo en móvil */
+  .mode-bar, #modeBar{background:#0E1012; border-color:var(--border);}
+  #app.tema-claro .mode-bar, #app.tema-claro #modeBar{background:#1B1F23;}
+  .mode-btn{font-family:var(--letra-cartel); font-weight:700; letter-spacing:.05em; color:#A9B1B9; clip-path:none; border-radius:var(--radio);}
+  .mode-btn:hover{color:#F2F4F5; background:#1E2328;}
+  .mode-btn.active, #modeBar .mode-btn.active{background:var(--zona); color:var(--tinta);}
+  #modeBar .mode-btn{font-size:16px; padding:11px 12px;}
+  .chat-tabs-row .mode-btn{color:var(--text-muted);}
+
+  /* Placas: paneles y tickets */
+  .panel, .ticket, .scanner-panel, .global-search{
+    background:var(--bg-panel); border:1px solid var(--border); border-radius:var(--radio);
+    clip-path:none; box-shadow:0 1px 2px rgba(0,0,0,.18), 0 6px 18px rgba(0,0,0,.14);
+  }
+  .ticket{border-left:1px solid var(--border); border-top:4px solid var(--zona); border-radius:0 0 var(--radio) var(--radio);}
+  .project-bar{border-radius:var(--radio);}
+  .ticket-header{background:var(--bg-raised); border-bottom:1px solid var(--border);}
+  .panel-title, .ticket-title{
+    font-family:var(--letra-cartel); font-weight:700; font-size:15px; letter-spacing:.06em;
+    color:var(--text-primary); display:flex; align-items:center; gap:8px;
+  }
+  .panel-title::before{content:""; width:10px; height:10px; background:var(--zona); flex:none; border-radius:1px;}
+  .stat-row .num{font-family:var(--letra); color:var(--text-primary); font-weight:700;}
+  .empty-state{border:2px dashed var(--border); border-radius:var(--radio); color:var(--text-muted);}
+
+  /* Controles */
+  input[type="text"], input[type="number"], input[type="date"], input[type="email"],
+  input[type="password"], select, textarea, .global-search input, #loginForm input, .unknown-box input{
+    border:1.5px solid var(--border); border-radius:var(--radio); box-shadow:none; font-size:15px; background:var(--bg-raised);
+  }
+  input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus,
+  input[type="email"]:focus, input[type="password"]:focus, select:focus, textarea:focus, .global-search input:focus{
+    border-color:var(--zona); box-shadow:0 0 0 3px var(--accent-soft);
+  }
+  .btn, .cam-btn, .btn-return, .clasif-seg button{
+    font-family:var(--letra-cartel); font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+    border-radius:var(--radio); clip-path:none; box-shadow:none;
+  }
+  .btn{font-size:15px; min-height:48px; border:1.5px solid var(--border);}
+  .cam-btn{font-size:14px; border:1.5px solid var(--border); min-height:44px;}
+  .cam-btn:active, .btn:active{transform:translateY(1px);}
+  .btn.primary, .scanner-actions #scanSubmitBtn{
+    background:var(--zona); border-color:var(--zona); color:var(--tinta); font-weight:800;
+    clip-path:polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  }
+  .btn.primary:hover{filter:brightness(1.08);}
+  .btn-return{font-size:13px;}
+  .clasif-seg button.on{background:var(--zona); border-color:var(--zona); color:var(--tinta);}
+
+  /* Campo de escaneo: el sitio donde más se mira */
+  #scanInput{
+    background:#0E1012; color:#F2F4F5; border:2px solid var(--zona); border-radius:var(--radio); clip-path:none;
+    font-family:var(--letra); font-weight:600; font-size:22px; letter-spacing:.04em; min-height:58px;
+  }
+  #scanInput::placeholder{color:#959EA7;}
+  #scanInput:focus{border-color:var(--zona); box-shadow:0 0 0 4px var(--accent-soft);}
+  #app.tema-claro #scanInput{background:#FFFFFF; color:#121417;}
+  #app.tema-claro #scanInput::placeholder{color:#575E65;}
+
+  /* Estados como placas, no como texto suelto */
+  .tag-entrada, .tag-salida, .tag-eliminado, .tag-devuelto{
+    border:none; border-radius:2px; font-family:var(--letra-cartel); font-size:12px; letter-spacing:.06em; padding:3px 8px;
+  }
+  .tag-entrada, .tag-devuelto{background:var(--success); color:var(--tinta);}
+  .tag-salida{background:var(--danger); color:var(--tinta);}
+  #app.tema-claro .tag-entrada, #app.tema-claro .tag-devuelto, #app.tema-claro .tag-salida{color:#FFFFFF;}
+
+  /* Avisos: lo único que lleva la cinta de seguridad */
+  .alert-banner, #offlineBanner{
+    background:repeating-linear-gradient(-45deg, var(--cinta) 0 9px, var(--tinta) 9px 18px) top / 100% 7px no-repeat, var(--bg-panel);
+    color:var(--text-primary); border:1px solid var(--border); border-radius:var(--radio); padding:17px 14px 11px;
+  }
+  #offlineBanner{color:var(--danger);}
+  .status-banner{border-radius:var(--radio); font-size:13.5px; font-weight:600;}
+
+  .chat-bubble{border-radius:var(--radio); font-size:14px;}
+  .chat-bubble.chat-bubble-accent{background:var(--zona); color:var(--tinta); border-radius:var(--radio);}
+  .stock-row, .devuelto-row, .clasif-fila{border-bottom:1px solid var(--border);}
+  .row-code{font-weight:700; letter-spacing:.02em;}
+
+  .login-card{border-radius:var(--radio); border-top:4px solid var(--cinta);}
+  #loginScreen h1{color:var(--text-primary); font-family:var(--letra-cartel);}
+
+  #guiaTrabajo{border-left:1px solid var(--border); border-top:3px solid var(--zona); border-radius:var(--radio);}
+  #logoutArea .cam-btn{text-transform:none; letter-spacing:.01em; font-family:var(--letra); font-weight:600;}
+  @media (max-width:1100px){
+    #modeBar .mode-btn{font-size:10.5px; padding:6px 1px; border-radius:var(--radio) var(--radio) 0 0; letter-spacing:0;}
+    #modeBar .mode-btn .mode-btn-label{font-size:10px; letter-spacing:-.02em;}
+  }
+  @media (max-width:760px){
+    #app > h1{font-size:22px; margin:4px 0 10px;}
+    #app > h1 .pasillo-ico{padding:8px 10px;}
+    #app > h1 .pasillo-txt{padding:8px 18px 8px 12px;}
+    #scanInput{font-size:18px;}
+  }
+  @media (prefers-reduced-motion:reduce){#app > h1{transition:none;}}
 </style>
 </head>
 <body>
