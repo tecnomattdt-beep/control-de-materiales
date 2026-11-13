@@ -26,6 +26,8 @@
     if (FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey !== "TU_API_KEY" && typeof firebase !== "undefined") {
       firebase.initializeApp(FIREBASE_CONFIG);
       firestore = firebase.firestore();
+      // Lo escrito sin conexión se guarda en el dispositivo y se envía al volver, aunque se cierre la app entretanto
+      firestore.enablePersistence({ synchronizeTabs: true }).catch(() => {});
       firebaseAuth = firebase.auth();
     }
   } catch (_0x522d9f) {
@@ -148,6 +150,27 @@
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
           });
         });
+      },
+      // Lee el valor actual del servidor, le aplica `fn` y lo guarda, sin que otro dispositivo se cuele en medio.
+      // `fn` puede ejecutarse varias veces (reintentos de Firestore): debe ser pura. Sin conexión, la transacción falla.
+      async modificar(clave, fn) {
+        if (supabaseCliente) {
+          // shortcut: con Supabase activo esto es leer-aplicar-escribir, no una transacción; al activarlo, pasar a tablas o RPC
+          const valor = fn(await this.get(clave));
+          await this.set(clave, valor);
+          return valor;
+        }
+        const ref = firestore.collection(COLECCION_FIRESTORE).doc(clave);
+        let valor;
+        await firestore.runTransaction(async t => {
+          const doc = await t.get(ref);
+          valor = fn(doc.exists ? doc.data().value : null);
+          t.set(ref, {
+            value: valor,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        });
+        return valor;
       },
       watchOrdenesTrabajo(_0x4b77fb) {
         if (!supabaseCliente) {
@@ -913,7 +936,8 @@
           return await backend.set(_0x1f6b21, _0xf76f02);
         } catch (_0x47d33f) {
           localStorage.setItem(_0x5b358b + _0x1f6b21, JSON.stringify(_0xf76f02));
-          _0x279f78("Sin conexión con el servidor — \"" + _0x1f6b21 + "\" se ha guardado en este dispositivo y se sincronizará cuando vuelva.");
+          // Esta copia local solo se usa para volver a cargar en este dispositivo: no se sube sola
+          _0x279f78("No se pudo guardar \"" + _0x1f6b21 + "\" en el servidor (" + (_0x47d33f && _0x47d33f.message || "error") + "). Queda una copia solo en este dispositivo.");
           return {
             key: _0x1f6b21,
             value: _0xf76f02
@@ -953,6 +977,7 @@
   async function _0x5c6639() {
     const [_0x262bd3, _0xea2297, _0x1a2d48, _0x34c9a2, _0x4509f8, _0x17a9ad, _0x4505ef, _0x1838a1, _0x1063d2, _0x993dc3, _0x120b29, _0xe26337, _0x262efb, _0x457b08, _0x5bd3f0, _0x3712ce, _0x2f3347, _0x550237, _0x266294, _0x44019a, _0x6bec81, __trabajadoresRaw, __clasifRaw] = await Promise.all([_0x31ceb4("catalog"), _0x31ceb4("movements"), _0x31ceb4("groups_montaje"), _0x31ceb4("groups_proyecto"), _0x31ceb4("lists"), _0x31ceb4("projects"), _0x31ceb4("app_state"), _0x31ceb4("bobinas"), _0x31ceb4("settings"), _0x31ceb4("alerts_state"), _0x31ceb4("pedido_items"), _0x31ceb4("movements_archive"), _0x31ceb4("deliveries"), _0x31ceb4("notifications"), _0x31ceb4("ubicaciones"), _0x31ceb4("deliveries_archive"), _0x31ceb4("pedido_chat"), _0x31ceb4("pedido_requester"), _0x31ceb4("vehiculos"), _0x31ceb4("tareas_mantenimiento"), _0x31ceb4("ocr_aprendizaje"), _0x31ceb4("trabajadores"), _0x31ceb4("clasificacion")]);
     if (_0x262bd3) {
+      recordarCatalogo(_0x262bd3);
       estado.catalog = _0x262bd3.map(_0xb6fc8b => ({
         id: _0xb6fc8b.id || nuevoId(),
         code: _0xb6fc8b.code,
@@ -1122,6 +1147,7 @@
       return;
     }
     escuchar("catalog", _0x117fb8 => {
+      recordarCatalogo(_0x117fb8);
       estado.catalog = _0x117fb8.map(_0x8a84b1 => ({
         id: _0x8a84b1.id || nuevoId(),
         code: _0x8a84b1.code,
@@ -1155,6 +1181,7 @@
       backend.watchOrdenesTrabajo(_0x192438 => recibirOrdenTrabajo(_0x192438));
     }
     sincronizarEnlace();
+    enviarAjustesPendientes();
     if (backend.watchMateriales) {
       backend.watchMateriales(_0xa63053 => recibirMaterialA3(_0xa63053));
     }
@@ -1343,8 +1370,38 @@
       vehiculoActualId: estado.vehiculoActualId
     });
   }
-  function guardarCatalogo() {
-    guardar("catalog", estado.catalog);
+  // Guarda `valorLocal` uniéndolo con lo que haya en el servidor (fusionar), en una transacción.
+  // Sin backend o sin conexión, guarda como siempre: mejor eso que perder lo escrito.
+  async function guardarFusionado(clave, valorLocal, fusionar, alTerminar) {
+    if (!hayBackend || !backend.modificar || !navigator.onLine) {
+      return guardar(clave, valorLocal);
+    }
+    try {
+      const valor = await backend.modificar(clave, servidor => servidor == null ? valorLocal : fusionar(servidor));
+      if (alTerminar) {
+        alTerminar(valor);
+      }
+      return { key: clave, value: valor };
+    } catch (e) {
+      return guardar(clave, valorLocal);
+    }
+  }
+  // Ids del catálogo que este dispositivo ya ha visto: distingue «lo borré aquí» de «lo creó otro dispositivo»
+  const idsCatalogoConocidos = new Set();
+  const recordarCatalogo = lista => (lista || []).forEach(x => idsCatalogoConocidos.add(x.id));
+  // sustituir: solo al restaurar una copia de seguridad, que debe reemplazar también las cantidades
+  function guardarCatalogo(sustituir) {
+    if (sustituir === true) {
+      return guardar("catalog", estado.catalog);
+    }
+    const local = estado.catalog;
+    return guardarFusionado("catalog", local, servidor => TecnomatDatos.fusionarCatalogo(servidor, local, idsCatalogoConocidos), valor => {
+      recordarCatalogo(valor);
+      if (estado.catalog === local) {
+        estado.catalog = valor;
+        render();
+      }
+    });
   }
   function _0x240f8a() {
     if (estado.movements.length > 600) {
@@ -1352,7 +1409,12 @@
       estado.movements = estado.movements.slice(0, 500);
       _0xbba8cb(_0x6524ad);
     }
-    guardar("movements", estado.movements);
+    const local = estado.movements;
+    guardarFusionado("movements", local, servidor => TecnomatDatos.fusionarPorId(servidor, local), valor => {
+      if (estado.movements === local) {
+        estado.movements = valor;
+      }
+    });
   }
   async function _0xbba8cb(_0x180cf0) {
     const _0x4cc5e7 = {};
@@ -1392,8 +1454,19 @@
   function guardarListaGrupos(_0x2bb54b) {
     guardar("groups_" + _0x2bb54b, estado.groups[_0x2bb54b]);
   }
+  // El chat de la orden se une con el del servidor: dos personas escribiendo a la vez no se borran los mensajes.
   function guardarGrupo(_0x22ca02, _0x9ffa21) {
-    guardar("group_" + _0x22ca02 + "_" + aSlug(_0x9ffa21), estado.groupData[_0x22ca02 + "::" + _0x9ffa21]);
+    const local = estado.groupData[_0x22ca02 + "::" + _0x9ffa21];
+    if (!local) {
+      return;
+    }
+    return guardarFusionado("group_" + _0x22ca02 + "_" + aSlug(_0x9ffa21), local, servidor => Object.assign({}, local, {
+      chat: TecnomatDatos.fusionarPorId(servidor.chat, local.chat, "asc", 300)
+    }), valor => {
+      if (estado.groupData[_0x22ca02 + "::" + _0x9ffa21] === local) {
+        local.chat = valor.chat;
+      }
+    });
   }
   function _0x217fa8() {
     guardar("bobinas", estado.bobinas);
@@ -1518,7 +1591,12 @@
       estado.deliveries = estado.deliveries.slice(0, 40);
       _0x167040(_0x34a3aa);
     }
-    guardar("deliveries", estado.deliveries);
+    const local = estado.deliveries;
+    guardarFusionado("deliveries", local, servidor => TecnomatDatos.fusionarPorId(servidor, local), valor => {
+      if (estado.deliveries === local) {
+        estado.deliveries = valor;
+      }
+    });
   }
   async function _0x167040(_0x4f9e48) {
     const _0x53d81a = _0x4f9e48.map(_0x3e664a => ({
@@ -1688,6 +1766,58 @@
     guardarCatalogo();
     return _0x38ae4c;
   }
+  // Ajustes de stock pendientes de llegar al servidor. Se guardan en el dispositivo para que, sin cobertura
+  // o si se cierra la app, no se pierdan: se envían en orden en cuanto hay conexión.
+  // shortcut: si la conexión se corta justo después de aplicarse en el servidor, ese ajuste se reenvía y cuenta dos veces; muy raro, revisar si aparecen descuadres
+  const CLAVE_STOCK_PENDIENTE = "tecnomat_stock_pendiente";
+  const leerAjustesPendientes = () => {
+    try {
+      return JSON.parse(localStorage.getItem(CLAVE_STOCK_PENDIENTE)) || [];
+    } catch (e) {
+      return [];
+    }
+  };
+  const escribirAjustesPendientes = lista => {
+    try {
+      localStorage.setItem(CLAVE_STOCK_PENDIENTE, JSON.stringify(lista));
+    } catch (e) {}
+  };
+  function encolarAjusteStock(articulo, delta) {
+    escribirAjustesPendientes([...leerAjustesPendientes(), { id: nuevoId(), articulo: Object.assign({}, articulo), delta }]);
+    enviarAjustesPendientes();
+  }
+  let enviandoAjustes = null;
+  function enviarAjustesPendientes() {
+    if (!hayBackend || !navigator.onLine) {
+      avisarAjustesPendientes();
+      return enviandoAjustes;
+    }
+    if (!enviandoAjustes) {
+      enviandoAjustes = (async () => {
+        let pendientes;
+        while ((pendientes = leerAjustesPendientes()).length) {
+          const ajuste = pendientes[0];
+          try {
+            await backend.adjustStockAtomic(ajuste.articulo, ajuste.delta);
+          } catch (e) {
+            avisarAjustesPendientes();
+            break;
+          }
+          escribirAjustesPendientes(leerAjustesPendientes().filter(x => x.id !== ajuste.id));
+        }
+      })().finally(() => {
+        enviandoAjustes = null;
+      });
+    }
+    return enviandoAjustes;
+  }
+  function avisarAjustesPendientes() {
+    const n = leerAjustesPendientes().length;
+    if (n) {
+      _0x279f78("Sin conexión: " + n + " ajuste" + (n === 1 ? "" : "s") + " de stock guardado" + (n === 1 ? "" : "s") + " en este dispositivo. Se enviará" + (n === 1 ? "" : "n") + " solo" + (n === 1 ? "" : "s") + " al volver la conexión; no cierres sesión.");
+    }
+  }
+  window.addEventListener("online", () => enviarAjustesPendientes());
   function _0x1d4277(_0x8de593, _0x12b1fc, _0x1bb957, _0x536686) {
     const _0x549810 = _0x1bb957 === "entrada" ? _0x12b1fc : -_0x12b1fc;
     _0x8de593.qty += _0x549810;
@@ -1704,7 +1834,7 @@
     });
     _0x240f8a();
     if (hayBackend) {
-      backend.adjustStockAtomic(_0x8de593, _0x549810).catch(_0x28a2d0 => _0x279f78("No se pudo sincronizar el stock: " + _0x28a2d0.message));
+      encolarAjusteStock(_0x8de593, _0x549810);
     } else {
       guardarCatalogo();
     }
@@ -2947,7 +3077,7 @@
             estado.groupData["proyecto::" + _0x3a51d0] = Object.assign(grupoVacio(), _0x47ae07.projectData[_0x3a51d0]);
           });
         }
-        guardarCatalogo();
+        guardarCatalogo(true);
         _0x240f8a();
         guardarListaGrupos("montaje");
         guardarListaGrupos("proyecto");
@@ -4746,8 +4876,8 @@
         }
       }
     }
-    guardar("movements", _0x1563ee.movements);
-    guardar("deliveries", _0x1563ee.deliveries);
+    _0x240f8a();
+    _0x529094();
     __guardarClasif();
     _0x24d2fa.forEach(_0x185d69 => {
       const _0x294433 = _0x185d69.split("::");
