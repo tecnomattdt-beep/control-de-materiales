@@ -41,5 +41,11 @@
     return { clave: "borrador", texto: "Sin enviar" };
   }
 
-  raiz.TecnomatDatos = { fusionarPorId, fusionarCatalogo, estadoLinea };
+  // Texto apto para un código de barras CODE128: solo ASCII imprimible. «Estantería Ñ» → «Estanteria N».
+  // Sin esto, JsBarcode falla con tildes o ñ y la etiqueta sale sin código.
+  function textoBarras(s) {
+    return String(s == null ? "" : s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\x20-\x7E]/g, "").trim();
+  }
+
+  raiz.TecnomatDatos = { fusionarPorId, fusionarCatalogo, estadoLinea, textoBarras };
 })(globalThis);

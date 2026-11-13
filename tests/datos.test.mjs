@@ -5,7 +5,7 @@ import vm from 'node:vm';
 
 const ctx = vm.createContext({});
 vm.runInContext(readFileSync(new URL('../datos.js', import.meta.url), 'utf8'), ctx);
-const { fusionarPorId, fusionarCatalogo, estadoLinea } = ctx.TecnomatDatos;
+const { fusionarPorId, fusionarCatalogo, estadoLinea, textoBarras } = ctx.TecnomatDatos;
 const plano = x => JSON.parse(JSON.stringify(x));
 const ids = l => plano(l).map(x => x.id);
 
@@ -68,4 +68,12 @@ test('estado de cada línea de la hoja de pedido, en el orden que la vive el tal
   assert.equal(e({ guardado: true, escandalloPedido: 'Pedido', reservado: true }), 'listo', 'preparado gana a proveedor');
   assert.equal(e({ reservado: true }, true), 'recogido');
   assert.equal(estadoLinea({ reservado: true }).texto, 'Listo para recoger');
+});
+
+test('texto de código de barras: sin tildes ni ñ, que CODE128 no admite', () => {
+  assert.equal(textoBarras('UB-Estantería 3'), 'UB-Estanteria 3');
+  assert.equal(textoBarras('UB-Pasillo Ñ'), 'UB-Pasillo N');
+  assert.equal(textoBarras('FT-257/5.38'), 'FT-257/5.38');
+  assert.equal(textoBarras(' 61771 '), '61771');
+  assert.equal(textoBarras(null), '');
 });

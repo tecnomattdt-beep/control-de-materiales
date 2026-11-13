@@ -372,7 +372,10 @@
     body.lote-imprimiendo{margin:0 !important; padding:0 !important; background:#fff !important;}
     body.lote-imprimiendo #etqLote{display:block !important;}
     body.lote-imprimiendo #etqLote, body.lote-imprimiendo #etqLote *{visibility:visible !important;}
-    #etqLote .etq{page-break-after:always; break-after:page;}
+    #etqLote .etq{page-break-after:always; break-after:page; break-inside:avoid; outline:none !important;}
+    /* Una etiqueta = una página: nada del resto de la app puede alargar la página y crear hojas en blanco */
+    html:has(body.lote-imprimiendo), body.lote-imprimiendo{height:auto !important; min-height:0 !important; overflow:visible !important;}
+    body.lote-imprimiendo #etqLote{margin:0 !important; padding:0 !important;}
     #etqLote .etq:last-child{page-break-after:auto; break-after:auto;}
   }
 
@@ -1267,6 +1270,7 @@
   #app.tema-claro .estado-linea[data-estado="recogido"]{color:#FFFFFF;}
   .franja-estado{display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:10px 12px; margin-bottom:10px; background:var(--bg-panel); border:1px solid var(--border); border-radius:var(--radio);}
   .franja-estado b{font-family:var(--letra-cartel); font-size:14px; letter-spacing:.05em; text-transform:uppercase; margin-right:4px;}
+  #etqAyuda b{font-family:inherit; font-size:inherit; letter-spacing:0; text-transform:none; margin:0;}
 
   /* Cabecera: logo y menú de cuenta en una sola fila */
   .tecnomat-logo{display:flex; align-items:center; justify-content:space-between; position:relative;}

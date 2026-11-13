@@ -6525,7 +6525,7 @@
     }
     const _0x3794b6 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     try {
-      JsBarcode(_0x3794b6, _0x22fb98, {
+      JsBarcode(_0x3794b6, TecnomatDatos.textoBarras(_0x22fb98), {
         format: "CODE128",
         displayValue: false,
         margin: 0,
@@ -6560,7 +6560,7 @@
     const _0x3527b1 = _0x10ec83 ? _0x16ce6c.w - _0x16ce6c.px * 2 : _0x16ce6c.h - _0x16ce6c.py * 2;
     const _0x3d7585 = document.createElement("div");
     _0x3d7585.className = "etq";
-    _0x3d7585.style.cssText = "position:relative; overflow:hidden; box-sizing:border-box; background:#fff; color:#000; width:" + __numeroMm(_0x16ce6c.w) + "; height:" + __numeroMm(_0x16ce6c.h) + ";";
+    _0x3d7585.style.cssText = "position:relative; overflow:hidden; box-sizing:border-box; background:#fff; color:#000; width:" + __numeroMm(_0x16ce6c.w - 0.5) + "; height:" + __numeroMm(_0x16ce6c.h - 0.5) + ";";
     const _0x2e32ef = document.createElement("div");
     _0x2e32ef.className = "etq-in";
     _0x2e32ef.style.cssText = "position:absolute; display:flex; flex-direction:column; justify-content:space-between; font-family:Arial,Helvetica,sans-serif; overflow:hidden; width:" + __numeroMm(_0x2d5d18) + "; height:" + __numeroMm(_0x3527b1) + "; top:" + __numeroMm(_0x16ce6c.py) + "; " + (_0x10ec83 ? "left:" + __numeroMm(_0x16ce6c.px + _0x3527b1) + "; transform-origin:0 0; transform:rotate(90deg);" : "left:" + __numeroMm(_0x16ce6c.px) + ";");
@@ -6647,7 +6647,7 @@
     const _0x5b1490 = __etqTipo === "ref";
     const _0xf0834 = _0x5b1490 ? __etqSelRef : __etqSelUb;
     const _0x22d1f1 = [...new Set((estado.catalog || []).map(_0x3bb241 => (_0x3bb241.categoria || "").trim()).filter(Boolean))].sort((_0x5b3663, _0xa170bf) => _0x5b3663.localeCompare(_0xa170bf, "es"));
-    _0x422e35.innerHTML = "<div class=\"clasif-seg clasif-vista\" style=\"margin-bottom:12px;\"><button type=\"button\" data-etq-tipo=\"ref\" class=\"" + (_0x5b1490 ? "on" : "") + "\">Referencias</button><button type=\"button\" data-etq-tipo=\"ub\" class=\"" + (_0x5b1490 ? "" : "on") + "\">Ubicaciones</button></div><label style=\"font-size:12px; color:var(--text-muted);\">Etiqueta (rollo de la Brother QL-700)</label><select id=\"etqFormato\" style=\"width:100%; margin:4px 0 12px;\">" + __ETQ_FORMATOS.map(_0x42f33f => "<option value=\"" + _0x42f33f.id + "\"" + (_0x42f33f.id === _0xaec946.id ? " selected" : "") + ">" + _0x1e9315(_0x42f33f.nombre) + "</option>").join("") + "</select>" + (_0x5b1490 ? "<div style=\"display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;\"><input type=\"text\" id=\"etqBuscar\" placeholder=\"Buscar por código, descripción o ubicación…\" style=\"flex:1 1 200px; min-width:0;\"><select id=\"etqCategoria\" style=\"flex:0 1 180px; min-width:0;\"><option value=\"\">Todas las categorías</option>" + _0x22d1f1.map(_0x29ca84 => "<option value=\"" + _0x1e9315(_0x29ca84) + "\">" + _0x1e9315(_0x29ca84) + "</option>").join("") + "</select></div>" : "<div style=\"display:flex; gap:8px; margin-bottom:8px;\"><input type=\"text\" id=\"etqNuevaUb\" placeholder=\"Otra ubicación (p. ej. A-12)\" style=\"flex:1; min-width:0;\"><button type=\"button\" class=\"cam-btn\" id=\"etqAnadirUb\" style=\"flex:none;\">Añadir</button></div>") + "<div style=\"display:flex; gap:8px; margin-bottom:8px;\"><button type=\"button\" class=\"cam-btn\" id=\"etqMarcar\" style=\"flex:1;\">Marcar las que se ven</button><button type=\"button\" class=\"cam-btn\" id=\"etqQuitar\" style=\"flex:1;\">Quitar marcas</button>" + (_0x5b1490 ? "<button type=\"button\" class=\"cam-btn\" id=\"etqSinEtq\" style=\"flex:1;\">Sin etiquetar</button>" : "") + "</div><div id=\"etqLista\" style=\"max-height:38vh; overflow:auto; border:1px solid var(--border); border-radius:8px; padding:0 10px;\"></div><p id=\"etqResumen\" style=\"font-size:12.5px; margin:10px 0 6px;\"></p><div style=\"display:flex; gap:8px;\"><button type=\"button\" class=\"cam-btn\" id=\"etqVistaBtn\" style=\"flex:1;\">Vista previa</button><button type=\"button\" class=\"btn primary\" id=\"etqImprimirBtn\" style=\"flex:1;\">Imprimir</button></div><div id=\"etqVista\" style=\"margin-top:12px; display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start;\"></div><p style=\"font-size:12px; color:var(--text-faint); margin:12px 0 0;\">En el cuadro de impresión: impresora Brother QL-700, papel con el mismo tamaño que el rollo cargado, márgenes «Ninguno» y escala 100 %. La QL-700 se conecta por USB: imprimir desde un ordenador con el controlador instalado.</p>";
+    _0x422e35.innerHTML = "<div class=\"clasif-seg clasif-vista\" style=\"margin-bottom:12px;\"><button type=\"button\" data-etq-tipo=\"ref\" class=\"" + (_0x5b1490 ? "on" : "") + "\">Referencias</button><button type=\"button\" data-etq-tipo=\"ub\" class=\"" + (_0x5b1490 ? "" : "on") + "\">Ubicaciones</button></div><label style=\"font-size:12px; color:var(--text-muted);\">Etiqueta (rollo de la Brother QL-700)</label><select id=\"etqFormato\" style=\"width:100%; margin:4px 0 12px;\">" + __ETQ_FORMATOS.map(_0x42f33f => "<option value=\"" + _0x42f33f.id + "\"" + (_0x42f33f.id === _0xaec946.id ? " selected" : "") + ">" + _0x1e9315(_0x42f33f.nombre) + "</option>").join("") + "</select>" + (_0x5b1490 ? "<div style=\"display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;\"><input type=\"text\" id=\"etqBuscar\" placeholder=\"Buscar por código, descripción o ubicación…\" style=\"flex:1 1 200px; min-width:0;\"><select id=\"etqCategoria\" style=\"flex:0 1 180px; min-width:0;\"><option value=\"\">Todas las categorías</option>" + _0x22d1f1.map(_0x29ca84 => "<option value=\"" + _0x1e9315(_0x29ca84) + "\">" + _0x1e9315(_0x29ca84) + "</option>").join("") + "</select></div>" : "<div style=\"display:flex; gap:8px; margin-bottom:8px;\"><input type=\"text\" id=\"etqNuevaUb\" placeholder=\"Otra ubicación (p. ej. A-12)\" style=\"flex:1; min-width:0;\"><button type=\"button\" class=\"cam-btn\" id=\"etqAnadirUb\" style=\"flex:none;\">Añadir</button></div>") + "<div style=\"display:flex; gap:8px; margin-bottom:8px;\"><button type=\"button\" class=\"cam-btn\" id=\"etqMarcar\" style=\"flex:1;\">Marcar las que se ven</button><button type=\"button\" class=\"cam-btn\" id=\"etqQuitar\" style=\"flex:1;\">Quitar marcas</button>" + (_0x5b1490 ? "<button type=\"button\" class=\"cam-btn\" id=\"etqSinEtq\" style=\"flex:1;\">Sin etiquetar</button>" : "") + "</div><div id=\"etqLista\" style=\"max-height:38vh; overflow:auto; border:1px solid var(--border); border-radius:8px; padding:0 10px;\"></div><p id=\"etqResumen\" style=\"font-size:12.5px; margin:10px 0 6px;\"></p><div style=\"display:flex; gap:8px;\"><button type=\"button\" class=\"cam-btn\" id=\"etqVistaBtn\" style=\"flex:1;\">Vista previa</button><button type=\"button\" class=\"btn primary\" id=\"etqImprimirBtn\" style=\"flex:1;\">Imprimir</button></div><div id=\"etqVista\" style=\"margin-top:12px; display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start;\"></div><div id=\"etqAyuda\" class=\"franja-estado\" style=\"display:block; margin:12px 0 0; font-size:13px; line-height:1.45;\"></div>";
     const _0xfa54af = _0x422e35.querySelector("#etqLista");
     const _0xaa20b = _0x422e35.querySelector("#etqResumen");
     const _0x19ffee = () => {
@@ -6671,7 +6671,16 @@
       }
       return _0x226292;
     };
+    // Lo que hay que elegir en el cuadro de impresión para el rollo seleccionado: si el papel no coincide con el rollo,
+    // la Brother se para con la luz roja y corta mal (el error más habitual)
+    const __etqAyuda = () => {
+      const __f = __etqFormato();
+      const __rollo = __f.nombre.split(" · ")[1] || "";
+      const __papel = __f.id === "62c" ? "62 mm (continuo)" : __f.w + " × " + __f.h + " mm";
+      _0x422e35.querySelector("#etqAyuda").innerHTML = "<b>Antes de imprimir</b><br>1. En la Brother tiene que estar puesto el rollo <b>" + _0x1e9315(__rollo) + "</b>.<br>2. En el cuadro de impresión: impresora <b>Brother QL-700</b> → Más opciones → tamaño de papel <b>" + _0x1e9315(__papel) + "</b>, márgenes <b>Ninguno</b>, escala <b>100 %</b>.<br>Si el papel no coincide con el rollo, la Brother se para con la luz roja y no imprime o corta mal. Se imprime desde el ordenador al que está conectada por USB.";
+    };
     const _0x5549a3 = () => {
+      __etqAyuda();
       let _0x44f87a = 0;
       _0xf0834.forEach(_0x2ce2f2 => {
         _0x44f87a += _0x2ce2f2;
@@ -6742,7 +6751,7 @@
       });
     }
     _0x422e35.querySelector("#etqMarcar").addEventListener("click", () => {
-      _0x19ffee().forEach(_0x182782 => {
+      _0x19ffee().slice(0, 120).forEach(_0x182782 => {
         const _0x34bc9c = _0xfa54af.querySelector("[data-etq-copias=\"" + (window.CSS && CSS.escape ? CSS.escape(_0x182782.clave) : _0x182782.clave) + "\"]");
         _0xf0834.set(_0x182782.clave, _0x34bc9c ? Math.min(99, Math.max(1, parseInt(_0x34bc9c.value, 10) || 1)) : 1);
       });
@@ -6755,9 +6764,11 @@
     if (_0x5b1490) {
       _0x422e35.querySelector("#etqSinEtq").addEventListener("click", () => {
         const _0x141420 = new Set(estado.settings.etqHechas || []);
-        const _0x5733f1 = _0x19ffee().filter(_0xe52da5 => !_0x141420.has(_0xe52da5.clave));
+        const __sinEtq = _0x19ffee().filter(_0xe52da5 => !_0x141420.has(_0xe52da5.clave));
+        const _0x5733f1 = __sinEtq.slice(0, __ETQ_MAX);
+        _0xf0834.clear();
         _0x5733f1.forEach(_0x1a086c => _0xf0834.set(_0x1a086c.clave, 1));
-        _0x279f78(_0x5733f1.length ? _0x5733f1.length + " referencia" + (_0x5733f1.length === 1 ? "" : "s") + " sin etiquetar marcada" + (_0x5733f1.length === 1 ? "" : "s") + "." : "Todas las referencias de la lista ya tienen etiqueta impresa.");
+        _0x279f78(__sinEtq.length > __ETQ_MAX ? "Marcadas las primeras " + __ETQ_MAX + " de " + __sinEtq.length + " sin etiquetar. Imprímelas y vuelve a pulsar «Sin etiquetar» para las siguientes." : _0x5733f1.length ? _0x5733f1.length + " referencia" + (_0x5733f1.length === 1 ? "" : "s") + " sin etiquetar marcada" + (_0x5733f1.length === 1 ? "" : "s") + "." : "Todas las referencias de la lista ya tienen etiqueta impresa.");
         _0x28f48c();
       });
     }
@@ -6839,6 +6850,8 @@
     }, _0x46d3d7), _0x46d3d7.w + "mm " + _0x46d3d7.h + "mm; margin:0");
   }
   async function __etqAbrir() {
+    __etqSelRef.clear();
+    __etqSelUb.clear();
     __etqFormatoRecordado();
     const _0x1ece10 = __herrOverlay("Etiquetas");
     __etqPintar(_0x1ece10);
@@ -6970,7 +6983,7 @@
       return "";
     }
     const _0x2d8e80 = /^ub-/i.test(_0x55c254) ? _0x55c254.slice(3) : _0x55c254;
-    return __etqUbicaciones().find(_0xfc307a => _0xfc307a.toLowerCase() === _0x2d8e80.toLowerCase()) || "";
+    return __etqUbicaciones().find(_0xfc307a => TecnomatDatos.textoBarras(_0xfc307a).toLowerCase() === TecnomatDatos.textoBarras(_0x2d8e80).toLowerCase()) || "";
   }
   function __invAbrir() {
     __invFase = "elegir";
