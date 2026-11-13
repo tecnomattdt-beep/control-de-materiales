@@ -27,7 +27,7 @@ El objetivo era tener una herramienta de almacén que no necesitara servidor pro
 - Al subir un archivo para crear una orden, la app enseña primero un resumen línea a línea y pide confirmación antes de tocar el stock.
 - El histórico de movimientos y de firmas se archiva resumido en vez de borrarse sin más al superar un límite.
 - Las funciones opcionales (cámara, Supabase, EmailJS, PDF) se degradan sin romper el resto de la app si no están disponibles o configuradas.
-- Los botones de acción tienen un mínimo de 44px de alto, pensado para el dedo en móvil; los controles secundarios («Más opciones», «+ Nueva», los selectores de listado) son más compactos. Las acciones más frecuentes (Editar, Eliminar, Enviar, Guardar) llevan además un icono discreto de trazo fino junto al texto, sin sustituirlo.
+- Los botones de acción tienen un mínimo de 44px de alto, pensado para el dedo en móvil; los controles secundarios («Opciones de la orden», «+ Nueva», los selectores de listado) son más compactos. Las acciones más frecuentes (Editar, Eliminar, Enviar, Guardar) llevan además un icono discreto de trazo fino junto al texto, sin sustituirlo.
 - Al abrir la app, mientras llegan los datos de la nube se muestra un aviso breve de carga en vez de dejar la pantalla en blanco.
 
 **Limitaciones conocidas:**
@@ -142,7 +142,7 @@ Medidas incluidas en el código:
 
 Si otra app también inserta filas en `ordenes_trabajo` (y sus materiales en `orden_materiales`), Tecnomat las detecta solo, en tiempo real, y crea la orden/proyecto correspondiente — sin tener que darla de alta a mano. Ver la sección "Trabajo" más abajo para el detalle de qué pasa exactamente al recibir una.
 
-La tabla `materiales_rapidos` (para la "Lista rápida" de Trabajo, ver esa sección) se gestiona desde dentro de la propia app, en Almacén → Más opciones → "Lista rápida (Trabajo)" — añadir y quitar materiales no requiere entrar a Supabase directamente, aunque también se puede editar ahí (Table Editor → `materiales_rapidos`) si se prefiere.
+La tabla `materiales_rapidos` (para la "Lista rápida" de Trabajo, ver esa sección) se gestiona desde dentro de la propia app, en Almacén → Ajustes de almacén → "Lista rápida (Trabajo)" (solo con Supabase activo; sin él el panel lo explica y no deja añadir) — añadir y quitar materiales no requiere entrar a Supabase directamente, aunque también se puede editar ahí (Table Editor → `materiales_rapidos`) si se prefiere.
 
 ## 4. Avisos y notificaciones
 
@@ -158,7 +158,7 @@ Sin `emailjsConfig` configurado, los avisos siguen apareciendo como banner dentr
 
 **Qué avisa la app, y por qué canal:**
 - **Stock bajo / bobinas por vencer**: banner al entrar en cualquier sección, y un correo diario (a partir de la hora configurada en Avisos) con el resumen. Un resumen semanal aparte incluye lo que más se ha movido.
-- **Pedido nuevo desde Trabajo o Pedido**: al guardar una Hoja de pedido, o cuando Taller envía algo por el chat, Almacén recibe tres cosas — correo, un banner dentro de la app (pulsarlo lleva directo a esa orden), y un pitido + notificación del sistema en cualquier dispositivo con la app abierta. Pulsar **«Enviar»** en el chat equivale a «Guardar y avisar a almacén»: las líneas enviadas quedan marcadas como guardadas, con su fecha y hora, y avisan a Almacén igual que al guardar la hoja.
+- **Pedido nuevo desde Trabajo o Compras**: al guardar una Hoja de pedido, o cuando Taller envía algo por el chat, Almacén recibe tres cosas — correo, un banner dentro de la app (pulsarlo lleva directo a esa orden), y un pitido + notificación del sistema en cualquier dispositivo con la app abierta. Pulsar **«Enviar»** en el chat equivale a «Guardar y avisar a almacén»: las líneas enviadas quedan marcadas como guardadas, con su fecha y hora, y avisan a Almacén igual que al guardar la hoja.
 - **Sin conexión**: banner en rojo si se corta el internet a media faena, avisando de que los cambios se siguen guardando en el dispositivo pero no se sincronizan hasta que vuelva. Avisa también al recuperarse.
 - **Sonido al escanear**: pitido corto al confirmar un escaneo con éxito (distinto del de "pedido nuevo"), desactivable en Almacén → Avisos.
 
@@ -190,14 +190,14 @@ El archivo `apps-script-proxy.gs` amplía el proxy de Gemini (mismo proyecto de 
 **Activar las notificaciones push en cada dispositivo**
 1. En OneSignal, crear una aplicación de tipo **Web** (*Custom Code*), con la URL de la app y HTTPS. Anotar el identificador de la aplicación y la clave de la API REST.
 2. Subir a GitHub el archivo `OneSignalSDKWorker.js`, en la misma carpeta que `index.html` (no requiere subcarpetas).
-3. En la app: Almacén → Más opciones → panel **Notificaciones push** → pegar el identificador de la aplicación y **Guardar ID**.
+3. En la app: Almacén → Ajustes de almacén → panel **Notificaciones push** → pegar el identificador de la aplicación y **Guardar ID**.
 4. En cada dispositivo de Almacén que deba recibir avisos, pulsar **«Activar en este dispositivo»** y aceptar el permiso del navegador. En iPhone se requiere iOS 16.4 o superior y la app añadida a la pantalla de inicio.
 
 **Seguridad.** La URL del proxy es pública, por eso toda petición debe llevar el token de sesión de Firebase de un usuario de `USUARIOS_PERMITIDOS`. Además, el servidor solo envía correos a las direcciones autorizadas en `CORREOS_PERMITIDOS`, limita los envíos a 20 por hora y las consultas a la IA a 20 por minuto y 400 al día, y no acepta respaldos vacíos ni superiores a 8 MB. Las claves viven solo en las propiedades del script.
 
 ## 5. Roles: Almacén y Taller
 
-Quien entra con la cuenta **`taller@tecnomat.es`** solo ve las pestañas **Trabajo** y **Pedido** — Almacén, Resumen y Mantenimiento son exclusivas de Almacén, y tampoco ve el botón "Asociar" en el chat. **Sí puede finalizar/reactivar** una orden o proyecto (con confirmación siempre antes de hacerlo, para evitar toques accidentales), pero no puede eliminarla — eso sigue siendo solo de Almacén. Cualquier otra cuenta autorizada (por ejemplo `almacen@tecnomat.es`) ve todo.
+Quien entra con la cuenta **`taller@tecnomat.es`** solo ve las pestañas **Trabajo** y **Compras** — Almacén, Resumen y Mantenimiento son exclusivas de Almacén, y tampoco ve el botón "Asociar" en el chat. **Sí puede finalizar/reactivar** una orden o proyecto (con confirmación siempre antes de hacerlo, para evitar toques accidentales), pero no puede eliminarla — eso sigue siendo solo de Almacén. Cualquier otra cuenta autorizada (por ejemplo `almacen@tecnomat.es`) ve todo.
 
 **Esto es una restricción de interfaz**, no de seguridad real — oculta botones y redirige, pero no impide técnicamente que alguien con conocimientos edite datos saltándose la pantalla. Las reglas de seguridad de la sección 3 limitan el acceso a las cuentas autorizadas, pero no distinguen entre Almacén y Taller: una restricción real por rol exigiría reglas por correo en cada base de datos y separar los datos de cada rol.
 
@@ -215,13 +215,13 @@ Montaje/Venta y Proyecto viven bajo una sola pestaña, **Trabajo** — al crear 
 
 **Textos en curso**: lo escrito en los campos del chat se conserva cuando la pantalla se actualiza sola (por ejemplo, por un cambio llegado desde otro dispositivo) mientras se siga en la misma orden y pestaña. Se vacía al enviar el mensaje y no pasa a otra orden ni a otra pestaña.
 
-**El chat es la forma principal de pedir material** en una orden o proyecto, justo debajo del selector (que vive integrado ahí mismo, con "Finalizar"/"Eliminar" escondidos detrás de "Más opciones" para no saturar la pantalla, y "+ Nueva orden/proyecto" para crear otra):
+**El chat es la forma principal de pedir material** en una orden o proyecto, justo debajo del selector (que vive integrado ahí mismo, con "Finalizar"/"Eliminar" escondidos detrás de "Opciones de la orden" para no saturar la pantalla, y "+ Nueva orden/proyecto" para crear otra):
 - Cada escaneo aparece como mensaje en el hilo, en orden, junto con avisos como "Hoja guardada", "Recogida confirmada y firmada" o "Asociado a...".
 - Se puede **escribir directamente** (no solo escanear) para pedir algo aunque no se sepa la referencia — queda como línea "sin referencia todavía". La caja admite **varias líneas**: **Enter baja de línea** y el envío se hace solo con el botón **Enviar**. Cada renglón es un artículo; el texto se respeta tal como está escrito y la cantidad es siempre 1. No hay selector de cantidad: Almacén fija la cantidad real al entregar, que es la que descuenta stock.
 - **Solo Almacén** ve el botón **"Asociar"** en esas líneas, para enlazarlas con una referencia real (con el lector físico USB/Bluetooth, la cámara del móvil, o escribiéndolo a mano — un campo de texto normal acepta las tres formas) — y si esa referencia no existe todavía, se puede dar de alta ahí mismo, con 0 unidades.
 - El chat tiene un alto fijo con su propio scroll, y se desplaza solo hasta el último mensaje.
 - La tabla de siempre (**Hoja de pedido**, y **Servido**/**Devuelto** para Almacén) sigue existiendo en su propia pestaña, para imprimir o repasar de un vistazo — el chat no la sustituye, conviven las dos.
-- El panel lateral también empieza compacto — solo "Resumen" a la vista, el resto (exportar, crear desde archivo, buscar en stock, histórico, entregas firmadas) detrás de "Más opciones".
+- El panel lateral también empieza compacto — solo "Resumen" a la vista, el resto (exportar, crear desde archivo, buscar en stock, histórico, entregas firmadas) detrás de "Herramientas de trabajo".
 - Con más de 6 órdenes/proyectos, encima del selector aparece un campo para buscar por nombre y filtrar la lista.
 - **Lista rápida**: justo encima de la caja de escribir del chat, si hay materiales frecuentes configurados, aparece una lista pequeña de botones de selección para cada uno — misma lista para todas las órdenes y proyectos. Al marcar los que hagan falta y pulsar "Añadir seleccionados", se añaden de golpe a la solicitud pendiente (con su referencia real si el código coincide con algo del stock, o como línea "sin referencia todavía" si no), y queda anotado en el chat. Esta lista se mantiene aparte, directamente en Supabase (tabla `materiales_rapidos`), y se actualiza sola en cualquier dispositivo en cuanto cambia.
 - **Referencias y unidades en el texto**: en el chat y en «Pegar una lista larga», varias referencias escritas en una misma línea («test1 test2 test3») se separan en una línea por referencia cuando todas parecen códigos (letras y números, o códigos del stock). Las unidades se leen cuando se indican solo con un número: «test1 5», «5 test1», «test1 x5», «5 uds test1», o en una línea aparte debajo de la referencia («test1» y debajo «5»). Los números que forman parte de una medida («tubo 20 mm», «cable 3x1.5») no se toman como cantidad. Las unidades leídas pueden corregirse luego en la línea.
@@ -303,7 +303,9 @@ Permite mostrar el chat de una orden dentro de otra aplicación, como un recuadr
 
 **Seguridad.** El enlace es la llave del chat de esa orden: quien lo tenga puede leerlo y escribir en él, y nada más. **«Regenerar enlace»** (con confirmación) invalida el anterior y copia uno nuevo, que hay que pegar de nuevo en la otra aplicación. La página solo acepta servidores `*.supabase.co`, y el servidor limita a 20 mensajes por minuto y 2000 en total por orden (hay que volver a ejecutar `supabase_chat_externo.sql` para aplicar el tope).
 
-## 8. Pedido
+## 8. Compras (antes «Pedido»)
+
+En la app se llama **Compras** para no confundirla con la **Hoja de pedido** de cada orden: Compras es reponer el almacén pidiendo a proveedor; la Hoja de pedido es el material que una orden pide al almacén.
 
 Sirve para pedir material que falta en el almacén (por ejemplo, para reponer stock desde un proveedor) — no lleva firma, es un listado que se manda por correo. Tiene el mismo chat que Trabajo (con su pestaña "Chat" y "Lista"), pero aquí **se pregunta quién hace el pedido en cada escaneo o mensaje**, y en su caja de texto Enter envía directamente (en el chat de Trabajo Enter baja de línea), no solo una vez — pensado para un dispositivo que se comparte entre varias personas. Cada línea del chat muestra quién pidió esa unidad en concreto.
 
@@ -323,10 +325,10 @@ Sirve para pedir material que falta en el almacén (por ejemplo, para reponer st
 
 ## 10. Almacén
 
-- **Panel lateral compacto**: por defecto solo se ven "Resumen" y "Últimos movimientos" — el resto (Exportar/Importar, Sobrescribir todo el stock, Copia de seguridad, Avisos, Ubicaciones, Histórico general, Actividad) se esconde detrás de un botón "Más opciones", para no abrumar con paneles que se usan poco.
+- **Panel lateral compacto**: por defecto solo se ven "Resumen" y "Últimos movimientos" — el resto (Exportar/Importar, Sobrescribir todo el stock, Copia de seguridad, Avisos, Ubicaciones, Histórico general, Actividad) se esconde detrás del botón "Ajustes de almacén", para no abrumar con paneles que se usan poco.
 - **Materiales sincronizados desde A3**: si otra app conectada al mismo proyecto de Supabase sincroniza el catálogo de artículos de A3 (código, descripción, precio de venta, stock según A3), Tecnomat los recibe solo, en tiempo real. Si el código ya existe en el stock, se actualiza la descripción sin tocar la cantidad real (esa la sigue llevando Tecnomat, sumando y restando por escaneo); si es un código nuevo, se da de alta con 0 unidades, a la espera de que entre stock de verdad. El número de stock que trae A3 se guarda aparte, solo de referencia — nunca sustituye a la cantidad real de Tecnomat.
-- **Salud de datos frente a A3** (dentro de "Más opciones"): recuento de artículos ya confirmados por A3 frente a los dados de alta a mano que A3 todavía no ha reconocido — útil para detectar códigos con errata, duplicados, o artículos pendientes de dar de alta allí.
-- **Gestión de la Lista rápida** (dentro de "Más opciones"): añadir o quitar los materiales frecuentes que aparecen junto al chat de Trabajo, sin salir de la app.
+- **Salud de datos frente a A3** (dentro de "Ajustes de almacén"): recuento de artículos ya confirmados por A3 frente a los dados de alta a mano que A3 todavía no ha reconocido — útil para detectar códigos con errata, duplicados, o artículos pendientes de dar de alta allí.
+- **Gestión de la Lista rápida** (dentro de "Ajustes de almacén"): añadir o quitar los materiales frecuentes que aparecen junto al chat de Trabajo, sin salir de la app.
 - **Editar**: un único botón agrupa código, artículo, referencia, ubicación, categoría, coste y características en un solo formulario. El **código** puede cambiarse; el cambio se aplica a los movimientos, a las órdenes (pendiente, servido, devuelto), a las entregas y al aprendizaje de la clasificación. Si varias referencias comparten código, solo cambian los registros vinculados a la referencia editada. Dentro de ese mismo formulario están también **Etiqueta**, **+ Otra referencia** y **Eliminar** — así cada fila de la lista solo muestra dos botones ("Editar" y "Cambiar cantidad"), en vez de cinco, que en una lista de decenas de artículos se nota mucho.
 - **Filtros**: por categoría, solo stock bajo (0) o solo sin ubicar, combinables con la búsqueda de texto.
 - **Ubicaciones**: panel para mantener una lista (añadir/quitar) que autocompleta al escribir la ubicación de un material — sigue siendo texto libre, esto solo evita erratas.
