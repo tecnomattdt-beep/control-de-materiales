@@ -1126,7 +1126,7 @@
     --success:#2FBF71; --success-soft:rgba(47,191,113,.16);
     --danger:#FF6B5E; --danger-soft:rgba(255,107,94,.16);
     --warning:#FFB020; --warning-soft:rgba(255,176,32,.16);
-    --etiqueta:#F6F5F0; --tinta:#111417; --tinta-2:#3F4850; --viga:#F2701B; --cinta:#F2C230;
+    --etiqueta:#F6F5F0; --tinta:#111417; --tinta-2:#3F4850; --viga:#F2701B; --cinta:#F2C230; --sobre-estado:#111417;
     --zona:#AEB9C2; --accent:#AEB9C2; --accent-dim:#6B7884; --accent-soft:rgba(174,185,194,.16); --lcd-green:var(--zona);
     --letra-cartel:"Barlow Condensed","Arial Narrow",sans-serif;
     --letra:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -1147,7 +1147,7 @@
     --success:#1A6B3C; --success-soft:rgba(26,107,60,.12);
     --danger:#B3261E; --danger-soft:rgba(179,38,30,.10);
     --warning:#8A5300; --warning-soft:rgba(138,83,0,.12);
-    --etiqueta:#FFFFFF;
+    --etiqueta:#FFFFFF; --sobre-estado:#FFFFFF;
   }
   #app.tema-claro.mode-resumen{--accent:#3F4850; --zona:#8B98A3;}
   #app.tema-claro.mode-montaje{--accent:#A23F00;}
@@ -1312,11 +1312,14 @@
     #app > h1 .pasillo-txt{padding:8px 16px 8px 12px;}
     #scanInput{font-size:19px;}
     .etq-ub{min-width:62px; font-size:22px; padding-left:12px;}
-    .stock-row{flex-wrap:wrap; padding-right:0;}
-    .stock-row .row-main{flex:1 1 calc(100% - 90px); padding-right:12px;}
-    .stock-row .row-actions{flex:1 1 100%; padding:8px 12px; border-top:1px solid #DCDEDB; justify-content:flex-start;}
-    .stock-row .row-actions .stock-qty{margin-right:auto;}
   }
+  /* Fila de stock en dos pisos: etiqueta + material arriba, cantidad y botones abajo */
+  .stock-row{flex-wrap:wrap; padding-right:0; position:relative; align-items:stretch;}
+  /* La casilla de selección, en la esquina: no debe empujar la etiqueta a otra línea */
+  .stock-row .stock-select{position:absolute; top:10px; right:10px; width:20px !important; height:20px !important; margin:0 !important;}
+  .stock-row .row-main{flex:1 1 0; padding-right:40px;}
+  .stock-row .row-actions{flex:1 1 100%; padding:8px 12px; border-top:1px solid #DCDEDB; justify-content:flex-start;}
+  .stock-row .row-actions .stock-qty{margin-right:auto;}
   @media (prefers-reduced-motion:reduce){#scannerZone.destello-ok .scanner-panel, #scannerZone.destello-error .scanner-panel{animation:none;}}
   /* ── Mejoras de uso ── */
   /* Estado de cada línea del pedido: placa con texto, nunca solo color */
