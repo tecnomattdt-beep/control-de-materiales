@@ -1312,9 +1312,14 @@
     #app > h1 .pasillo-txt{padding:8px 16px 8px 12px;}
     #scanInput{font-size:19px;}
     .etq-ub{min-width:62px; font-size:22px; padding-left:12px;}
+    /* Líneas de pedido: etiqueta, material y cantidad arriba; los botones debajo, a la derecha */
+    .ticket-row{grid-template-columns:auto 1fr auto; row-gap:0;}
+    .ticket-row > button, .ticket-row > .return-qty{grid-column:2 / 4; justify-self:end; margin-bottom:8px;}
   }
+  /* Resultados del buscador: misma etiqueta blanca, sin bloque de ubicación */
+  #globalSearchResults .stock-row .row-main{padding-left:12px;}
   /* Fila de stock en dos pisos: etiqueta + material arriba, cantidad y botones abajo */
-  .stock-row{flex-wrap:wrap; padding-right:0; position:relative; align-items:stretch;}
+  .stock-row{flex-direction:row; flex-wrap:wrap; padding-right:0; position:relative; align-items:stretch;}
   /* La casilla de selección, en la esquina: no debe empujar la etiqueta a otra línea */
   .stock-row .stock-select{position:absolute; top:10px; right:10px; width:20px !important; height:20px !important; margin:0 !important;}
   .stock-row .row-main{flex:1 1 0; padding-right:40px;}
