@@ -23,12 +23,18 @@
   function fusionarCatalogo(servidor, local, idsConocidos) {
     const srv = Array.isArray(servidor) ? servidor : [];
     const qtyServidor = new Map(srv.map(x => [x.id, x.qty]));
-    const ids = new Set();
-    const lista = (Array.isArray(local) ? local : []).map(x => {
-      ids.add(x.id);
-      return qtyServidor.has(x.id) ? Object.assign({}, x, { qty: qtyServidor.get(x.id) }) : x;
-    });
-    for (const x of srv) if (!ids.has(x.id) && !idsConocidos.has(x.id)) lista.push(x);
+    return fusionarLista(srv, local, idsConocidos).map(x => qtyServidor.has(x.id) ? Object.assign({}, x, { qty: qtyServidor.get(x.id) }) : x);
+  }
+
+  // Listas compartidas (trabajadores, vehículos, Reponer…): manda la local, y se añade lo que otro dispositivo creó
+  // y este aún no conocía. Lo conocido que falta en la local es que aquí se borró. clave: cómo se identifica cada elemento.
+  function fusionarLista(servidor, local, conocidos, clave = x => x && x.id) {
+    const lista = Array.isArray(local) ? local.slice() : [];
+    const enLocal = new Set(lista.map(clave));
+    for (const x of Array.isArray(servidor) ? servidor : []) {
+      const k = clave(x);
+      if (!enLocal.has(k) && !conocidos.has(k)) lista.push(x);
+    }
     return lista;
   }
 
@@ -47,5 +53,16 @@
     return String(s == null ? "" : s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\x20-\x7E]/g, "").trim();
   }
 
-  raiz.TecnomatDatos = { fusionarPorId, fusionarCatalogo, estadoLinea, textoBarras };
+  // Cola de ajustes de stock hechos sin conexión: se envían en orden y cada uno sale de la cola solo cuando el servidor
+  // lo confirma. Si uno falla, para ahí (lanza el error) y el resto espera, así no se descuadra ni se salta ninguno.
+  async function vaciarCola(leer, escribir, enviar) {
+    let pendientes;
+    while ((pendientes = leer()).length) {
+      const ajuste = pendientes[0];
+      await enviar(ajuste);
+      escribir(leer().filter(x => x.id !== ajuste.id));
+    }
+  }
+
+  raiz.TecnomatDatos = { fusionarPorId, fusionarCatalogo, fusionarLista, estadoLinea, textoBarras, vaciarCola };
 })(globalThis);

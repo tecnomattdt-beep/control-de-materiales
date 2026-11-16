@@ -365,7 +365,7 @@
       message: _0x3aeb08,
       to_email: estado.settings.emailDestino
     }).catch(function (_0x27ad4a) {
-      _0x279f78("Aviso de pedido: no se pudo enviar el correo — " + (_0x27ad4a && _0x27ad4a.text ? _0x27ad4a.text : _0x27ad4a));
+      mostrarAviso("Aviso de pedido: no se pudo enviar el correo — " + (_0x27ad4a && _0x27ad4a.text ? _0x27ad4a.text : _0x27ad4a));
     });
   }
   let _0x1f4699 = new Set();
@@ -629,7 +629,7 @@
     backend.auth.onChange(function (_0x19d0e3) {
       if (_0x19d0e3) {
         _0x5e4b53(_0x19d0e3);
-        _0x5c6639();
+        cargarTodo();
       } else {
         _0x4cacf5();
       }
@@ -643,7 +643,7 @@
     _0x164745();
     _0x32e8d7();
     _0x453aa4();
-    _0x5c6639();
+    cargarTodo();
   }
   let estado = {
     mode: "resumen",
@@ -797,7 +797,7 @@
   }
   const fechaHoraTexto = () => new Date().toLocaleString("es-ES");
   const aSlug = _0xde68be => _0xde68be.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-");
-  const _0x1d1ab0 = _0x4a4f5c => String(_0x4a4f5c == null ? "" : _0x4a4f5c).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  const escaparHtml = _0x4a4f5c => String(_0x4a4f5c == null ? "" : _0x4a4f5c).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   const _0x3edff0 = {
     editar: "<path d=\"M11 4H4a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-7\"/><path d=\"M14.5 2.5a1.5 1.5 0 0 1 2 2L10 11l-3 1 1-3 6.5-6.5Z\"/>",
     eliminar: "<path d=\"M3 5h10M6 5V3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5V5m1.5 0-.6 8.4a1 1 0 0 1-1 .9H5.1a1 1 0 0 1-1-.9L3.5 5\"/>",
@@ -820,13 +820,13 @@
       window.open(_0x80b4e9, "_blank");
       setTimeout(() => URL.revokeObjectURL(_0x80b4e9), 60000);
     } catch (_0x2d0f82) {
-      _0x279f78("No se pudo abrir el documento: " + _0x2d0f82.message);
+      mostrarAviso("No se pudo abrir el documento: " + _0x2d0f82.message);
     }
   }
   function _0x56ae2b(_0x24b712) {
     return "<svg viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"width:13px; height:13px; flex:none; opacity:.85; vertical-align:-2px; margin-right:5px;\">" + (_0x3edff0[_0x24b712] || "") + "</svg>";
   }
-  function _0x5cfc5(_0x39d56f, _0x2ea67a) {
+  function conPausa(_0x39d56f, _0x2ea67a) {
     let _0x48cf6b;
     return (..._0x3e11ac) => {
       clearTimeout(_0x48cf6b);
@@ -841,11 +841,11 @@
     });
     return _0x513e2d;
   }
-  function _0x279f78(_0xbb0204, _0x49625e) {
+  function mostrarAviso(_0xbb0204, _0x49625e) {
     const _0x55e3f3 = $("#statusBanner");
     const _0x43495f = /^(No se pu|No he |Ya no hay|Falta |Indica |Escribe |Rellena |Configura |Selecciona |El .*no puede|El pedido está vacío|La solicitud está vacía|La orden\/proyecto|Ese código no existe|Solo quedan|Formato no soportado|Tu navegador no soporta|Esa ubicación ya está|Error )/i.test(_0xbb0204);
     _0x55e3f3.className = "status-banner" + (_0x43495f ? " error" : "");
-    _0x55e3f3.innerHTML = _0x1d1ab0(_0xbb0204) + (_0x49625e ? " <button id=\"undoBtn\" class=\"btn-return\" style=\"margin-left:8px; padding:3px 9px; font-size:11px;\">Deshacer</button>" : "");
+    _0x55e3f3.innerHTML = escaparHtml(_0xbb0204) + (_0x49625e ? " <button id=\"undoBtn\" class=\"btn-return\" style=\"margin-left:8px; padding:3px 9px; font-size:11px;\">Deshacer</button>" : "");
     _0x55e3f3.style.display = "block";
     if (_0x49625e) {
       const _0x548f30 = $("#undoBtn");
@@ -856,8 +856,8 @@
         });
       }
     }
-    clearTimeout(_0x279f78._t);
-    _0x279f78._t = setTimeout(() => {
+    clearTimeout(mostrarAviso._t);
+    mostrarAviso._t = setTimeout(() => {
       _0x55e3f3.style.display = "none";
     }, 8000);
   }
@@ -883,7 +883,7 @@
   if (!navigator.onLine) {
     _0x179b09();
   }
-  const _0x5b358b = "tecnomat_materiales_";
+  const PREFIJO_LOCAL = "tecnomat_materiales_";
   (function () {
     const _0x266ff9 = document.getElementById("autosaveNote");
     if (!_0x266ff9) {
@@ -895,13 +895,13 @@
       _0x266ff9.innerHTML = "<span class=\"autosave-dot\"></span> Guardado automáticamente en este navegador (localStorage). Usa \"Descargar todo\" en Almacén para tener una copia fuera del navegador, o configura Supabase para compartirlo entre dispositivos.";
     }
   })();
-  async function _0x31ceb4(_0x53c567) {
+  async function leerDato(_0x53c567) {
     try {
       if (hayBackend) {
         try {
           return await backend.get(_0x53c567);
         } catch (_0xfab949) {
-          const _0x5a52a1 = localStorage.getItem(_0x5b358b + _0x53c567);
+          const _0x5a52a1 = localStorage.getItem(PREFIJO_LOCAL + _0x53c567);
           if (_0x5a52a1) {
             return JSON.parse(_0x5a52a1);
           } else {
@@ -909,7 +909,7 @@
           }
         }
       }
-      const _0x331e1a = localStorage.getItem(_0x5b358b + _0x53c567);
+      const _0x331e1a = localStorage.getItem(PREFIJO_LOCAL + _0x53c567);
       if (_0x331e1a) {
         return JSON.parse(_0x331e1a);
       } else {
@@ -925,36 +925,36 @@
         try {
           return await backend.set(_0x1f6b21, _0xf76f02);
         } catch (_0x47d33f) {
-          localStorage.setItem(_0x5b358b + _0x1f6b21, JSON.stringify(_0xf76f02));
+          localStorage.setItem(PREFIJO_LOCAL + _0x1f6b21, JSON.stringify(_0xf76f02));
           // Esta copia local solo se usa para volver a cargar en este dispositivo: no se sube sola
-          _0x279f78("No se pudo guardar \"" + _0x1f6b21 + "\" en el servidor (" + (_0x47d33f && _0x47d33f.message || "error") + "). Queda una copia solo en este dispositivo.");
+          mostrarAviso("No se pudo guardar \"" + _0x1f6b21 + "\" en el servidor (" + (_0x47d33f && _0x47d33f.message || "error") + "). Queda una copia solo en este dispositivo.");
           return {
             key: _0x1f6b21,
             value: _0xf76f02
           };
         }
       }
-      localStorage.setItem(_0x5b358b + _0x1f6b21, JSON.stringify(_0xf76f02));
+      localStorage.setItem(PREFIJO_LOCAL + _0x1f6b21, JSON.stringify(_0xf76f02));
       return {
         key: _0x1f6b21,
         value: _0xf76f02
       };
     } catch (_0x963269) {
-      _0x279f78("Error guardando \"" + _0x1f6b21 + "\": " + _0x963269.message);
+      mostrarAviso("Error guardando \"" + _0x1f6b21 + "\": " + _0x963269.message);
       return null;
     }
   }
-  async function _0x5390a2(_0x4a7153) {
+  async function borrarDato(_0x4a7153) {
     try {
       if (hayBackend) {
         await backend.delete(_0x4a7153);
         return;
       }
-      localStorage.removeItem(_0x5b358b + _0x4a7153);
+      localStorage.removeItem(PREFIJO_LOCAL + _0x4a7153);
     } catch (_0x117748) {}
   }
-  async function _0x5c6639() {
-    const [_0x262bd3, _0xea2297, _0x1a2d48, _0x34c9a2, _0x4509f8, _0x17a9ad, _0x4505ef, _0x1838a1, _0x1063d2, _0x993dc3, _0x120b29, _0xe26337, _0x262efb, _0x457b08, _0x5bd3f0, _0x3712ce, _0x2f3347, _0x550237, _0x266294, _0x44019a, _0x6bec81, __trabajadoresRaw, __clasifRaw] = await Promise.all([_0x31ceb4("catalog"), _0x31ceb4("movements"), _0x31ceb4("groups_montaje"), _0x31ceb4("groups_proyecto"), _0x31ceb4("lists"), _0x31ceb4("projects"), _0x31ceb4("app_state"), _0x31ceb4("bobinas"), _0x31ceb4("settings"), _0x31ceb4("alerts_state"), _0x31ceb4("pedido_items"), _0x31ceb4("movements_archive"), _0x31ceb4("deliveries"), _0x31ceb4("notifications"), _0x31ceb4("ubicaciones"), _0x31ceb4("deliveries_archive"), _0x31ceb4("pedido_chat"), _0x31ceb4("pedido_requester"), _0x31ceb4("vehiculos"), _0x31ceb4("tareas_mantenimiento"), _0x31ceb4("ocr_aprendizaje"), _0x31ceb4("trabajadores"), _0x31ceb4("clasificacion")]);
+  async function cargarTodo() {
+    const [_0x262bd3, _0xea2297, _0x1a2d48, _0x34c9a2, _0x4509f8, _0x17a9ad, _0x4505ef, _0x1838a1, _0x1063d2, _0x993dc3, _0x120b29, _0xe26337, _0x262efb, _0x457b08, _0x5bd3f0, _0x3712ce, _0x2f3347, _0x550237, _0x266294, _0x44019a, _0x6bec81, __trabajadoresRaw, __clasifRaw] = await Promise.all([leerDato("catalog"), leerDato("movements"), leerDato("groups_montaje"), leerDato("groups_proyecto"), leerDato("lists"), leerDato("projects"), leerPantallaLocal(), leerDato("bobinas"), leerDato("settings"), leerDato("alerts_state"), leerDato("pedido_items"), leerDato("movements_archive"), leerDato("deliveries"), leerDato("notifications"), leerDato("ubicaciones"), leerDato("deliveries_archive"), leerDato("pedido_chat"), leerDato("pedido_requester"), leerDato("vehiculos"), leerDato("tareas_mantenimiento"), leerDato("ocr_aprendizaje"), leerDato("trabajadores"), leerDato("clasificacion")]);
     if (_0x262bd3) {
       recordarCatalogo(_0x262bd3);
       estado.catalog = _0x262bd3.map(_0xb6fc8b => ({
@@ -1063,7 +1063,7 @@
     }
     for (const _0x5597e6 of estado.groups.proyecto) {
       if (!estado.groupData["proyecto::" + _0x5597e6.name]) {
-        const _0x52832c = await _0x31ceb4("project_" + aSlug(_0x5597e6.name));
+        const _0x52832c = await leerDato("project_" + aSlug(_0x5597e6.name));
         if (_0x52832c) {
           estado.groupData["proyecto::" + _0x5597e6.name] = Object.assign(grupoVacio(), _0x52832c);
           guardarGrupo("proyecto", _0x5597e6.name);
@@ -1073,14 +1073,14 @@
     if (estado.current.montaje) {
       const _0x2b6339 = "montaje::" + estado.current.montaje;
       if (!estado.groupData[_0x2b6339]) {
-        const _0x29b815 = await _0x31ceb4("group_montaje_" + aSlug(estado.current.montaje));
+        const _0x29b815 = await leerDato("group_montaje_" + aSlug(estado.current.montaje));
         estado.groupData[_0x2b6339] = _0x29b815 ? Object.assign(grupoVacio(), _0x29b815) : grupoVacio();
       }
     }
     if (estado.current.proyecto) {
       const _0x35f2ec = "proyecto::" + estado.current.proyecto;
       if (!estado.groupData[_0x35f2ec]) {
-        const _0x58dd8b = await _0x31ceb4("group_proyecto_" + aSlug(estado.current.proyecto));
+        const _0x58dd8b = await leerDato("group_proyecto_" + aSlug(estado.current.proyecto));
         estado.groupData[_0x35f2ec] = _0x58dd8b ? Object.assign(grupoVacio(), _0x58dd8b) : grupoVacio();
       }
     }
@@ -1091,21 +1091,22 @@
       _0x5d7cfc();
       _0x4b1425();
     }, 300000);
-    _0x1314ff();
+    escucharCambios();
   }
-  let _0xfe86c7 = {};
-  const _0x1512ce = _0x5cfc5(() => {
+  let escuchasActivas = {};
+  const repintarSiCambia = conPausa(() => {
     let __firmaRealtime;
     try {
-      __firmaRealtime = JSON.stringify(estado);
+      // Sin las entregas firmadas (imágenes pesadas que no llegan por tiempo real): comparar menos datos en cada aviso
+      __firmaRealtime = JSON.stringify(estado, (clave, valor) => clave === "deliveries" || clave === "deliveriesArchive" || clave === "ocrAprendizaje" ? undefined : valor);
     } catch {
       __firmaRealtime = null;
     }
-    if (__firmaRealtime !== null && _0x1512ce.__ultimaFirma === __firmaRealtime) {
+    if (__firmaRealtime !== null && repintarSiCambia.__ultimaFirma === __firmaRealtime) {
       return;
     }
     if (__firmaRealtime !== null) {
-      _0x1512ce.__ultimaFirma = __firmaRealtime;
+      repintarSiCambia.__ultimaFirma = __firmaRealtime;
     }
     render();
   }, 80);
@@ -1113,15 +1114,15 @@
     if (!hayBackend) {
       return;
     }
-    if (_0xfe86c7[_0x2026ae]) {
-      _0xfe86c7[_0x2026ae]();
+    if (escuchasActivas[_0x2026ae]) {
+      escuchasActivas[_0x2026ae]();
     }
-    _0xfe86c7[_0x2026ae] = backend.watch(_0x2026ae, _0x5df280 => {
+    escuchasActivas[_0x2026ae] = backend.watch(_0x2026ae, _0x5df280 => {
       _0x1239bd(_0x5df280);
-      _0x1512ce();
+      repintarSiCambia();
     });
   }
-  function _0x1314ff() {
+  function escucharCambios() {
     if (!hayBackend) {
       return;
     }
@@ -1149,13 +1150,16 @@
     escuchar("settings", _0x47fae3 => {
       estado.settings = Object.assign({}, estado.settings, _0x47fae3);
     });
-    escuchar("pedido_items", _0x5a6893 => {
-      estado.pedidoItems = _0x5a6893;
+    escucharListasCompartidas();
+    escuchar("pedido_chat", valor => {
+      if (Array.isArray(valor)) {
+        estado.pedidoChat = valor;
+      }
     });
     escuchar("notifications", _0x3346db => {
       estado.notifications = _0x3346db;
     });
-    _0x4efabf();
+    escucharOrdenesAbiertas();
     if (backend.watchOrdenesTrabajo) {
       backend.watchOrdenesTrabajo(_0x192438 => recibirOrdenTrabajo(_0x192438));
     }
@@ -1321,7 +1325,7 @@
       }
     } catch (e) {}
   }
-  function _0x4efabf() {
+  function escucharOrdenesAbiertas() {
     if (!hayBackend) {
       return;
     }
@@ -1341,13 +1345,23 @@
       });
     });
   }
-  function _0x430fb2() {
-    guardar("app_state", {
-      mode: estado.mode,
-      currentMontajeOrder: estado.current.montaje,
-      currentProject: estado.current.proyecto,
-      vehiculoActualId: estado.vehiculoActualId
-    });
+  // La pantalla y la orden abiertas son de cada dispositivo: si se guardaran en la nube, el taller abriría la orden de almacén
+  function guardarPantallaActual() {
+    try {
+      localStorage.setItem(PREFIJO_LOCAL + "app_state", JSON.stringify({
+        mode: estado.mode,
+        currentMontajeOrder: estado.current.montaje,
+        currentProject: estado.current.proyecto,
+        vehiculoActualId: estado.vehiculoActualId
+      }));
+    } catch (e) {}
+  }
+  function leerPantallaLocal() {
+    try {
+      return JSON.parse(localStorage.getItem(PREFIJO_LOCAL + "app_state"));
+    } catch (e) {
+      return null;
+    }
   }
   // Guarda `valorLocal` uniéndolo con lo que haya en el servidor (fusionar), en una transacción.
   // Sin backend o sin conexión, guarda como siempre: mejor eso que perder lo escrito.
@@ -1382,11 +1396,11 @@
       }
     });
   }
-  function _0x240f8a() {
+  function guardarMovimientos() {
     if (estado.movements.length > 600) {
       const _0x6524ad = estado.movements.slice(500);
       estado.movements = estado.movements.slice(0, 500);
-      _0xbba8cb(_0x6524ad);
+      archivarMovimientos(_0x6524ad);
     }
     const local = estado.movements;
     guardarFusionado("movements", local, servidor => TecnomatDatos.fusionarPorId(servidor, local), valor => {
@@ -1395,7 +1409,7 @@
       }
     });
   }
-  async function _0xbba8cb(_0x180cf0) {
+  async function archivarMovimientos(_0x180cf0) {
     const _0x4cc5e7 = {};
     _0x180cf0.forEach(_0x30b772 => {
       const _0x5233da = (_0x30b772.tsMs ? new Date(_0x30b772.tsMs) : new Date()).toISOString().slice(0, 7);
@@ -1415,7 +1429,7 @@
         _0x4cc5e7[_0x5233da].eliminados++;
       }
     });
-    const _0x18c7a6 = (await _0x31ceb4("movements_archive")) || [];
+    const _0x18c7a6 = (await leerDato("movements_archive")) || [];
     Object.values(_0x4cc5e7).forEach(_0x152893 => {
       const _0x5a4fd0 = _0x18c7a6.find(_0x2ee597 => _0x2ee597.month === _0x152893.month);
       if (_0x5a4fd0) {
@@ -1430,8 +1444,59 @@
     estado.movementsArchive = _0x18c7a6;
     guardar("movements_archive", _0x18c7a6);
   }
-  function guardarListaGrupos(_0x2bb54b) {
-    guardar("groups_" + _0x2bb54b, estado.groups[_0x2bb54b]);
+  function guardarListaGrupos(tipo) {
+    guardarListaCompartida("groups_" + tipo);
+  }
+  // Listas que comparten todos los dispositivos. Se guardan juntando con lo del servidor (no se pisa lo que otro
+  // móvil acaba de añadir) y se actualizan al momento en todos. clave: cómo se identifica cada elemento.
+  const porNombre = x => x && x.name;
+  const LISTAS_COMPARTIDAS = {
+    trabajadores: { leer: () => estado.trabajadores || [], poner: v => { estado.trabajadores = v; } },
+    vehiculos: { leer: () => estado.vehiculos, poner: v => { estado.vehiculos = v; } },
+    tareas_mantenimiento: { leer: () => estado.tareasMantenimiento, poner: v => { estado.tareasMantenimiento = v; } },
+    pedido_items: { leer: () => estado.pedidoItems, poner: v => { estado.pedidoItems = v; } },
+    ubicaciones: { clave: x => x, leer: () => estado.ubicaciones, poner: v => { estado.ubicaciones = v.slice().sort((a, b) => a.localeCompare(b)); } },
+    groups_montaje: { clave: porNombre, leer: () => estado.groups.montaje, poner: v => { estado.groups.montaje = v; } },
+    groups_proyecto: { clave: porNombre, leer: () => estado.groups.proyecto, poner: v => { estado.groups.proyecto = v; } }
+  };
+  // Lo que este dispositivo ya ha visto de cada lista: distingue «lo borré aquí» de «lo creó otro dispositivo»
+  const conocidosLista = {};
+  function recordarLista(nombre, lista) {
+    const def = LISTAS_COMPARTIDAS[nombre];
+    const clave = def.clave || (x => x && x.id);
+    const conocidos = conocidosLista[nombre] || (conocidosLista[nombre] = new Set());
+    (Array.isArray(lista) ? lista : []).forEach(x => conocidos.add(clave(x)));
+    return conocidos;
+  }
+  function guardarListaCompartida(nombre) {
+    const def = LISTAS_COMPARTIDAS[nombre];
+    const local = def.leer();
+    const conocidos = recordarLista(nombre, []);
+    return guardarFusionado(nombre, local, servidor => TecnomatDatos.fusionarLista(servidor, local, conocidos, def.clave), valor => {
+      recordarLista(nombre, valor);
+      // la pantalla se repinta sola al llegar el aviso de cambio del servidor
+      if (def.leer() === local) {
+        def.poner(valor);
+      }
+    });
+  }
+  function escucharListasCompartidas() {
+    Object.keys(LISTAS_COMPARTIDAS).forEach(nombre => {
+      recordarLista(nombre, LISTAS_COMPARTIDAS[nombre].leer());
+      escuchar(nombre, valor => {
+        if (Array.isArray(valor)) {
+          const def = LISTAS_COMPARTIDAS[nombre];
+          const clave = def.clave || (x => x && x.id);
+          recordarLista(nombre, valor);
+          // Se actualizan los mismos objetos: un formulario abierto (editar tarea, trabajador…) sigue apuntando al de la lista
+          const actuales = new Map(def.leer().map(x => [clave(x), x]));
+          def.poner(valor.map(x => {
+            const actual = actuales.get(clave(x));
+            return actual && typeof actual === "object" ? Object.assign(actual, x) : x;
+          }));
+        }
+      });
+    });
   }
   // El chat de la orden se une con el del servidor: dos personas escribiendo a la vez no se borran los mensajes.
   function guardarGrupo(_0x22ca02, _0x9ffa21) {
@@ -1447,22 +1512,22 @@
       }
     });
   }
-  function _0x217fa8() {
+  function guardarBobinas() {
     guardar("bobinas", estado.bobinas);
   }
-  function _0x253c4d() {
-    guardar("pedido_items", estado.pedidoItems);
+  function guardarPedidoItems() {
+    guardarListaCompartida("pedido_items");
   }
   function _0x18fe55() {
     guardar("pedido_requester", estado.pedidoRequesterName);
   }
-  function _0x932e35() {
-    guardar("vehiculos", estado.vehiculos);
+  function guardarVehiculos() {
+    guardarListaCompartida("vehiculos");
   }
-  function _0x3e790f() {
-    guardar("tareas_mantenimiento", estado.tareasMantenimiento);
+  function guardarTareasMantenimiento() {
+    guardarListaCompartida("tareas_mantenimiento");
   }
-  function _0x56ccc4() {
+  function guardarOcrAprendizaje() {
     guardar("ocr_aprendizaje", estado.ocrAprendizaje);
   }
   const _0x1d5219 = 86400000;
@@ -1533,8 +1598,14 @@
     _0x1c334d.pendiente.requesterName = _0x8736d2.trim();
     return true;
   }
-  function _0x2fa0b5() {
-    guardar("pedido_chat", estado.pedidoChat.slice(-200));
+  // El chat de Reponer se une con el del servidor: dos personas escribiendo a la vez no se borran los mensajes
+  function guardarPedidoChat() {
+    const local = estado.pedidoChat.slice(-200);
+    guardarFusionado("pedido_chat", local, servidor => TecnomatDatos.fusionarPorId(servidor, local, "asc", 200), valor => {
+      if (estado.pedidoChat.length === local.length) {
+        estado.pedidoChat = valor;
+      }
+    });
   }
   function anadirMensajeChat(_0x178b04, _0x123dde) {
     _0x178b04.push({
@@ -1561,7 +1632,7 @@
     }
     return "<div class=\"chat-feed\">" + _0x362fa9.map(_0x3e7680 => {
       const _0xd08edb = _0x27790c.target && _0x3e7680.pendienteId && _0x27790c.target.pendiente.items.find(_0x41faa6 => _0x41faa6.id === _0x3e7680.pendienteId && _0x41faa6.textoLibre);
-      return "\n      <div class=\"chat-bubble " + (/guardad|confirmad|enviad|vaciad|Asociado/i.test(_0x3e7680.texto) ? "chat-bubble-accent" : "") + "\">\n        " + _0x1d1ab0(_0x3e7680.texto) + "\n        <div class=\"chat-bubble-meta\">" + _0x3e7680.ts + (_0x3e7680.usuario ? " · " + _0x1d1ab0(_0x3e7680.usuario) : "") + "</div>\n        " + (_0xd08edb && _0x27790c.puedeAsociar ? "<button class=\"cam-btn\" data-asociar-chat=\"" + _0x3e7680.pendienteId + "\" style=\"margin-top:6px; padding:6px 10px; font-size:11px; min-height:auto;\">Asociar</button>" : "") + "\n      </div>\n    ";
+      return "\n      <div class=\"chat-bubble " + (/guardad|confirmad|enviad|vaciad|Asociado/i.test(_0x3e7680.texto) ? "chat-bubble-accent" : "") + "\">\n        " + escaparHtml(_0x3e7680.texto) + "\n        <div class=\"chat-bubble-meta\">" + _0x3e7680.ts + (_0x3e7680.usuario ? " · " + escaparHtml(_0x3e7680.usuario) : "") + "</div>\n        " + (_0xd08edb && _0x27790c.puedeAsociar ? "<button class=\"cam-btn\" data-asociar-chat=\"" + _0x3e7680.pendienteId + "\" style=\"margin-top:6px; padding:6px 10px; font-size:11px; min-height:auto;\">Asociar</button>" : "") + "\n      </div>\n    ";
     }).join("") + "</div>";
   }
   function _0x529094() {
@@ -1589,7 +1660,7 @@
       ts: _0x3e664a.ts,
       tsMs: _0x3e664a.tsMs
     }));
-    const _0x413d06 = (await _0x31ceb4("deliveries_archive")) || [];
+    const _0x413d06 = (await leerDato("deliveries_archive")) || [];
     const _0x56bff6 = _0x413d06.concat(_0x53d81a).sort((_0x510ef9, _0x3ff94a) => (_0x3ff94a.tsMs || 0) - (_0x510ef9.tsMs || 0));
     estado.deliveriesArchive = _0x56bff6;
     guardar("deliveries_archive", _0x56bff6);
@@ -1597,8 +1668,8 @@
   function guardarAvisos() {
     guardar("notifications", estado.notifications.slice(0, 100));
   }
-  function _0x18572f() {
-    guardar("ubicaciones", estado.ubicaciones);
+  function guardarUbicaciones() {
+    guardarListaCompartida("ubicaciones");
   }
   async function _0x48754b() {
     if (!backend.getMaterialesRapidos) {
@@ -1612,19 +1683,19 @@
   async function _0x1bf731(_0x3f384f, _0x594734) {
     _0x594734 = (_0x594734 || "").trim();
     if (!_0x594734) {
-      _0x279f78("Escribe un nombre para el material.");
+      mostrarAviso("Escribe un nombre para el material.");
       return;
     }
     if (!backend.addMaterialRapido) {
-      _0x279f78("Esto necesita Supabase configurado — ver README.");
+      mostrarAviso("Esto necesita Supabase configurado — ver README.");
       return;
     }
     try {
       await backend.addMaterialRapido(_0x3f384f.trim(), _0x594734, estado.materialesRapidos.length);
       await _0x48754b();
-      _0x279f78("Añadido a la lista rápida.");
+      mostrarAviso("Añadido a la lista rápida.");
     } catch (_0xfcb7e7) {
-      _0x279f78("No se pudo añadir: " + _0xfcb7e7.message);
+      mostrarAviso("No se pudo añadir: " + _0xfcb7e7.message);
     }
   }
   async function _0x311314(_0x1f9bd9) {
@@ -1638,7 +1709,7 @@
       await backend.deleteMaterialRapido(_0x1f9bd9);
       await _0x48754b();
     } catch (_0x5dd464) {
-      _0x279f78("No se pudo quitar: " + _0x5dd464.message);
+      mostrarAviso("No se pudo quitar: " + _0x5dd464.message);
     }
   }
   function _0x1a6410(_0x7e0897) {
@@ -1647,12 +1718,12 @@
       return;
     }
     if (estado.ubicaciones.some(_0x47e6a5 => _0x47e6a5.toLowerCase() === _0x7e0897.toLowerCase())) {
-      _0x279f78("Esa ubicación ya está en la lista.");
+      mostrarAviso("Esa ubicación ya está en la lista.");
       return;
     }
     estado.ubicaciones.push(_0x7e0897);
     estado.ubicaciones.sort((_0x4c2cdb, _0x547e0d) => _0x4c2cdb.localeCompare(_0x547e0d));
-    _0x18572f();
+    guardarUbicaciones();
     render();
   }
   async function _0x401198(_0x4d4d0b) {
@@ -1660,12 +1731,12 @@
       return;
     }
     estado.ubicaciones = estado.ubicaciones.filter(_0x59384f => _0x59384f !== _0x4d4d0b);
-    _0x18572f();
+    guardarUbicaciones();
     render();
   }
   function _0x3131a5() {
     if (!estado.deliveries.length) {
-      _0x279f78("Todavía no hay entregas firmadas.");
+      mostrarAviso("Todavía no hay entregas firmadas.");
       return;
     }
     const _0x2444f7 = [];
@@ -1773,19 +1844,7 @@
       return enviandoAjustes;
     }
     if (!enviandoAjustes) {
-      enviandoAjustes = (async () => {
-        let pendientes;
-        while ((pendientes = leerAjustesPendientes()).length) {
-          const ajuste = pendientes[0];
-          try {
-            await backend.adjustStockAtomic(ajuste.articulo, ajuste.delta);
-          } catch (e) {
-            avisarAjustesPendientes();
-            break;
-          }
-          escribirAjustesPendientes(leerAjustesPendientes().filter(x => x.id !== ajuste.id));
-        }
-      })().finally(() => {
+      enviandoAjustes = TecnomatDatos.vaciarCola(leerAjustesPendientes, escribirAjustesPendientes, ajuste => backend.adjustStockAtomic(ajuste.articulo, ajuste.delta)).catch(() => avisarAjustesPendientes()).finally(() => {
         enviandoAjustes = null;
       });
     }
@@ -1794,11 +1853,11 @@
   function avisarAjustesPendientes() {
     const n = leerAjustesPendientes().length;
     if (n) {
-      _0x279f78("Sin conexión: " + n + " ajuste" + (n === 1 ? "" : "s") + " de stock guardado" + (n === 1 ? "" : "s") + " en este dispositivo. Se enviará" + (n === 1 ? "" : "n") + " solo" + (n === 1 ? "" : "s") + " al volver la conexión; no cierres sesión.");
+      mostrarAviso("Sin conexión: " + n + " ajuste" + (n === 1 ? "" : "s") + " de stock guardado" + (n === 1 ? "" : "s") + " en este dispositivo. Se enviará" + (n === 1 ? "" : "n") + " solo" + (n === 1 ? "" : "s") + " al volver la conexión; no cierres sesión.");
     }
   }
   window.addEventListener("online", () => enviarAjustesPendientes());
-  function _0x1d4277(_0x8de593, _0x12b1fc, _0x1bb957, _0x536686) {
+  function registrarMovimiento(_0x8de593, _0x12b1fc, _0x1bb957, _0x536686) {
     const _0x549810 = _0x1bb957 === "entrada" ? _0x12b1fc : -_0x12b1fc;
     _0x8de593.qty += _0x549810;
     estado.movements.unshift({
@@ -1812,7 +1871,7 @@
       tsMs: Date.now(),
       usuario: usuarioActual()
     });
-    _0x240f8a();
+    guardarMovimientos();
     if (hayBackend) {
       encolarAjusteStock(_0x8de593, _0x549810);
     } else {
@@ -1833,7 +1892,7 @@
     if (_0x1a6ca7 === 0) {
       return;
     }
-    _0x1d4277(_0x39adc4, Math.abs(_0x1a6ca7), _0x1a6ca7 > 0 ? "entrada" : "salida", "Almacén (ajuste manual de cantidad)");
+    registrarMovimiento(_0x39adc4, Math.abs(_0x1a6ca7), _0x1a6ca7 > 0 ? "entrada" : "salida", "Almacén (ajuste manual de cantidad)");
     render();
   }
   async function _0x291d0f(_0x3af321) {
@@ -1874,7 +1933,7 @@
       return;
     }
     const _0x4d3721 = $("#editItemCard");
-    _0x4d3721.innerHTML = "\n      <p class=\"panel-title\">Editar " + _0x1d1ab0(_0x298adb.code) + "</p>\n      <div class=\"manual-stock-form\" style=\"margin-top:0; flex-direction:column;\">\n        <input type=\"text\" id=\"editArticulo\" placeholder=\"Artículo\" value=\"" + _0x1d1ab0(_0x298adb.desc) + "\" style=\"width:100%;\">\n        <input type=\"text\" id=\"editReferencia\" placeholder=\"Referencia (opcional)\" value=\"" + _0x1d1ab0(_0x298adb.referencia || "") + "\" style=\"width:100%;\">\n        <input type=\"text\" id=\"editUbicacion\" placeholder=\"Ubicación\" value=\"" + _0x1d1ab0(_0x298adb.location || "") + "\" list=\"ubicacionesList\" style=\"width:100%;\">\n        <select id=\"editCategoria\" style=\"width:100%;\">\n          <option value=\"\">Sin categoría</option>\n          " + _0x23f5f6.map(_0x361584 => "<option value=\"" + _0x1d1ab0(_0x361584) + "\" " + (_0x298adb.categoria === _0x361584 ? "selected" : "") + ">" + _0x1d1ab0(_0x361584) + "</option>").join("") + "\n        </select>\n        <input type=\"number\" id=\"editCoste\" placeholder=\"Coste por unidad (€)\" value=\"" + (_0x298adb.coste || 0) + "\" min=\"0\" step=\"0.01\" style=\"width:100%;\">\n        <textarea id=\"editSpecs\" placeholder=\"Características (opcional)\" style=\"width:100%; min-height:60px; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:9px 10px; border-radius:7px; font-size:13px; font-family:inherit;\">" + _0x1d1ab0(_0x298adb.specs || "") + "</textarea>\n      </div>\n      <div class=\"backup-row\" style=\"margin-top:12px;\">\n        <button class=\"btn primary\" id=\"saveEditItemBtn\" style=\"width:auto; flex:1;\">" + _0x56ae2b("guardar") + "Guardar</button>\n        <button class=\"cam-btn\" id=\"cancelEditItemBtn\" style=\"flex:none;\">Cancelar</button>\n      </div>\n      <div class=\"scanner-row\" style=\"margin-top:10px; padding-top:10px; border-top:1px dashed var(--border);\">\n        <button class=\"cam-btn\" id=\"editItemEtiquetaBtn\" style=\"flex:1; padding:8px 10px; font-size:12px; min-height:auto;\">Imprimir etiqueta</button>\n        <button class=\"cam-btn\" id=\"editItemDupBtn\" style=\"flex:1; padding:8px 10px; font-size:12px; min-height:auto;\">+ Otra referencia</button>\n        <button class=\"btn-return\" id=\"editItemDelBtn\" style=\"flex:1; padding:8px 10px; font-size:12px; min-height:auto;\">" + _0x56ae2b("eliminar") + "Eliminar</button>\n      </div>\n    ";
+    _0x4d3721.innerHTML = "\n      <p class=\"panel-title\">Editar " + escaparHtml(_0x298adb.code) + "</p>\n      <div class=\"manual-stock-form\" style=\"margin-top:0; flex-direction:column;\">\n        <input type=\"text\" id=\"editArticulo\" placeholder=\"Artículo\" value=\"" + escaparHtml(_0x298adb.desc) + "\" style=\"width:100%;\">\n        <input type=\"text\" id=\"editReferencia\" placeholder=\"Referencia (opcional)\" value=\"" + escaparHtml(_0x298adb.referencia || "") + "\" style=\"width:100%;\">\n        <input type=\"text\" id=\"editUbicacion\" placeholder=\"Ubicación\" value=\"" + escaparHtml(_0x298adb.location || "") + "\" list=\"ubicacionesList\" style=\"width:100%;\">\n        <select id=\"editCategoria\" style=\"width:100%;\">\n          <option value=\"\">Sin categoría</option>\n          " + _0x23f5f6.map(_0x361584 => "<option value=\"" + escaparHtml(_0x361584) + "\" " + (_0x298adb.categoria === _0x361584 ? "selected" : "") + ">" + escaparHtml(_0x361584) + "</option>").join("") + "\n        </select>\n        <input type=\"number\" id=\"editCoste\" placeholder=\"Coste por unidad (€)\" value=\"" + (_0x298adb.coste || 0) + "\" min=\"0\" step=\"0.01\" style=\"width:100%;\">\n        <textarea id=\"editSpecs\" placeholder=\"Características (opcional)\" style=\"width:100%; min-height:60px; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:9px 10px; border-radius:7px; font-size:13px; font-family:inherit;\">" + escaparHtml(_0x298adb.specs || "") + "</textarea>\n      </div>\n      <div class=\"backup-row\" style=\"margin-top:12px;\">\n        <button class=\"btn primary\" id=\"saveEditItemBtn\" style=\"width:auto; flex:1;\">" + _0x56ae2b("guardar") + "Guardar</button>\n        <button class=\"cam-btn\" id=\"cancelEditItemBtn\" style=\"flex:none;\">Cancelar</button>\n      </div>\n      <div class=\"scanner-row\" style=\"margin-top:10px; padding-top:10px; border-top:1px dashed var(--border);\">\n        <button class=\"cam-btn\" id=\"editItemEtiquetaBtn\" style=\"flex:1; padding:8px 10px; font-size:12px; min-height:auto;\">Imprimir etiqueta</button>\n        <button class=\"cam-btn\" id=\"editItemDupBtn\" style=\"flex:1; padding:8px 10px; font-size:12px; min-height:auto;\">+ Otra referencia</button>\n        <button class=\"btn-return\" id=\"editItemDelBtn\" style=\"flex:1; padding:8px 10px; font-size:12px; min-height:auto;\">" + _0x56ae2b("eliminar") + "Eliminar</button>\n      </div>\n    ";
     _0x554368.style.display = "flex";
     $("#saveEditItemBtn").addEventListener("click", _0x12cde8);
     $("#cancelEditItemBtn").addEventListener("click", _0x34a315);
@@ -1885,7 +1944,7 @@
       _0x24edec = {
         code: _0x298adb.code
       };
-      _0x279f78("Rellena la nueva referencia para el código \"" + _0x298adb.code + "\" justo arriba, junto al escáner.");
+      mostrarAviso("Rellena la nueva referencia para el código \"" + _0x298adb.code + "\" justo arriba, junto al escáner.");
       render();
     });
     $("#editItemDelBtn").addEventListener("click", () => {
@@ -1901,7 +1960,7 @@
     }
     const _0x449ce0 = $("#editArticulo").value.trim();
     if (!_0x449ce0) {
-      _0x279f78("El artículo no puede quedar vacío.");
+      mostrarAviso("El artículo no puede quedar vacío.");
       return;
     }
     _0x171a74.desc = _0x449ce0;
@@ -1915,39 +1974,40 @@
     _0x34a315();
     render();
   }
-  let _0xd99011 = null;
-  function _0x46a074() {
-    if (typeof Tesseract !== "undefined") {
-      return Promise.resolve();
+  // Carga una librería externa la primera vez que hace falta, comprobando su huella (integrity):
+  // si el archivo del CDN cambiara, el navegador no lo ejecuta. Al cambiar de versión, recalcular la huella.
+  const scriptsCargando = {};
+  function cargarScript(url, huella, mensajeError) {
+    if (!scriptsCargando[url]) {
+      scriptsCargando[url] = new Promise((ok, mal) => {
+        const s = document.createElement("script");
+        s.src = url;
+        s.integrity = huella;
+        s.crossOrigin = "anonymous";
+        s.onload = () => ok();
+        s.onerror = () => {
+          delete scriptsCargando[url]; // sin conexión: se reintenta la próxima vez
+          s.remove();
+          mal(new Error(mensajeError));
+        };
+        document.head.appendChild(s);
+      });
     }
-    if (_0xd99011) {
-      return _0xd99011;
-    }
-    _0xd99011 = new Promise((_0x3f7d40, _0x4daea0) => {
-      const _0xca168 = document.createElement("script");
-      _0xca168.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
-      _0xca168.onload = () => _0x3f7d40();
-      _0xca168.onerror = () => _0x4daea0(new Error("No se pudo cargar el reconocimiento de texto"));
-      document.head.appendChild(_0xca168);
-    });
-    return _0xd99011;
+    return scriptsCargando[url];
   }
-  let _0x3754f2 = null;
-  function _0x12644a() {
-    if (typeof window.jspdf !== "undefined") {
-      return Promise.resolve();
+  function cargarOcr() {
+    return typeof Tesseract !== "undefined" ? Promise.resolve() : cargarScript("https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js", "sha384-GJqSu7vueQ9qN0E9yLPb3Wtpd7OrgK8KmYzC8T1IysG1bcvxvIO4qtYR/D3A991F", "No se pudo cargar el reconocimiento de texto");
+  }
+  function cargarGeneradorPdf() {
+    return typeof window.jspdf !== "undefined" ? Promise.resolve() : cargarScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js", "sha384-JcnsjUPPylna1s1fvi1u12X5qjY5OL56iySh75FdtrwhO/SWXgMjoVqcKyIIWOLk", "No se pudo cargar el generador de PDF");
+  }
+  // Lector de PDF: solo se descarga al subir un PDF (antes se bajaba con la pantalla de entrada)
+  async function cargarLectorPdf() {
+    if (typeof pdfjsLib === "undefined") {
+      await cargarScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js", "sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e", "No se pudo cargar el lector de PDF");
     }
-    if (_0x3754f2) {
-      return _0x3754f2;
-    }
-    _0x3754f2 = new Promise((_0x337604, _0x3b2a73) => {
-      const _0x43d661 = document.createElement("script");
-      _0x43d661.src = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
-      _0x43d661.onload = () => _0x337604();
-      _0x43d661.onerror = () => _0x3b2a73(new Error("No se pudo cargar el generador de PDF"));
-      document.head.appendChild(_0x43d661);
-    });
-    return _0x3754f2;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    return pdfjsLib;
   }
   async function _0x323ac8(_0x183bc5) {
     const _0x48c987 = estado.catalog.find(_0x4d9fe9 => _0x4d9fe9.id === _0x183bc5);
@@ -1969,7 +2029,7 @@
       tsMs: Date.now(),
       usuario: usuarioActual()
     });
-    _0x240f8a();
+    guardarMovimientos();
     estado.catalog = estado.catalog.filter(_0x15ffdf => _0x15ffdf.id !== _0x183bc5);
     guardarCatalogo();
     render();
@@ -1979,7 +2039,7 @@
     _0x521b7f = _0x521b7f.trim();
     _0x41925f = _0x41925f.trim();
     if (!_0xa3199e || !_0x521b7f || !_0x41925f || !_0x41263d) {
-      _0x279f78("Rellena código, referencia, matrícula y fecha de devolución.");
+      mostrarAviso("Rellena código, referencia, matrícula y fecha de devolución.");
       return;
     }
     estado.bobinas.push({
@@ -1990,7 +2050,7 @@
       expira: _0x41263d,
       createdAt: fechaHoraTexto()
     });
-    _0x217fa8();
+    guardarBobinas();
     if (!buscarPorCodigo(_0xa3199e)) {
       estado.catalog.push({
         id: nuevoId(),
@@ -2008,7 +2068,7 @@
       return;
     }
     estado.bobinas = estado.bobinas.filter(_0x4942cf => _0x4942cf.id !== _0x1886f4);
-    _0x217fa8();
+    guardarBobinas();
     render();
   }
   function _0x57856f(_0x31a757, _0x33d8a6) {
@@ -2028,8 +2088,8 @@
       });
     }
     anadirMensajeChat(estado.pedidoChat, "Escaneado: " + _0x31a757.code + " — " + _0x31a757.desc + " · " + _0x33d8a6 + " uds (pide: " + estado.pedidoRequesterName + ")");
-    _0x2fa0b5();
-    _0x253c4d();
+    guardarPedidoChat();
+    guardarPedidoItems();
     render();
   }
   async function _0x36610a() {
@@ -2040,7 +2100,7 @@
     const _0x4f28d5 = $("#chatCantidadInput");
     const _0x3469f0 = _0xe16a60.value.trim();
     if (!_0x3469f0) {
-      _0x279f78("Escribe qué hace falta antes de enviar.");
+      mostrarAviso("Escribe qué hace falta antes de enviar.");
       return;
     }
     const _0x2c79f7 = Math.max(1, parseInt(_0x4f28d5.value, 10) || 1);
@@ -2053,8 +2113,8 @@
     });
     anadirMensajeChat(estado.pedidoChat, "Pedido: " + _0x3469f0 + " · " + _0x2c79f7 + " uds (pide: " + estado.pedidoRequesterName + ")");
     __clasifLimpiarChat();
-    _0x2fa0b5();
-    _0x253c4d();
+    guardarPedidoChat();
+    guardarPedidoItems();
     render();
   }
   function _0x10dfbf(_0x2f08e8) {
@@ -2063,8 +2123,8 @@
     if (_0x4708ef) {
       anadirMensajeChat(estado.pedidoChat, "Quitado del pedido: " + _0x4708ef.code + " — " + _0x4708ef.desc);
     }
-    _0x2fa0b5();
-    _0x253c4d();
+    guardarPedidoChat();
+    guardarPedidoItems();
     render();
   }
   async function _0x26d93b() {
@@ -2076,17 +2136,17 @@
     }
     estado.pedidoItems = [];
     anadirMensajeChat(estado.pedidoChat, "Pedido vaciado");
-    _0x2fa0b5();
-    _0x253c4d();
+    guardarPedidoChat();
+    guardarPedidoItems();
     render();
   }
   async function _0x59a0b6() {
     if (!estado.pedidoItems.length) {
-      _0x279f78("El pedido está vacío, añade algún material primero.");
+      mostrarAviso("El pedido está vacío, añade algún material primero.");
       return;
     }
     if (!_0x172e48 || !estado.settings.emailDestino) {
-      _0x279f78("Configura el correo de EmailJS y el email de destino (en Almacén → Avisos) antes de poder enviar el pedido.");
+      mostrarAviso("Configura el correo de EmailJS y el email de destino (en Almacén → Avisos) antes de poder enviar el pedido.");
       return;
     }
     if (!(await _0x2cc777("¿Enviar este pedido por correo? El listado se vaciará después de enviarlo."))) {
@@ -2098,8 +2158,8 @@
     });
     enviarCorreoAviso("Pedido de materiales", _0x4f080c);
     estado.pedidoItems = [];
-    _0x253c4d();
-    _0x279f78("Pedido enviado por correo.");
+    guardarPedidoItems();
+    mostrarAviso("Pedido enviado por correo.");
     render();
   }
   function _0x1e1e26() {
@@ -2136,13 +2196,13 @@
       });
       guardarAvisos();
     }
-    _0x279f78("Pedido guardado" + (_0x172e48 && estado.settings.emailDestino ? " y aviso enviado a almacén." : "."));
+    mostrarAviso("Pedido guardado" + (_0x172e48 && estado.settings.emailDestino ? " y aviso enviado a almacén." : "."));
     render();
   }
   function _0x308988() {
     const _0xd138f7 = _0x1ea037();
     if (!_0xd138f7 || !__hojaLineasLista(_0xd138f7).length) {
-      _0x279f78("La solicitud está vacía, añade algún material primero.");
+      mostrarAviso("La solicitud está vacía, añade algún material primero.");
       return;
     }
     const _0x2855cb = [];
@@ -2201,7 +2261,7 @@
         _0x7ced69.pendiente.items.forEach(_0x2b4c04 => {
           _0x2b4c04.reservado = false;
         });
-        guardar("group_" + estado.pendingDelivery.groupKind + "_" + aSlug(estado.pendingDelivery.groupName), _0x7ced69);
+        guardarGrupo(estado.pendingDelivery.groupKind, estado.pendingDelivery.groupName);
       }
     }
     estado.pendingDelivery = null;
@@ -2215,7 +2275,7 @@
     const _0x3fddd3 = estado.pendingDelivery.groupKind + "::" + estado.pendingDelivery.groupName;
     const _0x2546c8 = estado.groupData[_0x3fddd3];
     if (!_0x2546c8) {
-      _0x279f78("La orden/proyecto de esta solicitud ya no existe.");
+      mostrarAviso("La orden/proyecto de esta solicitud ya no existe.");
       estado.pendingDelivery = null;
       _0x1abbb2();
       render();
@@ -2233,7 +2293,7 @@
       }
     });
     if (_0x4303ac.length) {
-      _0x279f78("Ya no hay stock suficiente de: " + _0x4303ac.join(", ") + ". Cancela y ajusta la solicitud.");
+      mostrarAviso("Ya no hay stock suficiente de: " + _0x4303ac.join(", ") + ". Cancela y ajusta la solicitud.");
       return;
     }
     const _0x48bc68 = (estado.pendingDelivery.groupKind === "montaje" ? "Montaje/Venta: " : "Proyecto: ") + estado.pendingDelivery.groupName + " — pedido por " + (estado.pendingDelivery.requesterName || "sin especificar") + (estado.pendingDelivery.recipientName ? " — recogido por " + estado.pendingDelivery.recipientName : "");
@@ -2250,14 +2310,14 @@
         escandalloPedido: _0x16b903.escandalloPedido,
         escandalloPedidoNumero: _0x16b903.escandalloPedidoNumero
       });
-      _0x1d4277(_0x316fe3, _0x16b903.qty, "salida", _0x48bc68);
+      registrarMovimiento(_0x316fe3, _0x16b903.qty, "salida", _0x48bc68);
     });
     anadirMensajeChat(_0x2546c8.chat, "Recogida confirmada y firmada por " + (estado.pendingDelivery.recipientName || "sin especificar") + " (" + estado.pendingDelivery.items.length + " línea(s))");
     _0x2546c8.pendiente = {
       requesterName: "",
       items: _0x2546c8.pendiente.items.filter(__l => !estado.pendingDelivery.items.some(__e => __e.id === __l.id))
     };
-    guardar("group_" + estado.pendingDelivery.groupKind + "_" + aSlug(estado.pendingDelivery.groupName), _0x2546c8);
+    guardarGrupo(estado.pendingDelivery.groupKind, estado.pendingDelivery.groupName);
     estado.deliveries.unshift({
       id: nuevoId(),
       groupKind: estado.pendingDelivery.groupKind,
@@ -2274,7 +2334,7 @@
     estado.pendingDelivery = null;
     _0x1abbb2();
     render();
-    _0x279f78("Recogida confirmada y firmada — stock descontado.");
+    mostrarAviso("Recogida confirmada y firmada — stock descontado.");
   }
   function _0x1a6d34(_0x5c161c) {
     const _0x2d9449 = new Date();
@@ -2374,7 +2434,7 @@
       return "<div style=\"color:var(--text-faint); font-size:12.5px;\">Todavía no hay movimientos suficientes.</div>";
     }
     const _0x392705 = Math.max(..._0x11428c.map(_0x150760 => _0x150760.total));
-    return _0x11428c.map(_0x4ebd25 => "\n      <div style=\"margin-bottom:8px;\">\n        <div style=\"display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:2px;\">\n          <span style=\"color:var(--text-primary); font-weight:600;\">" + _0x1d1ab0(_0x4ebd25.code) + " · " + _0x1d1ab0(_0x4ebd25.desc) + "</span>\n          <span style=\"color:var(--text-faint);\">" + _0x4ebd25.total + " uds</span>\n        </div>\n        <div style=\"background:var(--bg-raised); border-radius:4px; height:6px; overflow:hidden;\">\n          <div style=\"background:var(--accent); height:100%; width:" + Math.max(4, Math.round(_0x4ebd25.total / _0x392705 * 100)) + "%;\"></div>\n        </div>\n      </div>\n    ").join("");
+    return _0x11428c.map(_0x4ebd25 => "\n      <div style=\"margin-bottom:8px;\">\n        <div style=\"display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:2px;\">\n          <span style=\"color:var(--text-primary); font-weight:600;\">" + escaparHtml(_0x4ebd25.code) + " · " + escaparHtml(_0x4ebd25.desc) + "</span>\n          <span style=\"color:var(--text-faint);\">" + _0x4ebd25.total + " uds</span>\n        </div>\n        <div style=\"background:var(--bg-raised); border-radius:4px; height:6px; overflow:hidden;\">\n          <div style=\"background:var(--accent); height:100%; width:" + Math.max(4, Math.round(_0x4ebd25.total / _0x392705 * 100)) + "%;\"></div>\n        </div>\n      </div>\n    ").join("");
   }
   function _0x4b1425() {
     const _0x40a502 = new Date();
@@ -2477,7 +2537,7 @@
     const _0x585dd7 = $("#mainList");
     const _0x3f02e5 = [..._0x585dd7.querySelectorAll(".rapido-check:checked")];
     if (!_0x3f02e5.length) {
-      _0x279f78("Marca al menos un material de la lista rápida.");
+      mostrarAviso("Marca al menos un material de la lista rápida.");
       return;
     }
     let _0x4b4a40 = 0;
@@ -2600,7 +2660,7 @@
       anadirMensajeChat(_0x2da0af.chat, "Asociado a " + _0x2de8ff.code + " — " + _0x2de8ff.desc);
       _0x29f0a4();
       render();
-      _0x279f78("Referencia asignada: " + _0x2de8ff.code + " — " + _0x2de8ff.desc);
+      mostrarAviso("Referencia asignada: " + _0x2de8ff.code + " — " + _0x2de8ff.desc);
     };
     _0x210142("Código de la referencia real para \"" + _0x25bb21.textoLibre + "\"").then(_0x2802ef);
   }
@@ -2613,16 +2673,16 @@
         return;
       }
       if (_0x345037 === "salida" && _0x437a51 > _0xec7d50.qty) {
-        _0x279f78("Solo quedan " + _0xec7d50.qty + " unidad(es) de \"" + _0x5e3c65 + "\" — no se puede sacar más de eso.");
+        mostrarAviso("Solo quedan " + _0xec7d50.qty + " unidad(es) de \"" + _0x5e3c65 + "\" — no se puede sacar más de eso.");
         return;
       }
-      _0x1d4277(_0xec7d50, _0x437a51, _0x345037, "Almacén (escaneo)");
+      registrarMovimiento(_0xec7d50, _0x437a51, _0x345037, "Almacén (escaneo)");
       if (!_0xec7d50.categoria) {
         _0x291d0f(_0xec7d50.id);
       }
       const _0x212e0a = _0x345037 === "entrada" ? "salida" : "entrada";
-      _0x279f78((_0x345037 === "entrada" ? "Entrada registrada: +" : "Salida registrada: -") + _0x437a51 + " · " + _0x5e3c65, () => {
-        _0x1d4277(_0xec7d50, _0x437a51, _0x212e0a, "Deshacer " + _0x345037);
+      mostrarAviso((_0x345037 === "entrada" ? "Entrada registrada: +" : "Salida registrada: -") + _0x437a51 + " · " + _0x5e3c65, () => {
+        registrarMovimiento(_0xec7d50, _0x437a51, _0x212e0a, "Deshacer " + _0x345037);
         render();
       });
       render();
@@ -2637,7 +2697,7 @@
         return;
       }
       _0x57856f(_0xec7d50, _0x582308);
-      _0x279f78("Añadido al pedido: " + _0x582308 + " · " + _0x5e3c65, () => {
+      mostrarAviso("Añadido al pedido: " + _0x582308 + " · " + _0x5e3c65, () => {
         const _0x4c8bc6 = estado.pedidoItems.find(_0x30e70d => _0x30e70d.itemId === _0xec7d50.id);
         if (!_0x4c8bc6) {
           return;
@@ -2646,13 +2706,13 @@
         if (_0x4c8bc6.qty <= 0) {
           estado.pedidoItems = estado.pedidoItems.filter(_0x1ae049 => _0x1ae049 !== _0x4c8bc6);
         }
-        _0x253c4d();
+        guardarPedidoItems();
         render();
       });
       return;
     }
     if (_0xec7d50.qty <= 0) {
-      _0x279f78("No se puede solicitar \"" + _0x5e3c65 + "\" — no queda stock (0 unidades). Dalo de alta en Almacén primero.");
+      mostrarAviso("No se puede solicitar \"" + _0x5e3c65 + "\" — no queda stock (0 unidades). Dalo de alta en Almacén primero.");
       return;
     }
     const _0x3222e2 = _0x1ea037();
@@ -2667,12 +2727,12 @@
       return;
     }
     if (_0x2fc9a6 > _0xec7d50.qty) {
-      _0x279f78("Solo quedan " + _0xec7d50.qty + " unidad(es) de \"" + _0x5e3c65 + "\" en stock — no se puede pedir más de eso.");
+      mostrarAviso("Solo quedan " + _0xec7d50.qty + " unidad(es) de \"" + _0x5e3c65 + "\" en stock — no se puede pedir más de eso.");
       return;
     }
     _0xc5b186(_0x3222e2, _0xec7d50, _0x2fc9a6);
     _0x29f0a4();
-    _0x279f78("Añadido a la solicitud: " + _0x2fc9a6 + " · " + _0x5e3c65, () => {
+    mostrarAviso("Añadido a la solicitud: " + _0x2fc9a6 + " · " + _0x5e3c65, () => {
       const _0x910d8b = _0x3222e2.pendiente.items.find(_0x2607cf => _0x2607cf.itemId === _0xec7d50.id);
       if (!_0x910d8b) {
         return;
@@ -2695,12 +2755,12 @@
     if (estado.mode === "montaje" || estado.mode === "proyecto") {
       const _0x3471b1 = _0x1ea037();
       if (!_0x3471b1) {
-        _0x279f78("Selecciona " + (estado.mode === "montaje" ? "una orden de montaje" : "un proyecto") + " antes de escanear.");
+        mostrarAviso("Selecciona " + (estado.mode === "montaje" ? "una orden de montaje" : "un proyecto") + " antes de escanear.");
         return;
       }
       const _0x32d1e5 = buscarGrupo(estado.mode, estado.current[estado.mode]);
       if (_0x32d1e5 && _0x32d1e5.status === "finalizado") {
-        _0x279f78("Est" + (estado.mode === "montaje" ? "a orden está finalizada" : "e proyecto está finalizado") + ". Reactíval" + (estado.mode === "montaje" ? "a" : "o") + " para seguir registrando material.");
+        mostrarAviso("Est" + (estado.mode === "montaje" ? "a orden está finalizada" : "e proyecto está finalizado") + ". Reactíval" + (estado.mode === "montaje" ? "a" : "o") + " para seguir registrando material.");
         return;
       }
     }
@@ -2714,7 +2774,7 @@
       } else {
         const _0xbb82ac = _0x1ea037();
         if (!_0xbb82ac.pendiente.requesterName) {
-          _0x279f78("Indica quién hace la solicitud (campo \"¿Quién lo pide?\" de arriba) antes de escanear.");
+          mostrarAviso("Indica quién hace la solicitud (campo \"¿Quién lo pide?\" de arriba) antes de escanear.");
         } else {
           const _0x418630 = await _0x27b2ef(_0x2ce812);
           if (_0x418630 !== null) {
@@ -2730,7 +2790,7 @@
               reserva: 0
             });
             _0x29f0a4();
-            _0x279f78("Añadido sin referencia: " + _0x418630 + " · \"" + _0x2ce812 + "\" — almacén le asignará la referencia real.");
+            mostrarAviso("Añadido sin referencia: " + _0x418630 + " · \"" + _0x2ce812 + "\" — almacén le asignará la referencia real.");
             render();
           }
         }
@@ -2768,7 +2828,7 @@
     const _0x66f41c = $("#unknownDesc");
     const _0x43bc49 = (_0x66f41c.value || "").trim();
     if (!_0x43bc49) {
-      _0x279f78("Escribe el artículo para el material.");
+      mostrarAviso("Escribe el artículo para el material.");
       return;
     }
     const _0x3d547a = $("#unknownRef");
@@ -2808,7 +2868,7 @@
     _0x29f0a4();
     const _0x2d49c7 = _0x4a7d94.itemId && estado.catalog.find(_0x57e281 => _0x57e281.id === _0x4a7d94.itemId) || buscarPorCodigo(_0x4a7d94.code);
     if (_0x2d49c7) {
-      _0x1d4277(_0x2d49c7, _0x57a4b8, "entrada", _0x10a3a1() + " (devolución)");
+      registrarMovimiento(_0x2d49c7, _0x57a4b8, "entrada", _0x10a3a1() + " (devolución)");
     }
     render();
   }
@@ -2832,7 +2892,7 @@
     _0x25d7ae = (_0x25d7ae || "").trim();
     _0x442c3d = Math.max(1, parseInt(_0x442c3d, 10) || 0);
     if (!_0x14fe3b || !_0x3c54f7 || !_0x442c3d) {
-      _0x279f78("Rellena código, artículo y una cantidad válida.");
+      mostrarAviso("Rellena código, artículo y una cantidad válida.");
       return;
     }
     let _0x132ee8 = buscarPorCodigo(_0x14fe3b);
@@ -2841,7 +2901,7 @@
     } else if (!_0x132ee8.categoria && _0x142dcd) {
       _0x132ee8.categoria = _0x142dcd;
     }
-    _0x1d4277(_0x132ee8, _0x442c3d, "entrada", "Almacén (manual)");
+    registrarMovimiento(_0x132ee8, _0x442c3d, "entrada", "Almacén (manual)");
     if (!_0x132ee8.categoria) {
       _0x291d0f(_0x132ee8.id);
     }
@@ -2853,7 +2913,7 @@
   async function _0x2f0e01(_0x5a7091, _0x3915d9) {
     estado.current[_0x5a7091] = _0x3915d9 || null;
     _0x5592da = "chat";
-    clearTimeout(_0x279f78._t);
+    clearTimeout(mostrarAviso._t);
     const _0x54fc7f = $("#statusBanner");
     if (_0x54fc7f) {
       _0x54fc7f.style.display = "none";
@@ -2861,17 +2921,17 @@
     if (_0x3915d9) {
       const _0x57ba4d = _0x5a7091 + "::" + _0x3915d9;
       if (!estado.groupData[_0x57ba4d]) {
-        const _0xe92912 = await _0x31ceb4("group_" + _0x5a7091 + "_" + aSlug(_0x3915d9));
+        const _0xe92912 = await leerDato("group_" + _0x5a7091 + "_" + aSlug(_0x3915d9));
         estado.groupData[_0x57ba4d] = _0xe92912 ? Object.assign(grupoVacio(), _0xe92912) : grupoVacio();
       }
       const _0x1b3be7 = estado.groupData[_0x57ba4d];
       if (_0x1b3be7 && _0x1b3be7.pendiente.items.length) {
         const _0x51e77e = _0x1b3be7.pendiente.items.reduce((_0x575887, _0xce2396) => _0x575887 + _0xce2396.qty, 0);
-        _0x279f78("Esta " + (_0x5a7091 === "montaje" ? "orden" : "este proyecto") + " tiene " + _0x1b3be7.pendiente.items.length + " línea(s) sin recoger (" + _0x51e77e + " uds).");
+        mostrarAviso("Esta " + (_0x5a7091 === "montaje" ? "orden" : "este proyecto") + " tiene " + _0x1b3be7.pendiente.items.length + " línea(s) sin recoger (" + _0x51e77e + " uds).");
       }
     }
-    _0x430fb2();
-    _0x4efabf();
+    guardarPantallaActual();
+    escucharOrdenesAbiertas();
     render();
   }
   async function _0xc78429(_0x3d9b4c, _0x2f23cf, _0x116c8c, _0x4c9719) {
@@ -2925,10 +2985,10 @@
     estado.groups[_0x28c730] = estado.groups[_0x28c730].filter(_0x128762 => _0x128762.name !== _0x2dfdf9);
     delete estado.groupData[_0x28c730 + "::" + _0x2dfdf9];
     guardarListaGrupos(_0x28c730);
-    await _0x5390a2("group_" + _0x28c730 + "_" + aSlug(_0x2dfdf9));
+    await borrarDato("group_" + _0x28c730 + "_" + aSlug(_0x2dfdf9));
     if (estado.current[_0x28c730] === _0x2dfdf9) {
       estado.current[_0x28c730] = null;
-      _0x430fb2();
+      guardarPantallaActual();
     }
     render();
   }
@@ -2936,14 +2996,14 @@
     for (const _0x1ddf26 of estado.groups[_0x5e8f9b]) {
       const _0x1bfd64 = _0x5e8f9b + "::" + _0x1ddf26.name;
       if (!estado.groupData[_0x1bfd64]) {
-        const _0x151664 = await _0x31ceb4("group_" + _0x5e8f9b + "_" + aSlug(_0x1ddf26.name));
+        const _0x151664 = await leerDato("group_" + _0x5e8f9b + "_" + aSlug(_0x1ddf26.name));
         estado.groupData[_0x1bfd64] = _0x151664 ? Object.assign(grupoVacio(), _0x151664) : grupoVacio();
       }
     }
   }
   async function _0x5c71d9(_0x5d5727) {
     if (!estado.groups[_0x5d5727].length) {
-      _0x279f78("Todavía no hay " + (_0x5d5727 === "montaje" ? "órdenes" : "proyectos") + " creados.");
+      mostrarAviso("Todavía no hay " + (_0x5d5727 === "montaje" ? "órdenes" : "proyectos") + " creados.");
       return;
     }
     await _0x6153c8(_0x5d5727);
@@ -3025,7 +3085,7 @@
     _0x16d924.click();
     _0x16d924.remove();
     URL.revokeObjectURL(_0x437208);
-    _0x279f78("Copia de seguridad descargada.");
+    mostrarAviso("Copia de seguridad descargada.");
   }
   function _0x58a48a(_0x35d690) {
     const _0x54892c = new FileReader();
@@ -3074,7 +3134,7 @@
           });
         }
         guardarCatalogo(true);
-        _0x240f8a();
+        guardarMovimientos();
         guardarListaGrupos("montaje");
         guardarListaGrupos("proyecto");
         Object.keys(estado.groupData).forEach(_0x3dc1c6 => {
@@ -3083,7 +3143,7 @@
         });
         if (_0x47ae07.bobinas) {
           estado.bobinas = _0x47ae07.bobinas;
-          _0x217fa8();
+          guardarBobinas();
         }
         if (_0x47ae07.settings) {
           estado.settings = Object.assign({}, estado.settings, _0x47ae07.settings);
@@ -3091,16 +3151,16 @@
         }
         if (_0x47ae07.pedidoItems) {
           estado.pedidoItems = _0x47ae07.pedidoItems;
-          _0x253c4d();
+          guardarPedidoItems();
         }
         if (_0x47ae07.deliveries) {
           estado.deliveries = _0x47ae07.deliveries;
           _0x529094();
         }
-        _0x279f78("Copia de seguridad restaurada correctamente.");
+        mostrarAviso("Copia de seguridad restaurada correctamente.");
         render();
       } catch (_0x95d421) {
-        _0x279f78("No se pudo leer la copia de seguridad: " + _0x95d421.message);
+        mostrarAviso("No se pudo leer la copia de seguridad: " + _0x95d421.message);
       }
     };
     _0x54892c.readAsText(_0x35d690);
@@ -3285,15 +3345,15 @@
             _0x2fa091++;
           }
           if (!isNaN(_0x25ed23) && _0x25ed23 > 0) {
-            _0x1d4277(_0x3d7b57, _0x25ed23, "entrada", "Importación catálogo");
+            registrarMovimiento(_0x3d7b57, _0x25ed23, "entrada", "Importación catálogo");
             _0xd5c917++;
           }
         });
         guardarCatalogo();
-        _0x279f78("Catálogo actualizado: " + _0x1160b8.length + " filas procesadas, " + _0x2fa091 + " materiales nuevos" + (_0xd5c917 ? ", " + _0xd5c917 + " con entrada de stock" : "") + ".");
+        mostrarAviso("Catálogo actualizado: " + _0x1160b8.length + " filas procesadas, " + _0x2fa091 + " materiales nuevos" + (_0xd5c917 ? ", " + _0xd5c917 + " con entrada de stock" : "") + ".");
         render();
       } catch (_0x2d1e01) {
-        _0x279f78("No se pudo leer el archivo: " + _0x2d1e01.message);
+        mostrarAviso("No se pudo leer el archivo: " + _0x2d1e01.message);
       }
     };
     _0x2b9cf8.readAsArrayBuffer(_0x3d58ec);
@@ -3325,7 +3385,7 @@
           };
         }).filter(_0x48b217 => _0x48b217.code);
         if (!_0x5e6070.length) {
-          _0x279f78("No he encontrado ninguna fila con código en ese archivo.");
+          mostrarAviso("No he encontrado ninguna fila con código en ese archivo.");
           return;
         }
         const _0x11876e = new Set(_0x5e6070.map(_0x55d20a => _0x55d20a.code.toLowerCase()));
@@ -3366,7 +3426,7 @@
           const _0x36cecd = !isNaN(_0x503a9f.qty) ? Math.max(0, _0x503a9f.qty) : _0x395c21.qty;
           const _0x592540 = _0x36cecd - _0x395c21.qty;
           if (_0x592540 !== 0) {
-            _0x1d4277(_0x395c21, Math.abs(_0x592540), _0x592540 > 0 ? "entrada" : "salida", "Sobrescritura de stock (Excel)");
+            registrarMovimiento(_0x395c21, Math.abs(_0x592540), _0x592540 > 0 ? "entrada" : "salida", "Sobrescritura de stock (Excel)");
           }
         });
         _0x514e32.forEach(_0x4e83da => {
@@ -3382,13 +3442,13 @@
             usuario: usuarioActual()
           });
         });
-        _0x240f8a();
+        guardarMovimientos();
         estado.catalog = estado.catalog.filter(_0xadc62 => _0x11876e.has(_0xadc62.code.toLowerCase()));
         guardarCatalogo();
-        _0x279f78("Stock sobrescrito: " + _0x15a8c9 + " nuevas, " + _0x17c439 + " actualizadas, " + _0x514e32.length + " eliminadas.");
+        mostrarAviso("Stock sobrescrito: " + _0x15a8c9 + " nuevas, " + _0x17c439 + " actualizadas, " + _0x514e32.length + " eliminadas.");
         render();
       } catch (_0x575069) {
-        _0x279f78("No se pudo leer el archivo: " + _0x575069.message);
+        mostrarAviso("No se pudo leer el archivo: " + _0x575069.message);
       }
     };
     _0x1ca04f.readAsArrayBuffer(_0x1be550);
@@ -3429,12 +3489,13 @@
       _0x20d88e.readAsArrayBuffer(_0x394348);
     });
   }
-  async function _0x40e5f4(_0x11f149) {
-    if (typeof pdfjsLib === "undefined") {
-      _0x279f78("No se pudo cargar el lector de PDF. Prueba subiendo un Excel/CSV en su lugar.");
+  async function leerPdf(_0x11f149) {
+    try {
+      await cargarLectorPdf();
+    } catch (e) {
+      mostrarAviso("No se pudo cargar el lector de PDF. Prueba subiendo un Excel/CSV en su lugar.");
       return [];
     }
-    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
     const _0x48f8da = await _0x11f149.arrayBuffer();
     const _0x3d441d = await pdfjsLib.getDocument({
       data: _0x48f8da
@@ -3465,7 +3526,7 @@
   async function _0x2f0af0(_0x35872) {
     const _0x3cd8e1 = _0x1ea037();
     if (!_0x3cd8e1) {
-      _0x279f78("Selecciona " + (estado.mode === "montaje" ? "una orden de montaje" : "un proyecto") + " antes de subir el archivo.");
+      mostrarAviso("Selecciona " + (estado.mode === "montaje" ? "una orden de montaje" : "un proyecto") + " antes de subir el archivo.");
       return;
     }
     const _0x359113 = (_0x35872.name.split(".").pop() || "").toLowerCase();
@@ -3474,17 +3535,17 @@
       if (["xlsx", "xls", "csv"].includes(_0x359113)) {
         _0x5dd670 = await _0x4de45d(_0x35872);
       } else if (_0x359113 === "pdf") {
-        _0x5dd670 = await _0x40e5f4(_0x35872);
+        _0x5dd670 = await leerPdf(_0x35872);
       } else {
-        _0x279f78("Formato no soportado — usa Excel, CSV o PDF.");
+        mostrarAviso("Formato no soportado — usa Excel, CSV o PDF.");
         return;
       }
     } catch (_0x1d488b) {
-      _0x279f78("No se pudo leer el archivo: " + _0x1d488b.message);
+      mostrarAviso("No se pudo leer el archivo: " + _0x1d488b.message);
       return;
     }
     if (!_0x5dd670.length) {
-      _0x279f78("No he podido sacar ninguna línea de ese archivo.");
+      mostrarAviso("No he podido sacar ninguna línea de ese archivo.");
       return;
     }
     const _0x343de3 = _0x5dd670.map(_0x46d819 => {
@@ -3530,7 +3591,7 @@
       return;
     }
     if (!_0x3cf49d.pendiente.requesterName) {
-      _0x279f78("Indica quién hace la solicitud (campo \"¿Quién lo pide?\") antes de aplicar el archivo.");
+      mostrarAviso("Indica quién hace la solicitud (campo \"¿Quién lo pide?\") antes de aplicar el archivo.");
       return;
     }
     let _0x374203 = 0;
@@ -3553,7 +3614,7 @@
     _0x29f0a4();
     _0x453578 = null;
     render();
-    _0x279f78("Archivo añadido a la solicitud pendiente: " + _0x374203 + " línea(s)" + (_0x36f954 ? ", " + _0x36f954 + " creadas como plantilla nueva" : "") + ". Prepara la recogida y firma cuando corresponda.");
+    mostrarAviso("Archivo añadido a la solicitud pendiente: " + _0x374203 + " línea(s)" + (_0x36f954 ? ", " + _0x36f954 + " creadas como plantilla nueva" : "") + ". Prepara la recogida y firma cuando corresponda.");
   }
   function _0x58f658() {
     _0x453578 = null;
@@ -3573,7 +3634,7 @@
     }
     _0x5504f6.style.display = "flex";
     const _0xd610ea = $("#signatureItemsList");
-    _0xd610ea.innerHTML = "<div class=\"sig-item\" style=\"color:var(--accent); font-weight:700;\">Pedido por: " + _0x1d1ab0(estado.pendingDelivery.requesterName || "sin especificar") + "</div>" + estado.pendingDelivery.items.map(_0x5f1565 => "<div class=\"sig-item\">" + _0x1d1ab0(_0x5f1565.code) + " · " + _0x1d1ab0(_0x5f1565.desc) + " · <strong>" + _0x5f1565.qty + " uds</strong></div>").join("");
+    _0xd610ea.innerHTML = "<div class=\"sig-item\" style=\"color:var(--accent); font-weight:700;\">Pedido por: " + escaparHtml(estado.pendingDelivery.requesterName || "sin especificar") + "</div>" + estado.pendingDelivery.items.map(_0x5f1565 => "<div class=\"sig-item\">" + escaparHtml(_0x5f1565.code) + " · " + escaparHtml(_0x5f1565.desc) + " · <strong>" + _0x5f1565.qty + " uds</strong></div>").join("");
     const _0x30e794 = $("#recipientNameInput");
     if (_0x30e794 && !_0x30e794.value) {
       _0x30e794.value = estado.pendingDelivery.recipientName || "";
@@ -3591,7 +3652,7 @@
     if (_0x279265) {
       _0x279265.onclick = () => {
         if (!_0x429406) {
-          _0x279f78("Falta la firma — hay que firmar antes de confirmar la entrega.");
+          mostrarAviso("Falta la firma — hay que firmar antes de confirmar la entrega.");
           return;
         }
         if (_0x279265.disabled) {
@@ -3712,7 +3773,7 @@
   }
   async function _0xe99bca(_0x4738d7) {
     if (!("BarcodeDetector" in window)) {
-      _0x279f78("Tu navegador no soporta escaneo por cámara. Usa un lector USB/Bluetooth o introduce el código manualmente.");
+      mostrarAviso("Tu navegador no soporta escaneo por cámara. Usa un lector USB/Bluetooth o introduce el código manualmente.");
       return;
     }
     const _0x2982a4 = $("#camOverlay");
@@ -3759,7 +3820,7 @@
   let _0xb33f4f = [];
   async function _0x1c65e1() {
     if (!_0x1ea037()) {
-      _0x279f78("Selecciona primero una orden o proyecto.");
+      mostrarAviso("Selecciona primero una orden o proyecto.");
       return;
     }
     const _0x3cda4b = $("#docScanOverlay");
@@ -3934,10 +3995,7 @@
       if (__statusEl) {
         __statusEl.textContent = "Leyendo PDF…";
       }
-      if (typeof pdfjsLib === "undefined") {
-        throw new Error("El lector de PDF no está disponible");
-      }
-      pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      await cargarLectorPdf();
       const __buffer = await __file.arrayBuffer();
       const __pdf = await pdfjsLib.getDocument({
         data: __buffer
@@ -4409,7 +4467,7 @@
       };
     }
     if (_0xc00c97.ia.dia.n >= __IA_MAX_DIA) {
-      _0x279f78("Límite diario de consultas a la IA alcanzado.");
+      mostrarAviso("Límite diario de consultas a la IA alcanzado.");
       return false;
     }
     const _0x5007ee = __iaPendientes(_0x240658.pendiente.items || []).slice(0, __IA_MAX_LINEAS);
@@ -4459,10 +4517,10 @@
         _0x5bd37c.sort((_0xb8d366, _0x1e85da) => _0xc00c97.ia.cache[_0xb8d366].ts - _0xc00c97.ia.cache[_0x1e85da].ts).slice(0, _0x5bd37c.length - __IA_MAX_CACHE).forEach(_0x2e05f8 => delete _0xc00c97.ia.cache[_0x2e05f8]);
       }
       __guardarClasif();
-      _0x279f78("IA: " + _0x235d50 + " sugerencia" + (_0x235d50 === 1 ? "" : "s") + " (consulta " + _0xc00c97.ia.dia.n + "/" + __IA_MAX_DIA + " de hoy). Quedan por confirmar.");
+      mostrarAviso("IA: " + _0x235d50 + " sugerencia" + (_0x235d50 === 1 ? "" : "s") + " (consulta " + _0xc00c97.ia.dia.n + "/" + __IA_MAX_DIA + " de hoy). Quedan por confirmar.");
       return true;
     } catch (_0x1d83ce) {
-      _0x279f78("La IA no ha respondido: " + __errorAmable(_0x1d83ce) + ". No se ha guardado nada.");
+      mostrarAviso("La IA no ha respondido: " + __errorAmable(_0x1d83ce) + ". No se ha guardado nada.");
       return false;
     } finally {
       clearTimeout(_0x42c53f);
@@ -4576,10 +4634,10 @@
         document.execCommand("copy");
       } catch (_0x4970d8) {}
       _0x1dc3a2.remove();
-      _0x279f78("Texto copiado.");
+      mostrarAviso("Texto copiado.");
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(_0x2d4a79).then(() => _0x279f78("Texto copiado."), _0x282697);
+      navigator.clipboard.writeText(_0x2d4a79).then(() => mostrarAviso("Texto copiado."), _0x282697);
     } else {
       _0x282697();
     }
@@ -4745,12 +4803,12 @@
     _0x354a0d.className = "panel";
     _0x354a0d.id = "pushPanel";
     _0x354a0d.style.marginTop = "14px";
-    _0x354a0d.innerHTML = "<p class=\"panel-title\">Notificaciones push</p><p style=\"font-size:12px; color:var(--text-muted); margin:0 0 8px;\">Avisos en este dispositivo con la app cerrada (petición de material enviada, stock bajo). Requiere una cuenta gratuita de OneSignal; en iPhone, iOS 16.4 o superior y la app añadida a la pantalla de inicio.</p><div class=\"manual-stock-form\" style=\"flex-direction:column;\"><input type=\"text\" id=\"pushAppId\" placeholder=\"ID de la aplicación de OneSignal\" value=\"" + _0x1d1ab0(_0x5af903) + "\" style=\"width:100%;\"><button class=\"cam-btn\" id=\"pushGuardarBtn\">Guardar ID</button></div>" + (_0x5af903 ? "<p id=\"pushEstado\" style=\"font-size:12.5px; margin:10px 0 6px;\"></p><button class=\"btn primary\" id=\"pushActivarBtn\" style=\"width:100%;\"></button>" : "");
+    _0x354a0d.innerHTML = "<p class=\"panel-title\">Notificaciones push</p><p style=\"font-size:12px; color:var(--text-muted); margin:0 0 8px;\">Avisos en este dispositivo con la app cerrada (petición de material enviada, stock bajo). Requiere una cuenta gratuita de OneSignal; en iPhone, iOS 16.4 o superior y la app añadida a la pantalla de inicio.</p><div class=\"manual-stock-form\" style=\"flex-direction:column;\"><input type=\"text\" id=\"pushAppId\" placeholder=\"ID de la aplicación de OneSignal\" value=\"" + escaparHtml(_0x5af903) + "\" style=\"width:100%;\"><button class=\"cam-btn\" id=\"pushGuardarBtn\">Guardar ID</button></div>" + (_0x5af903 ? "<p id=\"pushEstado\" style=\"font-size:12.5px; margin:10px 0 6px;\"></p><button class=\"btn primary\" id=\"pushActivarBtn\" style=\"width:100%;\"></button>" : "");
     _0x27e0f3.after(_0x354a0d);
     $("#pushGuardarBtn").addEventListener("click", () => {
       estado.settings.onesignalAppId = $("#pushAppId").value.trim();
       guardar("settings", estado.settings);
-      _0x279f78(estado.settings.onesignalAppId ? "ID guardado." : "ID eliminado.");
+      mostrarAviso(estado.settings.onesignalAppId ? "ID guardado." : "ID eliminado.");
       __pushIniciar();
       render();
     });
@@ -4872,7 +4930,7 @@
         }
       }
     }
-    _0x240f8a();
+    guardarMovimientos();
     _0x529094();
     __guardarClasif();
     _0x24d2fa.forEach(_0x185d69 => {
@@ -4894,7 +4952,7 @@
     const _0x15399a = _0x279187 => {
       _0x2eaa69.stopImmediatePropagation();
       _0x2eaa69.preventDefault();
-      _0x279f78(_0x279187);
+      mostrarAviso(_0x279187);
     };
     if (!_0x209a8a) {
       _0x15399a("El código no puede quedar vacío.");
@@ -5090,7 +5148,7 @@
     _0x200324.style.marginTop = "10px";
     _0x200324.innerHTML = "<p class=\"panel-title\">Chat externo de Taller</p><p style=\"font-size:12px; color:var(--text-muted); margin:0 0 8px;\">" + (_0x4ac14b ? "El enlace muestra el chat de esta orden dentro de otra aplicación. Los mensajes recibidos pasan solos a la solicitud pendiente." : "Genera un enlace para mostrar el chat de esta orden dentro de otra aplicación.") + "</p><div class=\"scanner-row\">" + (_0x4ac14b ? "<button type=\"button\" class=\"cam-btn\" id=\"chatExtCopiarBtn\" style=\"flex:1;\">Copiar enlace</button><button type=\"button\" class=\"cam-btn\" id=\"chatExtRegenerarBtn\" style=\"flex:1;\">Regenerar enlace</button>" : "<button type=\"button\" class=\"btn primary\" id=\"chatExtCrearBtn\" style=\"flex:1;\">Crear enlace de chat</button>") + "</div>";
     _0xaa91d6.after(_0x200324);
-    const _0x1afab2 = _0x183b31 => _0x279f78("No se pudo completar: " + __errorAmable(_0x183b31));
+    const _0x1afab2 = _0x183b31 => mostrarAviso("No se pudo completar: " + __errorAmable(_0x183b31));
     if (!_0x4ac14b) {
       $("#chatExtCrearBtn").addEventListener("click", async () => {
         try {
@@ -5254,12 +5312,12 @@
     _0x4972d5.style.marginTop = "10px";
     let _0x1d52b7 = "<p class=\"panel-title\">Pegar una lista larga</p><p style=\"font-size:12px; color:var(--text-muted); margin:0 0 8px;\">Para listas de un correo o mensaje: un artículo por línea o separados por comas. Almacén asigna las cantidades. Solo las líneas con varios artículos mezclados usan la IA (usos de hoy: " + _0xcb82f9.texto + "/" + __IA_MAX_TEXTO_DIA + ").</p><textarea data-texto-entrada rows=\"4\" style=\"width:100%; font-size:13px;\" placeholder=\"Pegar o escribir la lista…\"></textarea>" + (_0x21c30f ? "<input type=\"text\" data-texto-quien placeholder=\"Quién pide el material\" maxlength=\"60\" style=\"margin-top:8px; width:100%;\">" : "") + "<button type=\"button\" class=\"cam-btn\" data-texto-interpretar style=\"width:100%; margin-top:8px;\">Interpretar lista</button>";
     if (__textoEstado.aviso) {
-      _0x1d52b7 += "<p style=\"font-size:12px; color:var(--warning, #e5a03c); margin:8px 0 0;\">" + _0x1d1ab0(__textoEstado.aviso) + "</p>";
+      _0x1d52b7 += "<p style=\"font-size:12px; color:var(--warning, #e5a03c); margin:8px 0 0;\">" + escaparHtml(__textoEstado.aviso) + "</p>";
     }
     if (_0x3f408d && _0x3f408d.length) {
       _0x1d52b7 += "<div class=\"clasif-rap-grid\" style=\"margin-top:10px;\">" + _0x3f408d.map((_0x31ef69, _0x406bec) => {
         const _0x478947 = _0x31ef69.ref ? (estado.catalog || []).find(_0x3d7d52 => _0x3d7d52.id === _0x31ef69.ref) : null;
-        return "<label class=\"clasif-rap-item\"><input type=\"checkbox\" data-texto-chk=\"" + _0x406bec + "\"" + (_0x31ef69.marcada ? " checked" : "") + "><span class=\"clasif-rap-txt\">" + _0x1d1ab0(_0x31ef69.desc) + "<small>" + (_0x478947 ? "→ " + _0x1d1ab0(_0x478947.code + " — " + (_0x478947.desc || "")) : "sin referencia (texto libre)") + (_0x31ef69.ia ? " · IA" : "") + "</small></span></label>";
+        return "<label class=\"clasif-rap-item\"><input type=\"checkbox\" data-texto-chk=\"" + _0x406bec + "\"" + (_0x31ef69.marcada ? " checked" : "") + "><span class=\"clasif-rap-txt\">" + escaparHtml(_0x31ef69.desc) + "<small>" + (_0x478947 ? "→ " + escaparHtml(_0x478947.code + " — " + (_0x478947.desc || "")) : "sin referencia (texto libre)") + (_0x31ef69.ia ? " · IA" : "") + "</small></span></label>";
       }).join("") + "</div><button type=\"button\" class=\"btn primary\" data-texto-anadir style=\"width:100%; margin-top:10px;\">Añadir a la solicitud</button>";
     } else if (_0x3f408d) {
       _0x1d52b7 += "<p style=\"font-size:12.5px; color:var(--text-faint); margin:10px 0 0;\">No se ha reconocido ninguna línea.</p>";
@@ -5294,7 +5352,7 @@
     if (_0x45fb7b) {
       _0x45fb7b.addEventListener("click", () => {
         if (_0x21c30f && !__textoEstado.quien.trim()) {
-          _0x279f78("Indicar quién pide el material.");
+          mostrarAviso("Indicar quién pide el material.");
           return;
         }
         __textoAplicar(_0xfb7abe);
@@ -5378,7 +5436,7 @@
     const _0x546a96 = __clasifStore();
     const _0x670645 = _0x546a96.ia.resumen && _0x546a96.ia.resumen.h === _0x1e6539 ? _0x546a96.ia.resumen.items : null;
     const _0x19a3d0 = __iaUso();
-    const _0x145208 = (_0xfb71c2, _0x4f0139) => "<p style=\"margin:0 0 6px; font-size:12.5px;\"><b>" + _0xfb71c2 + ":</b> " + _0x1d1ab0(_0x4f0139.length ? _0x4f0139.join("; ") : "—") + "</p>";
+    const _0x145208 = (_0xfb71c2, _0x4f0139) => "<p style=\"margin:0 0 6px; font-size:12.5px;\"><b>" + _0xfb71c2 + ":</b> " + escaparHtml(_0x4f0139.length ? _0x4f0139.join("; ") : "—") + "</p>";
     const _0x5765ad = document.createElement("details");
     _0x5765ad.className = "panel plegable";
     _0x5765ad.id = "analisisPanel";
@@ -5387,7 +5445,7 @@
       __analisisAbierto = _0x5765ad.open;
     });
     _0x5765ad.style.marginBottom = "14px";
-    _0x5765ad.innerHTML = "<summary class=\"panel-title\">Análisis de actividad (30 días)</summary>" + _0x145208("Más consumo", _0x7d28e0.top) + _0x145208("Se agotan en ≤10 días", _0x7d28e0.agotan) + _0x145208("Stock bajo (" + _0x7d28e0.nBajo + ")", _0x7d28e0.bajo) + _0x145208("Salidas anómalas", _0x7d28e0.anomalias) + "<p style=\"margin:0 0 8px; font-size:12.5px;\"><b>Con stock y sin movimiento en 90 días:</b> " + _0x7d28e0.latentes + "</p>" + (_0x670645 ? "<ul id=\"analisisIa\" style=\"margin:8px 0; padding-left:18px; font-size:12.5px;\">" + _0x670645.map(_0xb3af50 => "<li>" + _0x1d1ab0(_0xb3af50) + "</li>").join("") + "</ul>" : "") + "<button type=\"button\" class=\"cam-btn\" id=\"analisisIaBtn\" style=\"width:100%;\"" + (_0x670645 || _0x19a3d0.resumen >= __IA_MAX_RESUMEN_DIA ? " disabled" : "") + ">" + (_0x670645 ? "Recomendaciones de la IA (ya generadas con estos datos)" : "Pedir recomendaciones a la IA (usos de hoy: " + _0x19a3d0.resumen + "/" + __IA_MAX_RESUMEN_DIA + ")") + "</button>";
+    _0x5765ad.innerHTML = "<summary class=\"panel-title\">Análisis de actividad (30 días)</summary>" + _0x145208("Más consumo", _0x7d28e0.top) + _0x145208("Se agotan en ≤10 días", _0x7d28e0.agotan) + _0x145208("Stock bajo (" + _0x7d28e0.nBajo + ")", _0x7d28e0.bajo) + _0x145208("Salidas anómalas", _0x7d28e0.anomalias) + "<p style=\"margin:0 0 8px; font-size:12.5px;\"><b>Con stock y sin movimiento en 90 días:</b> " + _0x7d28e0.latentes + "</p>" + (_0x670645 ? "<ul id=\"analisisIa\" style=\"margin:8px 0; padding-left:18px; font-size:12.5px;\">" + _0x670645.map(_0xb3af50 => "<li>" + escaparHtml(_0xb3af50) + "</li>").join("") + "</ul>" : "") + "<button type=\"button\" class=\"cam-btn\" id=\"analisisIaBtn\" style=\"width:100%;\"" + (_0x670645 || _0x19a3d0.resumen >= __IA_MAX_RESUMEN_DIA ? " disabled" : "") + ">" + (_0x670645 ? "Recomendaciones de la IA (ya generadas con estos datos)" : "Pedir recomendaciones a la IA (usos de hoy: " + _0x19a3d0.resumen + "/" + __IA_MAX_RESUMEN_DIA + ")") + "</button>";
     // Primero las tarjetas de «lo más urgente» (lo que promete el texto de arriba); el análisis y la reposición, después
     _0x14e216.parentElement.appendChild(_0x5765ad);
     $("#analisisIaBtn").addEventListener("click", async () => {
@@ -5407,7 +5465,7 @@
         };
         __guardarClasif();
       } catch (_0x4a4aa5) {
-        _0x279f78("La IA no ha respondido: " + __errorAmable(_0x4a4aa5) + ".");
+        mostrarAviso("La IA no ha respondido: " + __errorAmable(_0x4a4aa5) + ".");
       }
       render();
     });
@@ -5430,7 +5488,7 @@
     if (!_0x1498d2.length || !_0x203b41) {
       return;
     }
-    const _0x51542b = _0x1d1ab0;
+    const _0x51542b = escaparHtml;
     const _0x8a1de = document.createElement("details");
     _0x8a1de.className = "panel plegable";
     _0x8a1de.id = "reposicionPanel";
@@ -5463,7 +5521,7 @@
     const _0x151278 = _0x1f1aee => () => {
       const _0x35ec2f = _0x451d11();
       if (!_0x35ec2f.length) {
-        _0x279f78("Marca al menos un material con cantidad.");
+        mostrarAviso("Marca al menos un material con cantidad.");
         return;
       }
       _0x1f1aee(__reposicionTexto(_0x35ec2f));
@@ -5485,13 +5543,13 @@
     const _0xee7bb0 = document.getElementById("chatMensajeInput");
     const _0x54fc35 = __textoSegmentos(_0xee7bb0 ? _0xee7bb0.value : "");
     if (!_0x54fc35.length) {
-      _0x279f78("Escribe qué hace falta antes de enviar.");
+      mostrarAviso("Escribe qué hace falta antes de enviar.");
       return;
     }
     const _0x388bb0 = await __textoDividir(_0x54fc35);
     const _0x578c59 = _0x388bb0.lineas;
     if (_0x388bb0.aviso) {
-      _0x279f78(_0x388bb0.aviso);
+      mostrarAviso(_0x388bb0.aviso);
     }
     const _0x45d5ea = !!_0x1b4d13.reservaActiva;
     _0x578c59.forEach(_0x436112 => {
@@ -5569,12 +5627,12 @@
         const _0x41f900 = _0x14ef3c + "::" + _0x4f9494 + "::" + _0x583b14;
         if (_0x583b14 && _0x41f900 !== __avisoValidar) {
           __avisoValidar = _0x41f900;
-          _0x279f78(_0x583b14 + " línea" + (_0x583b14 === 1 ? "" : "s") + " externa" + (_0x583b14 === 1 ? "" : "s") + " sin validar: el envío automático solo incluye las validadas. Valídalas en Hoja de pedido.");
+          mostrarAviso(_0x583b14 + " línea" + (_0x583b14 === 1 ? "" : "s") + " externa" + (_0x583b14 === 1 ? "" : "s") + " sin validar: el envío automático solo incluye las validadas. Valídalas en Hoja de pedido.");
         }
         return;
       }
       if (!(_0x47f4df.email || "").trim()) {
-        _0x279f78("Para el envío automático, indicar el correo de destino en Hoja de pedido → Listado externo.");
+        mostrarAviso("Para el envío automático, indicar el correo de destino en Hoja de pedido → Listado externo.");
         return;
       }
       __autoEnvioCancelar();
@@ -5738,7 +5796,7 @@
         return;
       }
       __clasifUltimoRefresco = Date.now();
-      Promise.resolve(_0x31ceb4("clasificacion")).then(_0x5638df => {
+      Promise.resolve(leerDato("clasificacion")).then(_0x5638df => {
         if (!_0x5638df) {
           return;
         }
@@ -5890,7 +5948,7 @@
         return;
       }
       _0x3f47a6.style.display = "none";
-      const _0x11a83f = _0x1d1ab0;
+      const _0x11a83f = escaparHtml;
       const _0x1c6205 = _0x2df77d() === "almacen";
       const _0x513312 = __clasifStore().pq.map(_0x35855f => ({
         p: _0x35855f,
@@ -6012,7 +6070,7 @@
           __clasifRapSel = {};
           __clasifRapFiltro = "";
           if (!_0x3ca202) {
-            _0x279f78("Esos materiales ya están en la orden.");
+            mostrarAviso("Esos materiales ya están en la orden.");
             render();
             return;
           }
@@ -6123,7 +6181,7 @@
   }
   function __ropaDescargar(_0x229e73) {
     if (typeof XLSX === "undefined") {
-      _0x279f78("No se pudo generar el archivo: falta la librería de Excel (¿sin conexión?).");
+      mostrarAviso("No se pudo generar el archivo: falta la librería de Excel (¿sin conexión?).");
       return;
     }
     const _0x5a611a = [];
@@ -6141,7 +6199,7 @@
   async function __ropaEntregar(_0x2c8316) {
     const _0x196387 = (_0x2c8316.ropa || []).filter(_0x2b56a8 => !__ropaExcluidas.has(_0x2c8316.id + "|" + _0x2b56a8.itemId));
     if (!_0x196387.length) {
-      _0x279f78("Selecciona al menos una prenda para entregar.");
+      mostrarAviso("Selecciona al menos una prenda para entregar.");
       return;
     }
     const _0x7cd920 = [];
@@ -6154,7 +6212,7 @@
       }
     });
     if (_0x7cd920.length) {
-      _0x279f78("No se puede entregar: " + _0x7cd920.join("; ") + ".");
+      mostrarAviso("No se puede entregar: " + _0x7cd920.join("; ") + ".");
       return;
     }
     const _0x4baf2b = _0x196387.map(_0x42b4ed => {
@@ -6169,14 +6227,14 @@
     if (!(await _0x2cc777("Entregar a «" + _0x2c8316.nombre + "»:\n" + _0x4baf2b.map(__ropaLineaTexto).join("\n") + "\n\nSe descontará del stock. La ficha conserva las prendas."))) {
       return;
     }
-    _0x4baf2b.forEach(_0x558578 => _0x1d4277(__ropaItem(_0x558578.itemId), _0x558578.qty, "salida", "Entrega de ropa — " + _0x2c8316.nombre));
+    _0x4baf2b.forEach(_0x558578 => registrarMovimiento(__ropaItem(_0x558578.itemId), _0x558578.qty, "salida", "Entrega de ropa — " + _0x2c8316.nombre));
     (_0x2c8316.entregas = _0x2c8316.entregas || []).push({
       id: nuevoId(),
       ts: Date.now(),
       lineas: _0x4baf2b
     });
     __guardarTrabajadores();
-    _0x279f78("Ropa entregada y descontada del stock.");
+    mostrarAviso("Ropa entregada y descontada del stock.");
     render();
   }
   async function __ropaAnular(_0x4d517c, _0x27042c) {
@@ -6186,7 +6244,7 @@
     _0x27042c.lineas.forEach(_0x2fc857 => {
       const _0xe466b6 = __ropaItem(_0x2fc857.itemId);
       if (_0xe466b6) {
-        _0x1d4277(_0xe466b6, _0x2fc857.qty, "entrada", "Anulación de entrega de ropa — " + _0x4d517c.nombre);
+        registrarMovimiento(_0xe466b6, _0x2fc857.qty, "entrada", "Anulación de entrega de ropa — " + _0x4d517c.nombre);
       }
     });
     _0x4d517c.entregas = _0x4d517c.entregas.filter(_0x4cbfdf => _0x4cbfdf.id !== _0x27042c.id);
@@ -6223,7 +6281,7 @@
     if (!_0x1b7557) {
       return;
     }
-    const _0x3f3ab2 = _0x1d1ab0;
+    const _0x3f3ab2 = escaparHtml;
     const _0x35473d = _0x2df77d() === "almacen";
     const _0x43b96c = estado.trabajadores || [];
     const _0x471ec1 = _0x43b96c.find(_0x3e6dc3 => _0x3e6dc3.id === __trabajadorActualId) || _0x43b96c[0] || null;
@@ -6331,7 +6389,7 @@
           ts: Date.now()
         };
         __guardarTrabajadores();
-        _0x279f78("Ficha creada. No se ha descontado nada del stock.");
+        mostrarAviso("Ficha creada. No se ha descontado nada del stock.");
         render();
       });
     }
@@ -6472,13 +6530,7 @@
     if (window.JsBarcode) {
       return Promise.resolve(true);
     }
-    return new Promise(_0xe820a8 => {
-      const _0x377ef9 = document.createElement("script");
-      _0x377ef9.src = "https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js";
-      _0x377ef9.onload = () => _0xe820a8(!!window.JsBarcode);
-      _0x377ef9.onerror = () => _0xe820a8(false);
-      document.head.appendChild(_0x377ef9);
-    });
+    return cargarScript("https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js", "sha384-Kk5SjBOKprEnGfyBWfD2zROFd1Cu8kwOXxG2GIhYPcoDL2rBJS9P8Ud1ZMy4412a", "").then(() => !!window.JsBarcode, () => false);
   }
   function __numeroMm(_0x455a15) {
     return String(Math.round(_0x455a15 * 100) / 100) + "mm";
@@ -6671,7 +6723,7 @@
   }
   function __etqPintar(_0x422e35) {
     const _0xaec946 = __etqFormato();
-    const _0x1e9315 = _0x1d1ab0;
+    const _0x1e9315 = escaparHtml;
     const _0x5b1490 = __etqTipo === "ref";
     const _0xf0834 = _0x5b1490 ? __etqSelRef : __etqSelUb;
     const _0x22d1f1 = [...new Set((estado.catalog || []).map(_0x3bb241 => (_0x3bb241.categoria || "").trim()).filter(Boolean))].sort((_0x5b3663, _0xa170bf) => _0x5b3663.localeCompare(_0xa170bf, "es"));
@@ -6796,18 +6848,18 @@
         const _0x5733f1 = __sinEtq.slice(0, __ETQ_MAX);
         _0xf0834.clear();
         _0x5733f1.forEach(_0x1a086c => _0xf0834.set(_0x1a086c.clave, 1));
-        _0x279f78(__sinEtq.length > __ETQ_MAX ? "Marcadas las primeras " + __ETQ_MAX + " de " + __sinEtq.length + " sin etiquetar. Imprímelas y vuelve a pulsar «Sin etiquetar» para las siguientes." : _0x5733f1.length ? _0x5733f1.length + " referencia" + (_0x5733f1.length === 1 ? "" : "s") + " sin etiquetar marcada" + (_0x5733f1.length === 1 ? "" : "s") + "." : "Todas las referencias de la lista ya tienen etiqueta impresa.");
+        mostrarAviso(__sinEtq.length > __ETQ_MAX ? "Marcadas las primeras " + __ETQ_MAX + " de " + __sinEtq.length + " sin etiquetar. Imprímelas y vuelve a pulsar «Sin etiquetar» para las siguientes." : _0x5733f1.length ? _0x5733f1.length + " referencia" + (_0x5733f1.length === 1 ? "" : "s") + " sin etiquetar marcada" + (_0x5733f1.length === 1 ? "" : "s") + "." : "Todas las referencias de la lista ya tienen etiqueta impresa.");
         _0x28f48c();
       });
     }
     const _0x217252 = async () => {
       if (!(await __cargarBarras())) {
-        _0x279f78("No se pudo cargar el generador de códigos de barras — revisa la conexión e inténtalo de nuevo.");
+        mostrarAviso("No se pudo cargar el generador de códigos de barras — revisa la conexión e inténtalo de nuevo.");
         return null;
       }
       const _0x43aac5 = __etqDatos();
       if (_0x43aac5.length > __ETQ_MAX) {
-        _0x279f78("Máximo " + __ETQ_MAX + " etiquetas por impresión. Reduce la selección.");
+        mostrarAviso("Máximo " + __ETQ_MAX + " etiquetas por impresión. Reduce la selección.");
         return null;
       }
       return _0x43aac5.map(_0x1a6fdf => __etqNodo(_0x1a6fdf, __etqFormato()));
@@ -6864,7 +6916,7 @@
       return;
     }
     if (!(await __cargarBarras())) {
-      _0x279f78("No se pudo cargar el generador de códigos de barras — revisa la conexión e inténtalo de nuevo.");
+      mostrarAviso("No se pudo cargar el generador de códigos de barras — revisa la conexión e inténtalo de nuevo.");
       return;
     }
     __etqFormatoRecordado();
@@ -6910,7 +6962,7 @@
   }
   async function __camaraContinua(_0x161e02) {
     if (!("BarcodeDetector" in window) || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      _0x279f78("Este navegador no admite lectura con cámara. Usa un lector USB/Bluetooth o escribe el código.");
+      mostrarAviso("Este navegador no admite lectura con cámara. Usa un lector USB/Bluetooth o escribe el código.");
       return null;
     }
     if (__camaraActiva) {
@@ -6924,7 +6976,7 @@
         }
       });
     } catch (_0x58f630) {
-      _0x279f78("No se pudo abrir la cámara: " + (_0x58f630 && _0x58f630.message ? _0x58f630.message : "permiso denegado") + ".");
+      mostrarAviso("No se pudo abrir la cámara: " + (_0x58f630 && _0x58f630.message ? _0x58f630.message : "permiso denegado") + ".");
       return null;
     }
     const _0x577a9a = document.createElement("div");
@@ -7030,19 +7082,19 @@
     }
   }
   function __invPintarElegir(_0x26fac5) {
-    const _0x40834e = _0x1d1ab0;
+    const _0x40834e = escaparHtml;
     const _0x12e959 = __etqUbicaciones();
     _0x26fac5.innerHTML = "<p style=\"font-size:13px; margin:0 0 10px;\">Se cuenta una ubicación cada vez. Escanear la etiqueta de la ubicación (o elegirla de la lista) y después escanear cada material: cada lectura suma 1.</p><select id=\"invUb\" style=\"width:100%; margin-bottom:8px;\"><option value=\"\">Elegir ubicación…</option>" + _0x12e959.map(_0x22a71b => "<option value=\"" + _0x40834e(_0x22a71b) + "\">" + _0x40834e(_0x22a71b) + "</option>").join("") + "<option value=\"" + __INV_SIN + "\">(Sin ubicación)</option></select><div style=\"display:flex; gap:8px; margin-bottom:12px;\"><input type=\"text\" id=\"invUbCodigo\" placeholder=\"Escanear o escribir la ubicación\" style=\"flex:1; min-width:0;\" autocomplete=\"off\"><button type=\"button\" class=\"cam-btn\" id=\"invUbCam\" style=\"flex:none;\">Cámara</button></div><button type=\"button\" class=\"btn primary\" id=\"invEmpezar\" style=\"width:100%;\">Empezar a contar</button>";
     const _0xbfe2ec = _0x26fac5.querySelector("#invUb");
     const _0x15e7db = _0x26fac5.querySelector("#invUbCodigo");
     const _0xc3b18c = () => {
       if (!_0xbfe2ec.value) {
-        _0x279f78("Elige una ubicación.");
+        mostrarAviso("Elige una ubicación.");
         return;
       }
       __invCargar(_0xbfe2ec.value);
       if (!__invFilas.length) {
-        _0x279f78("No hay material en esa ubicación.");
+        mostrarAviso("No hay material en esa ubicación.");
         __invFase = "elegir";
         return;
       }
@@ -7051,7 +7103,7 @@
     const _0x251b14 = _0x688a3b => {
       const _0xc09546 = __invElegirDeTexto(_0x688a3b);
       if (!_0xc09546) {
-        _0x279f78("No se reconoce esa ubicación: " + String(_0x688a3b).trim() + ".");
+        mostrarAviso("No se reconoce esa ubicación: " + String(_0x688a3b).trim() + ".");
         return false;
       }
       _0xbfe2ec.value = _0xc09546;
@@ -7088,7 +7140,7 @@
       return;
     }
     if (/^ub-/i.test(_0x153afd)) {
-      _0x279f78("Esa es una etiqueta de ubicación. Para cambiar de ubicación, vuelve atrás.");
+      mostrarAviso("Esa es una etiqueta de ubicación. Para cambiar de ubicación, vuelve atrás.");
       return;
     }
     const _0x37f389 = __invFilas.filter(_0x1eab21 => {
@@ -7097,7 +7149,7 @@
     });
     if (!_0x37f389.length) {
       const _0x3dc2ed = (estado.catalog || []).find(_0x271fb8 => _0x271fb8 && String(_0x271fb8.code).toLowerCase() === _0x153afd.toLowerCase());
-      _0x279f78(_0x3dc2ed ? "«" + _0x153afd + "» está registrado en «" + (String(_0x3dc2ed.location || "").trim() || "sin ubicación") + "», no aquí." : "«" + _0x153afd + "» no existe en el stock.");
+      mostrarAviso(_0x3dc2ed ? "«" + _0x153afd + "» está registrado en «" + (String(_0x3dc2ed.location || "").trim() || "sin ubicación") + "», no aquí." : "«" + _0x153afd + "» no existe en el stock.");
       return;
     }
     const _0x3b744c = _0x37f389.find(_0x4c3e6a => _0x4c3e6a.cont === null) || _0x37f389[0];
@@ -7110,7 +7162,7 @@
     if (!_0xd02120) {
       return;
     }
-    const _0x170915 = _0x1d1ab0;
+    const _0x170915 = escaparHtml;
     _0xd02120.innerHTML = __invFilas.map((_0x228e18, _0x31d3fd) => {
       const _0x403f8a = __invItem(_0x228e18.id);
       if (!_0x403f8a) {
@@ -7146,7 +7198,7 @@
     }
   }
   function __invPintarContar(_0x170e28) {
-    _0x170e28.innerHTML = "<p style=\"margin:0 0 4px;\"><strong>" + _0x1d1ab0(__invNombreUb()) + "</strong> · <span id=\"invProgreso\"></span></p><div style=\"display:flex; gap:8px; margin:8px 0;\"><input type=\"text\" id=\"invEscaner\" placeholder=\"Escanea o escribe un código y pulsa Enter\" style=\"flex:1; min-width:0;\" autocomplete=\"off\"><button type=\"button\" class=\"cam-btn\" id=\"invCam\" style=\"flex:none;\">Cámara</button></div><div id=\"invLista\" style=\"max-height:44vh; overflow:auto; border:1px solid var(--border); border-radius:8px; padding:0 10px;\"></div><div style=\"display:flex; gap:8px; margin-top:12px;\"><button type=\"button\" class=\"cam-btn\" id=\"invOtra\" style=\"flex:1;\">Cambiar ubicación</button><button type=\"button\" class=\"btn primary\" id=\"invRevisar\" style=\"flex:1;\">Revisar diferencias</button></div><p style=\"font-size:12px; color:var(--text-faint); margin:10px 0 0;\">Lo que no se cuenta no se modifica. Hasta aplicar los ajustes no cambia el stock.</p>";
+    _0x170e28.innerHTML = "<p style=\"margin:0 0 4px;\"><strong>" + escaparHtml(__invNombreUb()) + "</strong> · <span id=\"invProgreso\"></span></p><div style=\"display:flex; gap:8px; margin:8px 0;\"><input type=\"text\" id=\"invEscaner\" placeholder=\"Escanea o escribe un código y pulsa Enter\" style=\"flex:1; min-width:0;\" autocomplete=\"off\"><button type=\"button\" class=\"cam-btn\" id=\"invCam\" style=\"flex:none;\">Cámara</button></div><div id=\"invLista\" style=\"max-height:44vh; overflow:auto; border:1px solid var(--border); border-radius:8px; padding:0 10px;\"></div><div style=\"display:flex; gap:8px; margin-top:12px;\"><button type=\"button\" class=\"cam-btn\" id=\"invOtra\" style=\"flex:1;\">Cambiar ubicación</button><button type=\"button\" class=\"btn primary\" id=\"invRevisar\" style=\"flex:1;\">Revisar diferencias</button></div><p style=\"font-size:12px; color:var(--text-faint); margin:10px 0 0;\">Lo que no se cuenta no se modifica. Hasta aplicar los ajustes no cambia el stock.</p>";
     const _0x77cd37 = _0x170e28.querySelector("#invEscaner");
     _0x77cd37.addEventListener("keydown", _0x5c14c0 => {
       if (_0x5c14c0.key !== "Enter") {
@@ -7187,7 +7239,7 @@
     }).filter(_0x5d67c1 => _0x5d67c1 && _0x5d67c1.cont !== _0x5d67c1.sist);
   }
   function __invPintarRevisar(_0x4e5082) {
-    const _0x44c4f4 = _0x1d1ab0;
+    const _0x44c4f4 = escaparHtml;
     const _0x3a424b = __invDiferencias();
     const _0x420915 = __invFilas.filter(_0x2145ff => _0x2145ff.cont === null).length;
     _0x4e5082.innerHTML = "<p style=\"margin:0 0 8px;\"><strong>" + _0x44c4f4(__invNombreUb()) + "</strong> · diferencias</p>" + (_0x3a424b.length ? _0x3a424b.map(_0x4d8db7 => "<div class=\"clasif-fila\"><span class=\"clasif-desc\">" + _0x44c4f4(_0x4d8db7.item.code) + "<br><small>" + _0x44c4f4(__iaCorto(_0x4d8db7.item.desc || "", 60)) + "</small></span><span>" + _0x4d8db7.sist + " → <strong>" + _0x4d8db7.cont + "</strong> (" + (_0x4d8db7.cont > _0x4d8db7.sist ? "+" : "") + (_0x4d8db7.cont - _0x4d8db7.sist) + ")</span></div>").join("") : "<p style=\"font-size:13.5px; color:var(--text-faint);\">Todo lo contado coincide con el stock.</p>") + (_0x420915 ? "<p style=\"font-size:12.5px; color:var(--text-faint); margin:10px 0 0;\">" + _0x420915 + " referencia" + (_0x420915 === 1 ? "" : "s") + " sin contar: no se modifican.</p>" : "") + "<div style=\"display:flex; gap:8px; margin-top:12px;\"><button type=\"button\" class=\"cam-btn\" id=\"invVolver\" style=\"flex:1;\">Seguir contando</button>" + (_0x3a424b.length ? "<button type=\"button\" class=\"btn primary\" id=\"invAplicar\" style=\"flex:1;\">Aplicar " + _0x3a424b.length + " ajuste" + (_0x3a424b.length === 1 ? "" : "s") + "</button>" : "<button type=\"button\" class=\"btn primary\" id=\"invTerminar\" style=\"flex:1;\">Terminar</button>") + "</div>";
@@ -7215,10 +7267,10 @@
           if (!_0x375497) {
             return;
           }
-          _0x1d4277(_0x5680f1.item, Math.abs(_0x375497), _0x375497 > 0 ? "entrada" : "salida", "Ajuste de inventario — " + __invNombreUb());
+          registrarMovimiento(_0x5680f1.item, Math.abs(_0x375497), _0x375497 > 0 ? "entrada" : "salida", "Ajuste de inventario — " + __invNombreUb());
           _0x317f6e++;
         });
-        _0x279f78("Inventario aplicado: " + _0x317f6e + " ajuste" + (_0x317f6e === 1 ? "" : "s") + ".");
+        mostrarAviso("Inventario aplicado: " + _0x317f6e + " ajuste" + (_0x317f6e === 1 ? "" : "s") + ".");
         __invFase = "elegir";
         render();
         __invPintar(_0x4e5082);
@@ -7279,7 +7331,7 @@
     render();
   }
   function __busquedaPintar(_0x234cf6, _0x1216fd) {
-    const _0x35cb88 = _0x1d1ab0;
+    const _0x35cb88 = escaparHtml;
     const _0x195629 = _0x234cf6.querySelector("#busquedaRes");
     const _0x374d7a = __buscarTodo(_0x1216fd);
     const _0x425e90 = _0x374d7a.stock.length + _0x374d7a.ordenes.length + _0x374d7a.trabajadores.length;
@@ -7409,7 +7461,7 @@
   }
   function __minAbrir() {
     const _0x1abb54 = __herrOverlay("Mínimos automáticos");
-    const _0x28b2c1 = _0x1d1ab0;
+    const _0x28b2c1 = escaparHtml;
     const _0x46d002 = __minSugerencias().slice(0, 100);
     if (!_0x46d002.length) {
       _0x1abb54.innerHTML = "<p style=\"font-size:13px;\">No hay propuestas: los mínimos actuales ya cubren el consumo de los últimos " + __MIN_DIAS + " días o aún hay pocas salidas registradas.</p>";
@@ -7432,7 +7484,7 @@
       if (__herrCierre) {
         __herrCierre();
       }
-      _0x279f78(_0x22aef7 ? "Mínimo actualizado en " + _0x22aef7 + " referencia" + (_0x22aef7 === 1 ? "" : "s") + "." : "No se ha cambiado ningún mínimo.");
+      mostrarAviso(_0x22aef7 ? "Mínimo actualizado en " + _0x22aef7 + " referencia" + (_0x22aef7 === 1 ? "" : "s") + "." : "No se ha cambiado ningún mínimo.");
       render();
     });
   }
@@ -8059,7 +8111,7 @@
       if (!_0x277079.length && !_0x470f85.length) {
         return;
       }
-      const _0x4e6684 = _0x1d1ab0;
+      const _0x4e6684 = escaparHtml;
       const _0x242cdb = document.createElement("div");
       _0x242cdb.id = "resumenPorRevisar";
       _0x242cdb.className = "panel";
@@ -8078,7 +8130,7 @@
     __clasifVaciar();
     const _0x499ad1 = [...document.querySelectorAll("textarea:not([readonly])")].some(_0x134bc2 => _0x134bc2.value.trim());
     if (_0x499ad1) {
-      _0x279f78("Hay texto sin enviar. Enviarlo o borrarlo y volver a pulsar «Actualizar ahora».");
+      mostrarAviso("Hay texto sin enviar. Enviarlo o borrarlo y volver a pulsar «Actualizar ahora».");
     }
     return !_0x499ad1;
   }
@@ -8416,10 +8468,10 @@
       __extMarcarPedido(_0x4dd1d2);
       __guardarClasif();
       guardarGrupo(_0x1b9063.modo, _0x1b9063.nombre);
-      _0x279f78("Petición externa enviada a " + _0x10ee88 + " (" + _0x4dd1d2.length + " línea" + (_0x4dd1d2.length === 1 ? "" : "s") + ").");
+      mostrarAviso("Petición externa enviada a " + _0x10ee88 + " (" + _0x4dd1d2.length + " línea" + (_0x4dd1d2.length === 1 ? "" : "s") + ").");
       render();
     } catch (_0x1da71d) {
-      _0x279f78("No se pudo enviar la petición automática: " + __errorAmable(_0x1da71d) + ". Sigue disponible en Hoja de pedido → Externo.");
+      mostrarAviso("No se pudo enviar la petición automática: " + __errorAmable(_0x1da71d) + ". Sigue disponible en Hoja de pedido → Externo.");
     }
   }
   function __planoSincronizar() {
@@ -8447,7 +8499,7 @@
   }
   function __clasifDescargar(_0x239706, _0x5847f6, _0xad84ee) {
     if (typeof XLSX === "undefined") {
-      _0x279f78("No se pudo generar el archivo: falta la librería de Excel (¿sin conexión?).");
+      mostrarAviso("No se pudo generar el archivo: falta la librería de Excel (¿sin conexión?).");
       return;
     }
     const _0x1056f1 = __clasifStore();
@@ -8477,7 +8529,7 @@
     XLSX.writeFile(_0x3c2588, "listado_" + _0x239706 + "_" + String(_0xad84ee).replace(/[^\w.-]+/g, "_") + "_" + new Date().toISOString().slice(0, 10) + ".xlsx");
   }
   function __clasifFilaHtml(_0x1b87c3) {
-    const _0x4492c4 = _0x1d1ab0;
+    const _0x4492c4 = escaparHtml;
     const _0x134c4c = parseInt(_0x1b87c3.it.qty, 10) || 1;
     const _0x4ccb23 = _0x1b87c3.est === "sin" && _0x1b87c3.c.tipo ? _0x1b87c3.c.tipo : "";
     const _0x1e3af4 = _0x1b87c3.est !== "sin" ? "" : _0x4ccb23 ? "Propuesta: <strong>" + (__TIPOS_MATERIAL.find(_0x5b983f => _0x5b983f[0] === _0x4ccb23) || ["", ""])[1] + "</strong>. " + (_0x1b87c3.c.ia ? "Sugerencia de la IA." : __CLASIF_ORIGEN[_0x1b87c3.c.origen] || "") : "Elegir el destino.";
@@ -8506,7 +8558,7 @@
       }
       const _0x1131c5 = __extGrupos();
       const _0x477672 = __clasifStore();
-      const _0x54a9bd = _0x1d1ab0;
+      const _0x54a9bd = escaparHtml;
       const _0x544ece = document.createElement("div");
       _0x544ece.className = "panel";
       _0x544ece.id = "clasifCorreoGlobal";
@@ -8567,7 +8619,7 @@
             _0x394528.addEventListener("click", async () => {
               const _0x2cec51 = _0x1c0b9a.value.trim();
               if (!_0x2cec51) {
-                _0x279f78("Indicar el correo de destino.");
+                mostrarAviso("Indicar el correo de destino.");
                 return;
               }
               _0x477672.email = _0x2cec51;
@@ -8580,13 +8632,13 @@
                   texto: _0x3c2457
                 });
                 __extRegistrar(_0x4a9285);
-                _0x279f78("Correo enviado a " + _0x2cec51 + ".");
+                mostrarAviso("Correo enviado a " + _0x2cec51 + ".");
                 __extAbierto = false;
                 __clasifConservarVista();
               } catch (_0x2c4476) {
                 _0x394528.disabled = false;
                 _0x394528.textContent = "Enviar correo automáticamente";
-                _0x279f78("No se pudo enviar: " + __errorAmable(_0x2c4476) + ". Se puede usar «Abrir correo».");
+                mostrarAviso("No se pudo enviar: " + __errorAmable(_0x2c4476) + ". Se puede usar «Abrir correo».");
               }
             });
           } else {
@@ -8675,12 +8727,12 @@
         return;
       }
       if (__clasifAutoRefs(_0x321478)) {
-        _0x279f78("Referencias asignadas por coincidencia. Pendientes de validar.");
+        mostrarAviso("Referencias asignadas por coincidencia. Pendientes de validar.");
         __clasifGuardarPronto();
         setTimeout(render, 0);
         return;
       }
-      const _0x55d344 = _0x1d1ab0;
+      const _0x55d344 = escaparHtml;
       const _0x1f3544 = estado.current[estado.mode] || "";
       const _0x594412 = estado.mode + "|" + _0x1f3544;
       const _0x166b15 = __clasifStore();
@@ -8722,7 +8774,7 @@
         _0x41aead.addEventListener("click", () => {
           const _0x47ccc7 = _0x3642a6.map(_0x38b6cc => _0x38b6cc.it);
           if (!_0x47ccc7.length) {
-            _0x279f78("No hay líneas en este listado.");
+            mostrarAviso("No hay líneas en este listado.");
             return;
           }
           __clasifDescargar(_0x2400d7, _0x47ccc7, _0x1f3544);
@@ -8821,7 +8873,7 @@
         }
         __clasifFijar(_0x4caa97.it, _0x28a55c);
         if (_0x4caa97.est !== "sin") {
-          _0x279f78("«" + __iaCorto(__clasifNombreLinea(_0x4caa97.it), 40) + "» movida a " + (__TIPOS_MATERIAL.find(_0x19d6ee => _0x19d6ee[0] === _0x28a55c) || ["", ""])[1] + ".");
+          mostrarAviso("«" + __iaCorto(__clasifNombreLinea(_0x4caa97.it), 40) + "» movida a " + (__TIPOS_MATERIAL.find(_0x19d6ee => _0x19d6ee[0] === _0x28a55c) || ["", ""])[1] + ".");
         }
         __clasifConservarVista();
       }));
@@ -8934,7 +8986,7 @@
   __GUIAS["hoja|almacen"] = "Asigna cada línea sin clasificar a Interno, Externo o Pequeño material. Las líneas pueden moverse cuando haga falta.";
   let __trabajadorActualId = null;
   function __guardarTrabajadores() {
-    guardar("trabajadores", estado.trabajadores);
+    guardarListaCompartida("trabajadores");
   }
   async function __geminiParsearRespuesta(__resp, __crudo) {
     if (!__resp || !__resp.ok) {
@@ -9053,7 +9105,7 @@
           return false;
         }
         $("#docScanStatus").textContent = "Gemini no ha respondido (" + (__errGemini && __errGemini.message ? __errGemini.message : "error") + ") — usando reconocimiento local…";
-        await _0x46a074();
+        await cargarOcr();
         let _0x5212d3 = "";
         const __barraProgTess = $("#docScanProgressBar");
         if (__barraProgTess) {
@@ -9165,7 +9217,7 @@
         _0x5c175f(_0x557c9d, _0x375afb, _0x3cc238, {
           proveedor: _0x1a8185.proveedor
         });
-        _0x1d4277(_0x375afb, _0x3cc238, "salida", _0x56bc73);
+        registrarMovimiento(_0x375afb, _0x3cc238, "salida", _0x56bc73);
         estado.ocrAprendizaje[_0x4a6de0.texto.toLowerCase()] = _0x375afb.code;
         _0x3c68b4++;
       } else {
@@ -9180,7 +9232,7 @@
       }
     });
     anadirMensajeChat(_0x557c9d.chat, "Documento escaneado revisado (proveedor " + _0x1a8185.proveedor + "): " + _0x3c68b4 + " servida(s)" + (_0x3e7856 ? ", " + _0x3e7856 + " marcada(s) como material faltante" : ""));
-    _0x56ccc4();
+    guardarOcrAprendizaje();
     _0x29f0a4();
     (function () {
       if (_0x1a8185.proveedorLineas && _0x1a8185.proveedorLineas.length) {
@@ -9198,7 +9250,7 @@
     })();
     _0x1a8185 = null;
     render();
-    _0x279f78("Añadido a Servido: " + _0x3c68b4 + " línea(s)" + (_0x3e7856 ? ". Material faltante anotado: " + _0x3e7856 + " línea(s)" : "") + ".");
+    mostrarAviso("Añadido a Servido: " + _0x3c68b4 + " línea(s)" + (_0x3e7856 ? ". Material faltante anotado: " + _0x3e7856 + " línea(s)" : "") + ".");
   }
   function _0x3e7902() {
     _0x1a8185 = null;
@@ -9254,7 +9306,7 @@
     }
     $("#docScanStatus").textContent = "Generando el PDF…";
     try {
-      await _0x12644a();
+      await cargarGeneradorPdf();
       const {
         jsPDF: _0x4f9dfb
       } = window.jspdf;
@@ -9288,7 +9340,7 @@
       }
       _0x29f0a4();
       render();
-      _0x279f78("PDF guardado y enlazado a esta orden/proyecto.");
+      mostrarAviso("PDF guardado y enlazado a esta orden/proyecto.");
     } catch (_0x57bde7) {
       $("#docScanStatus").textContent = "Error generando el PDF: " + _0x57bde7.message;
     }
@@ -9507,11 +9559,11 @@
     _0x3f1ebf();
     const _0xb1626 = $("#ubicacionesList");
     if (_0xb1626) {
-      _0xb1626.innerHTML = estado.ubicaciones.map(_0x202067 => "<option value=\"" + _0x1d1ab0(_0x202067) + "\">").join("");
+      _0xb1626.innerHTML = estado.ubicaciones.map(_0x202067 => "<option value=\"" + escaparHtml(_0x202067) + "\">").join("");
     }
     const _0x1bd8d0 = $("#catalogCodesList");
     if (_0x1bd8d0) {
-      _0x1bd8d0.innerHTML = estado.catalog.map(_0x49ee52 => "<option value=\"" + _0x1d1ab0(_0x49ee52.code) + "\">" + _0x1d1ab0(_0x49ee52.desc) + "</option>").join("");
+      _0x1bd8d0.innerHTML = estado.catalog.map(_0x49ee52 => "<option value=\"" + escaparHtml(_0x49ee52.code) + "\">" + escaparHtml(_0x49ee52.desc) + "</option>").join("");
     }
   }
   function _0x3536a6() {
@@ -9523,9 +9575,9 @@
       _0x2acddd.innerHTML = "";
       return;
     }
-    _0x2acddd.innerHTML = "\n      <div class=\"global-search\">\n        <input type=\"text\" id=\"globalStockSearch\" placeholder=\"Buscar en el stock por código o referencia…\" value=\"" + _0x1d1ab0(_0x217aa6) + "\">\n        <div id=\"globalSearchResults\"></div>\n      </div>\n    ";
+    _0x2acddd.innerHTML = "\n      <div class=\"global-search\">\n        <input type=\"text\" id=\"globalStockSearch\" placeholder=\"Buscar en el stock por código o referencia…\" value=\"" + escaparHtml(_0x217aa6) + "\">\n        <div id=\"globalSearchResults\"></div>\n      </div>\n    ";
     const _0x30967c = $("#globalStockSearch");
-    const _0x57088a = _0x5cfc5(() => _0x3ea8d2(), 220);
+    const _0x57088a = conPausa(() => _0x3ea8d2(), 220);
     _0x30967c.addEventListener("input", _0xe72e2e => {
       _0x217aa6 = _0xe72e2e.target.value;
       _0x57088a();
@@ -9547,7 +9599,7 @@
       _0x19329c.innerHTML = "<div style=\"padding:10px 4px; color:var(--text-faint); font-size:12.5px;\">Sin coincidencias en el stock.</div>";
       return;
     }
-    _0x19329c.innerHTML = _0x59d494.slice(0, 15).map(_0x50e83b => "\n      <div class=\"stock-row\">\n        <div class=\"row-main\">\n          <div class=\"row-code\">" + _0x1d1ab0(_0x50e83b.code) + "</div>\n          <div class=\"row-desc\">" + _0x1d1ab0(_0x50e83b.desc) + "</div>\n        </div>\n        <div class=\"row-actions\">\n          <span class=\"stock-loc " + (_0x50e83b.location ? "set" : "unset") + "\">" + (_0x1d1ab0(_0x50e83b.location) || "Sin ubicar") + "</span>\n          <span class=\"stock-qty " + (_0x50e83b.qty > 0 ? "ok" : "low") + "\">" + _0x50e83b.qty + "</span>\n          <button class=\"cam-btn\" style=\"padding:9px 14px; font-size:13px; min-height:44px;\" data-globalsearch-qty=\"" + _0x50e83b.id + "\">Cambiar cantidad</button>\n          <button class=\"cam-btn\" style=\"padding:9px 14px; font-size:13px; min-height:44px;\" data-globalsearch-edit=\"" + _0x50e83b.id + "\">" + _0x56ae2b("editar") + "Editar</button>\n        </div>\n      </div>\n    ").join("") + (_0x59d494.length > 15 ? "<div style=\"padding:6px 4px; color:var(--text-faint); font-size:11.5px;\">+" + (_0x59d494.length - 15) + " más… afina la búsqueda.</div>" : "");
+    _0x19329c.innerHTML = _0x59d494.slice(0, 15).map(_0x50e83b => "\n      <div class=\"stock-row\">\n        <div class=\"row-main\">\n          <div class=\"row-code\">" + escaparHtml(_0x50e83b.code) + "</div>\n          <div class=\"row-desc\">" + escaparHtml(_0x50e83b.desc) + "</div>\n        </div>\n        <div class=\"row-actions\">\n          <span class=\"stock-loc " + (_0x50e83b.location ? "set" : "unset") + "\">" + (escaparHtml(_0x50e83b.location) || "Sin ubicar") + "</span>\n          <span class=\"stock-qty " + (_0x50e83b.qty > 0 ? "ok" : "low") + "\">" + _0x50e83b.qty + "</span>\n          <button class=\"cam-btn\" style=\"padding:9px 14px; font-size:13px; min-height:44px;\" data-globalsearch-qty=\"" + _0x50e83b.id + "\">Cambiar cantidad</button>\n          <button class=\"cam-btn\" style=\"padding:9px 14px; font-size:13px; min-height:44px;\" data-globalsearch-edit=\"" + _0x50e83b.id + "\">" + _0x56ae2b("editar") + "Editar</button>\n        </div>\n      </div>\n    ").join("") + (_0x59d494.length > 15 ? "<div style=\"padding:6px 4px; color:var(--text-faint); font-size:11.5px;\">+" + (_0x59d494.length - 15) + " más… afina la búsqueda.</div>" : "");
     _0x19329c.querySelectorAll("[data-globalsearch-qty]").forEach(_0x2492ec => {
       _0x2492ec.addEventListener("click", () => _0x4fac24(_0x2492ec.dataset.globalsearchQty));
     });
@@ -9626,7 +9678,7 @@
       _0x3fac10.innerHTML = "";
       return;
     }
-    _0x3fac10.innerHTML = _0x2fe6bc.map(_0x3cb792 => "\n      <div class=\"alert-banner\" style=\"cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:8px;\" data-notif-id=\"" + _0x3cb792.id + "\">\n        <span>" + (_0x3cb792.para === "taller" ? "Material listo para recoger en " : "Nuevo pedido en ") + "<strong>" + _0x1d1ab0(_0x3cb792.groupName) + "</strong> (" + (_0x3cb792.groupKind === "montaje" ? "Montaje/Venta" : "Proyecto") + (_0x3cb792.tipo ? " · " + _0x1d1ab0(_0x3cb792.tipo) : "") + ")" + (_0x3cb792.para === "taller" ? "" : " — pedido por " + _0x1d1ab0(_0x3cb792.requesterName)) + ", " + _0x3cb792.lineas + " línea(s). Pulsa para ir ahí.</span>\n        <button class=\"btn-return\" data-notif-close=\"" + _0x3cb792.id + "\" style=\"flex:none;\">×</button>\n      </div>\n    ").join("");
+    _0x3fac10.innerHTML = _0x2fe6bc.map(_0x3cb792 => "\n      <div class=\"alert-banner\" style=\"cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:8px;\" data-notif-id=\"" + _0x3cb792.id + "\">\n        <span>" + (_0x3cb792.para === "taller" ? "Material listo para recoger en " : "Nuevo pedido en ") + "<strong>" + escaparHtml(_0x3cb792.groupName) + "</strong> (" + (_0x3cb792.groupKind === "montaje" ? "Montaje/Venta" : "Proyecto") + (_0x3cb792.tipo ? " · " + escaparHtml(_0x3cb792.tipo) : "") + ")" + (_0x3cb792.para === "taller" ? "" : " — pedido por " + escaparHtml(_0x3cb792.requesterName)) + ", " + _0x3cb792.lineas + " línea(s). Pulsa para ir ahí.</span>\n        <button class=\"btn-return\" data-notif-close=\"" + _0x3cb792.id + "\" style=\"flex:none;\">×</button>\n      </div>\n    ").join("");
     _0x3fac10.querySelectorAll("[data-notif-id]").forEach(_0x599a06 => {
       _0x599a06.addEventListener("click", _0x451b2d => {
         if (_0x451b2d.target.closest("[data-notif-close]")) {
@@ -9705,12 +9757,12 @@
         _0x24edec = null;
         _0x1dfbd0 = null;
         _0x5592da = "chat";
-        clearTimeout(_0x279f78._t);
+        clearTimeout(mostrarAviso._t);
         const _0x42e1bb = $("#statusBanner");
         if (_0x42e1bb) {
           _0x42e1bb.style.display = "none";
         }
-        _0x430fb2();
+        guardarPantallaActual();
         render();
       });
     });
@@ -9755,7 +9807,7 @@
       ..._0x4fffd3,
       kind: "proyecto"
     }))).sort((_0x177222, _0x2f763f) => _0x177222.name.localeCompare(_0x2f763f.name));
-    return "\n      " + (_0x42ac79.length > 6 ? "\n      <input type=\"text\" id=\"groupFilterInput\" placeholder=\"Buscar orden o proyecto…\" style=\"width:100%; margin-bottom:6px;\">\n      " : "") + "\n      <div class=\"project-bar\">\n        <select id=\"groupSelect\" style=\"flex:1;\">\n          <option value=\"\">— Selecciona una orden o proyecto —</option>\n          " + _0x42ac79.map(_0x1b186f => "<option value=\"" + _0x1b186f.kind + "::" + _0x1d1ab0(_0x1b186f.name) + "\" " + (_0x1b186f.kind === _0x55218f && _0x1b186f.name === _0xbdd625 ? "selected" : "") + ">" + (_0x1b186f.kind === "montaje" ? "Montaje" : "Proyecto") + ": " + _0x1d1ab0(_0x1b186f.name) + (_0x1b186f.tipo ? " [" + _0x1d1ab0(_0x1b186f.tipo) + "]" : "") + (_0x1b186f.status === "finalizado" ? " (Finalizado)" : "") + "</option>").join("") + "\n        </select>\n        <button class=\"cam-btn\" id=\"toggleNuevoTrabajoBtn\" style=\"flex:none; padding:9px 14px; min-height:auto;\">" + (_0x29db0a ? "Cancelar" : "+ Nueva") + "</button>\n      </div>\n      " + (_0x2ef914 ? "\n      <div style=\"display:flex; align-items:center; justify-content:space-between; gap:6px; flex-wrap:wrap; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--text-faint); margin:-2px 0 8px 2px;\">\n        <span>\n          <span style=\"color:" + (_0x2ef914.status === "finalizado" ? "var(--text-muted)" : "var(--success)") + ";\">" + (_0x2ef914.status === "finalizado" ? "Finalizado" : "Activo") + "</span>\n          · " + (_0x55218f === "montaje" ? "Montaje" : "Proyecto") + "\n          " + (_0x2ef914.tipo ? " · " + _0x1d1ab0(_0x2ef914.tipo) : "") + "\n        </span>" + (_0x2df77d() !== "taller" ? "\n        <button class=\"cam-btn\" id=\"toggleMasOpcionesBtn\" style=\"flex:none; padding:6px 12px; font-size:13px; min-height:44px;\">" + (_0x411628 ? "Ocultar" : "Opciones de la orden") + "</button>" : "") + "\n      </div>\n      " + (_0x411628 && _0x2df77d() !== "taller" ? "\n      <div class=\"project-bar project-bar-inline\" style=\"margin-top:0;\">\n        <button class=\"cam-btn\" id=\"toggleStatusBtn\" style=\"flex:1;\">" + (_0x2ef914.status === "finalizado" ? "Reactivar" : "Finalizar") + "</button>\n        " + (_0x2df77d() === "taller" ? "" : "<button class=\"btn-return\" id=\"deleteGroupBtn\" style=\"flex:1;\">" + _0x56ae2b("eliminar") + "Eliminar</button>") + "\n      </div>\n      " : "") + "\n      " : "") + "\n      " + (_0x29db0a ? "\n      <div class=\"project-bar\" style=\"margin-top:8px;\">\n        <input type=\"text\" id=\"newGroupInput\" placeholder=\"Nombre de la orden o proyecto…\" value=\"" + _0x1d1ab0(_0x4a2438.nombre) + "\">\n        <select id=\"newGroupKind\">\n          <option value=\"montaje\" " + (_0x4a2438.kind !== "proyecto" ? "selected" : "") + ">Montaje/Venta</option>\n          <option value=\"proyecto\" " + (_0x4a2438.kind === "proyecto" ? "selected" : "") + ">Proyecto</option>\n        </select>\n        <button class=\"cam-btn\" id=\"createGroupBtn\">+ Crear</button>\n      </div>\n      " : "") + "\n    ";
+    return "\n      " + (_0x42ac79.length > 6 ? "\n      <input type=\"text\" id=\"groupFilterInput\" placeholder=\"Buscar orden o proyecto…\" style=\"width:100%; margin-bottom:6px;\">\n      " : "") + "\n      <div class=\"project-bar\">\n        <select id=\"groupSelect\" style=\"flex:1;\">\n          <option value=\"\">— Selecciona una orden o proyecto —</option>\n          " + _0x42ac79.map(_0x1b186f => "<option value=\"" + _0x1b186f.kind + "::" + escaparHtml(_0x1b186f.name) + "\" " + (_0x1b186f.kind === _0x55218f && _0x1b186f.name === _0xbdd625 ? "selected" : "") + ">" + (_0x1b186f.kind === "montaje" ? "Montaje" : "Proyecto") + ": " + escaparHtml(_0x1b186f.name) + (_0x1b186f.tipo ? " [" + escaparHtml(_0x1b186f.tipo) + "]" : "") + (_0x1b186f.status === "finalizado" ? " (Finalizado)" : "") + "</option>").join("") + "\n        </select>\n        <button class=\"cam-btn\" id=\"toggleNuevoTrabajoBtn\" style=\"flex:none; padding:9px 14px; min-height:auto;\">" + (_0x29db0a ? "Cancelar" : "+ Nueva") + "</button>\n      </div>\n      " + (_0x2ef914 ? "\n      <div style=\"display:flex; align-items:center; justify-content:space-between; gap:6px; flex-wrap:wrap; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--text-faint); margin:-2px 0 8px 2px;\">\n        <span>\n          <span style=\"color:" + (_0x2ef914.status === "finalizado" ? "var(--text-muted)" : "var(--success)") + ";\">" + (_0x2ef914.status === "finalizado" ? "Finalizado" : "Activo") + "</span>\n          · " + (_0x55218f === "montaje" ? "Montaje" : "Proyecto") + "\n          " + (_0x2ef914.tipo ? " · " + escaparHtml(_0x2ef914.tipo) : "") + "\n        </span>" + (_0x2df77d() !== "taller" ? "\n        <button class=\"cam-btn\" id=\"toggleMasOpcionesBtn\" style=\"flex:none; padding:6px 12px; font-size:13px; min-height:44px;\">" + (_0x411628 ? "Ocultar" : "Opciones de la orden") + "</button>" : "") + "\n      </div>\n      " + (_0x411628 && _0x2df77d() !== "taller" ? "\n      <div class=\"project-bar project-bar-inline\" style=\"margin-top:0;\">\n        <button class=\"cam-btn\" id=\"toggleStatusBtn\" style=\"flex:1;\">" + (_0x2ef914.status === "finalizado" ? "Reactivar" : "Finalizar") + "</button>\n        " + (_0x2df77d() === "taller" ? "" : "<button class=\"btn-return\" id=\"deleteGroupBtn\" style=\"flex:1;\">" + _0x56ae2b("eliminar") + "Eliminar</button>") + "\n      </div>\n      " : "") + "\n      " : "") + "\n      " + (_0x29db0a ? "\n      <div class=\"project-bar\" style=\"margin-top:8px;\">\n        <input type=\"text\" id=\"newGroupInput\" placeholder=\"Nombre de la orden o proyecto…\" value=\"" + escaparHtml(_0x4a2438.nombre) + "\">\n        <select id=\"newGroupKind\">\n          <option value=\"montaje\" " + (_0x4a2438.kind !== "proyecto" ? "selected" : "") + ">Montaje/Venta</option>\n          <option value=\"proyecto\" " + (_0x4a2438.kind === "proyecto" ? "selected" : "") + ">Proyecto</option>\n        </select>\n        <button class=\"cam-btn\" id=\"createGroupBtn\">+ Crear</button>\n      </div>\n      " : "") + "\n    ";
   }
   function _0x241b98(_0x4beafe) {
     const _0x429822 = estado.mode;
@@ -9812,12 +9864,12 @@
           const _0x34aac0 = _0x4beafe.querySelector("#newGroupKind").value;
           const _0x1d8ffc = "";
           if (!_0x19c3d9.trim()) {
-            _0x279f78("Escribe el nombre de la orden o proyecto.");
+            mostrarAviso("Escribe el nombre de la orden o proyecto.");
             return;
           }
           const _0xd4dca3 = await _0x3b375f("¿Quién pide el material para \"" + _0x19c3d9.trim() + "\"? (obligatorio)");
           if (!_0xd4dca3 || !_0xd4dca3.trim()) {
-            _0x279f78("Hace falta indicar quién pide el material para crear la orden/proyecto.");
+            mostrarAviso("Hace falta indicar quién pide el material para crear la orden/proyecto.");
             return;
           }
           _0x4a2438 = {
@@ -9867,12 +9919,12 @@
     const _0x84fca4 = estado.mode === "almacen" ? _0x345037 === "entrada" ? "Suma al stock. Material nuevo: pide referencia." : "Resta del stock — no deja bajar de 0." : estado.mode === "pedido" ? "Añade al pedido — no descuenta stock." : "Va a la solicitud pendiente — no descuenta stock aún.";
     const _0x4ad6be = estado.mode === "almacen" ? _0x345037 === "entrada" ? "Registrar entrada" : "Registrar salida" : estado.mode === "pedido" ? "+ Añadir" : "+ Solicitar";
     const _0x8c9156 = estado.mode === "almacen" ? _0x345037 === "entrada" ? "var(--success)" : "var(--danger)" : "";
-    _0x559be.innerHTML = "\n      <div class=\"scanner-panel\" style=\"" + (estado.mode === "almacen" ? "border-top:4px solid " + _0x8c9156 + "; background:linear-gradient(90deg, " + (_0x345037 === "entrada" ? "var(--success-soft)" : "var(--danger-soft)") + ", transparent 220px);" : "") + "\">\n        " + (estado.mode === "almacen" ? "\n          <div style=\"font-family:var(--letra-cartel); font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.03em; color:" + _0x8c9156 + "; margin-bottom:8px;\">\n            Modo activo: " + (_0x345037 === "entrada" ? "ENTRADA (suma al stock)" : "SALIDA (resta del stock)") + "\n          </div>\n          <div class=\"scanner-row\" style=\"margin-bottom:8px;\">\n            <button class=\"mode-btn\" data-almacen-scan-modo=\"entrada\" style=\"flex:1; padding:12px; font-size:15px; " + (_0x345037 === "entrada" ? "background:var(--success); color:#0A2016;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">+ ENTRADA</button>\n            <button class=\"mode-btn\" data-almacen-scan-modo=\"salida\" style=\"flex:1; padding:12px; font-size:15px; " + (_0x345037 === "salida" ? "background:var(--danger); color:#2A0C10;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">− SALIDA</button>\n          </div>\n        " : "") + "\n        <div class=\"scanner-row\">\n          <input id=\"scanInput\" type=\"text\" placeholder=\"" + _0xa728ab + "\" " + (_0x4664d6 ? "disabled" : "") + " autocomplete=\"off\" style=\"" + (estado.mode === "almacen" ? "border-color:" + _0x8c9156 + ";" : "") + "\">\n        </div>\n        <div class=\"scanner-actions\">\n          <button class=\"cam-btn\" id=\"camBtn\" " + (_0x4664d6 ? "disabled" : "") + ">Cámara</button>\n          <button class=\"btn primary\" id=\"scanSubmitBtn\" " + (_0x4664d6 ? "disabled" : "") + ">" + _0x4ad6be + "</button>\n        </div>\n        <label style=\"display:flex; align-items:center; gap:6px; margin-top:8px; font-size:12px; color:var(--text-muted); cursor:pointer;\">\n          <input type=\"checkbox\" id=\"modoRapidoX1Chk\" " + (_0x2ff082 ? "checked" : "") + " style=\"width:16px; height:16px;\"> Modo rápido: cada escaneo cuenta como 1 unidad, sin preguntar\n        </label>\n        <div class=\"scan-hint\">" + _0x84fca4 + "</div>\n        " + (_0x24edec ? "\n          <div class=\"unknown-box\">\n            <span>Nueva referencia para el código <strong>" + _0x1d1ab0(_0x24edec.code) + "</strong>:</span>\n            <input id=\"unknownDesc\" type=\"text\" placeholder=\"Artículo…\">\n            <input id=\"unknownRef\" type=\"text\" placeholder=\"Referencia (opcional)…\">\n            <input id=\"unknownLoc\" type=\"text\" placeholder=\"Ubicación (opcional)…\" list=\"ubicacionesList\">\n            <select id=\"unknownCategoria\" style=\"background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:8px 10px; border-radius:6px;\">\n              <option value=\"\">Categoría…</option>\n              " + _0x23f5f6.map(_0x553a77 => "<option value=\"" + _0x1d1ab0(_0x553a77) + "\">" + _0x1d1ab0(_0x553a77) + "</option>").join("") + "\n            </select>\n            <button class=\"cam-btn\" id=\"confirmUnknownBtn\">Añadir y registrar</button>\n          </div>\n        " : "") + "\n        " + (_0x1dfbd0 ? "\n          <div class=\"unknown-box\" style=\"flex-direction:column; align-items:stretch;\">\n            <span>El código <strong>" + _0x1d1ab0(_0x1dfbd0.code) + "</strong> tiene varias referencias registradas. ¿Cuál es?</span>\n            <div class=\"code-choice-list\">\n              " + _0x1dfbd0.matches.map(_0xa7ff30 => {
+    _0x559be.innerHTML = "\n      <div class=\"scanner-panel\" style=\"" + (estado.mode === "almacen" ? "border-top:4px solid " + _0x8c9156 + "; background:linear-gradient(90deg, " + (_0x345037 === "entrada" ? "var(--success-soft)" : "var(--danger-soft)") + ", transparent 220px);" : "") + "\">\n        " + (estado.mode === "almacen" ? "\n          <div style=\"font-family:var(--letra-cartel); font-weight:800; font-size:20px; text-transform:uppercase; letter-spacing:.03em; color:" + _0x8c9156 + "; margin-bottom:8px;\">\n            Modo activo: " + (_0x345037 === "entrada" ? "ENTRADA (suma al stock)" : "SALIDA (resta del stock)") + "\n          </div>\n          <div class=\"scanner-row\" style=\"margin-bottom:8px;\">\n            <button class=\"mode-btn\" data-almacen-scan-modo=\"entrada\" style=\"flex:1; padding:12px; font-size:15px; " + (_0x345037 === "entrada" ? "background:var(--success); color:#0A2016;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">+ ENTRADA</button>\n            <button class=\"mode-btn\" data-almacen-scan-modo=\"salida\" style=\"flex:1; padding:12px; font-size:15px; " + (_0x345037 === "salida" ? "background:var(--danger); color:#2A0C10;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">− SALIDA</button>\n          </div>\n        " : "") + "\n        <div class=\"scanner-row\">\n          <input id=\"scanInput\" type=\"text\" placeholder=\"" + _0xa728ab + "\" " + (_0x4664d6 ? "disabled" : "") + " autocomplete=\"off\" style=\"" + (estado.mode === "almacen" ? "border-color:" + _0x8c9156 + ";" : "") + "\">\n        </div>\n        <div class=\"scanner-actions\">\n          <button class=\"cam-btn\" id=\"camBtn\" " + (_0x4664d6 ? "disabled" : "") + ">Cámara</button>\n          <button class=\"btn primary\" id=\"scanSubmitBtn\" " + (_0x4664d6 ? "disabled" : "") + ">" + _0x4ad6be + "</button>\n        </div>\n        <label style=\"display:flex; align-items:center; gap:6px; margin-top:8px; font-size:12px; color:var(--text-muted); cursor:pointer;\">\n          <input type=\"checkbox\" id=\"modoRapidoX1Chk\" " + (_0x2ff082 ? "checked" : "") + " style=\"width:16px; height:16px;\"> Modo rápido: cada escaneo cuenta como 1 unidad, sin preguntar\n        </label>\n        <div class=\"scan-hint\">" + _0x84fca4 + "</div>\n        " + (_0x24edec ? "\n          <div class=\"unknown-box\">\n            <span>Nueva referencia para el código <strong>" + escaparHtml(_0x24edec.code) + "</strong>:</span>\n            <input id=\"unknownDesc\" type=\"text\" placeholder=\"Artículo…\">\n            <input id=\"unknownRef\" type=\"text\" placeholder=\"Referencia (opcional)…\">\n            <input id=\"unknownLoc\" type=\"text\" placeholder=\"Ubicación (opcional)…\" list=\"ubicacionesList\">\n            <select id=\"unknownCategoria\" style=\"background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:8px 10px; border-radius:6px;\">\n              <option value=\"\">Categoría…</option>\n              " + _0x23f5f6.map(_0x553a77 => "<option value=\"" + escaparHtml(_0x553a77) + "\">" + escaparHtml(_0x553a77) + "</option>").join("") + "\n            </select>\n            <button class=\"cam-btn\" id=\"confirmUnknownBtn\">Añadir y registrar</button>\n          </div>\n        " : "") + "\n        " + (_0x1dfbd0 ? "\n          <div class=\"unknown-box\" style=\"flex-direction:column; align-items:stretch;\">\n            <span>El código <strong>" + escaparHtml(_0x1dfbd0.code) + "</strong> tiene varias referencias registradas. ¿Cuál es?</span>\n            <div class=\"code-choice-list\">\n              " + _0x1dfbd0.matches.map(_0xa7ff30 => {
       const _0x36d4fe = estado.catalog.find(_0x3973d7 => _0x3973d7.id === _0xa7ff30);
       if (!_0x36d4fe) {
         return "";
       }
-      return "<button class=\"cam-btn code-choice-btn\" data-choice-item=\"" + _0x36d4fe.id + "\">" + _0x1d1ab0(_0x36d4fe.desc) + " <span class=\"code-choice-meta\">· " + _0x36d4fe.qty + " uds · Ubic: " + (_0x1d1ab0(_0x36d4fe.location) || "sin ubicar") + "</span></button>";
+      return "<button class=\"cam-btn code-choice-btn\" data-choice-item=\"" + _0x36d4fe.id + "\">" + escaparHtml(_0x36d4fe.desc) + " <span class=\"code-choice-meta\">· " + _0x36d4fe.qty + " uds · Ubic: " + (escaparHtml(_0x36d4fe.location) || "sin ubicar") + "</span></button>";
     }).join("") + "\n              <button class=\"cam-btn code-choice-btn\" id=\"choiceCreateNewBtn\" style=\"border-style:dashed;\">+ Crear otra referencia nueva con este código</button>\n            </div>\n          </div>\n        " : "") + "\n      </div>\n    ";
     _0x559be.querySelectorAll("[data-almacen-scan-modo]").forEach(_0x532f68 => {
       _0x532f68.addEventListener("click", () => {
@@ -9980,13 +10032,13 @@
   function _0x198ddf() {
     if (estado.mode === "montaje") {
       if (estado.current.montaje) {
-        return "Montaje/Venta: " + _0x1d1ab0(estado.current.montaje);
+        return "Montaje/Venta: " + escaparHtml(estado.current.montaje);
       } else {
         return "Orden de montaje/venta";
       }
     }
     if (estado.current.proyecto) {
-      return "Proyecto: " + _0x1d1ab0(estado.current.proyecto);
+      return "Proyecto: " + escaparHtml(estado.current.proyecto);
     } else {
       return "Proyecto";
     }
@@ -10005,8 +10057,8 @@
     const _0x2580ea = _0x1a8b0d.trim().toLowerCase();
     const _0x1318d4 = estado.catalog.filter(_0x2dce44 => !_0x2580ea || _0x2dce44.code.toLowerCase().includes(_0x2580ea) || _0x2dce44.desc.toLowerCase().includes(_0x2580ea) || _0x2dce44.referencia && _0x2dce44.referencia.toLowerCase().includes(_0x2580ea)).filter(_0x110031 => !_0x1b0226 || _0x110031.categoria === _0x1b0226).filter(_0x4e3e62 => !_0x30947e || _0x4e3e62.qty <= 0).filter(_0x6ac846 => !_0x101019 || !_0x6ac846.location).slice().sort((_0x562039, _0x5b6cd2) => _0x562039.code.localeCompare(_0x5b6cd2.code));
     const _0x39c62a = _0x1318d4.slice(0, _0x2ba7a9);
-    const _0x4641a7 = _0x39c62a.map(_0x4a3c61 => "\n      <div class=\"stock-row\">\n        <input type=\"checkbox\" class=\"stock-select\" aria-label=\"Seleccionar referencia\" data-select-id=\"" + _0x4a3c61.id + "\" " + (_0xf103fd.has(_0x4a3c61.id) ? "checked" : "") + " style=\"flex:none; width:16px; height:16px; margin-right:4px;\">\n        <div class=\"row-main\">\n          <div class=\"row-code\">" + _0x1d1ab0(_0x4a3c61.code) + (_0x4a3c61.marca ? " · <span style=\"color:var(--text-faint); font-weight:400;\">" + _0x1d1ab0(_0x4a3c61.marca) + "</span>" : "") + "</div>\n          <div class=\"row-desc\">" + (_0x1d1ab0(_0x4a3c61.desc) || "<span style=\"color:var(--text-faint); font-style:italic;\">Sin artículo — pulsa \"Editar\" o edítalo desde el Excel</span>") + "</div>\n          " + (_0x4a3c61.referencia ? "<div style=\"font-size:11px; color:var(--text-faint); margin-top:1px;\">Ref: " + _0x1d1ab0(_0x4a3c61.referencia) + "</div>" : "") + "\n        </div>\n        <div class=\"row-actions\">\n          <span class=\"stock-loc " + (_0x4a3c61.location ? "set" : "unset") + "\">" + (_0x1d1ab0(_0x4a3c61.location) || "Sin ubicar") + "</span>\n          " + (_0x4a3c61.categoria ? "<span class=\"stock-loc set\">Cat: " + _0x1d1ab0(_0x4a3c61.categoria) + "</span>" : "") + "\n          <span class=\"stock-qty " + (_0x4a3c61.qty > 0 ? "ok" : "low") + "\">" + _0x4a3c61.qty + "</span>\n          <button class=\"cam-btn\" style=\"padding:9px 14px; font-size:13px; min-height:44px;\" data-edit-btn=\"" + _0x4a3c61.id + "\">" + _0x56ae2b("editar") + "Editar</button>\n          <button class=\"cam-btn\" style=\"padding:9px 14px; font-size:13px; min-height:44px;\" data-qty-btn=\"" + _0x4a3c61.id + "\">Cambiar cantidad</button>\n        </div>\n      </div>\n    ").join("") + (_0x1318d4.length > _0x39c62a.length ? "\n      <button class=\"cam-btn\" id=\"stockLoadMoreBtn\" style=\"width:100%; margin-top:4px;\">Cargar más (quedan " + (_0x1318d4.length - _0x39c62a.length) + ")</button>\n    " : "");
-    _0x231638.innerHTML = "\n      " + (_0xf103fd.size ? "\n      <div class=\"panel\" style=\"margin-bottom:14px;\">\n        <p class=\"panel-title\">" + _0xf103fd.size + " referencia(s) seleccionada(s)</p>\n        <div class=\"backup-row\">\n          <button class=\"cam-btn\" id=\"bulkLocBtn\">Cambiar ubicación a todas</button>\n          <button class=\"cam-btn\" id=\"bulkQtyBtn\">Cambiar cantidad a todas</button>\n          <button class=\"btn-return\" id=\"bulkDelBtn\">Eliminar seleccionadas</button>\n        </div>\n      </div>" : "") + "\n\n      <div class=\"panel\" style=\"margin-bottom:14px;\">\n        <p class=\"panel-title\">Filtros</p>\n        <div class=\"manual-stock-form\" style=\"margin-top:0;\">\n          <select id=\"stockFiltroCategoriaSel\">\n            <option value=\"\">Todas las categorías</option>\n            " + _0x23f5f6.map(_0x5599e4 => "<option value=\"" + _0x1d1ab0(_0x5599e4) + "\" " + (_0x1b0226 === _0x5599e4 ? "selected" : "") + ">" + _0x1d1ab0(_0x5599e4) + "</option>").join("") + "\n          </select>\n          <label style=\"display:flex; align-items:center; gap:6px; flex:1; min-width:150px; font-size:13px; color:var(--text-primary);\">\n            <input type=\"checkbox\" id=\"stockFiltroBajoChk\" " + (_0x30947e ? "checked" : "") + " style=\"width:16px; height:16px;\"> Solo stock bajo (0)\n          </label>\n          <label style=\"display:flex; align-items:center; gap:6px; flex:1; min-width:150px; font-size:13px; color:var(--text-primary);\">\n            <input type=\"checkbox\" id=\"stockFiltroSinUbicarChk\" " + (_0x101019 ? "checked" : "") + " style=\"width:16px; height:16px;\"> Solo sin ubicar\n          </label>\n          " + (_0x1b0226 || _0x30947e || _0x101019 ? "<button class=\"cam-btn\" id=\"stockFiltroLimpiarBtn\" style=\"flex:none;\">Quitar filtros</button>" : "") + "\n        </div>\n      </div>\n\n      <div class=\"ticket\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\"><label style=\"cursor:pointer; display:flex; align-items:center; gap:5px;\"><input type=\"checkbox\" id=\"selectAllStock\" style=\"width:15px; height:15px;\"> Stock actual</label></span>\n          <span class=\"ticket-title\">" + _0x1318d4.length + " referencias</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + (_0x4641a7 || "<div class=\"empty-state\">" + (_0x2580ea || _0x1b0226 || _0x30947e || _0x101019 ? "Sin coincidencias con estos filtros." : "Todavía no hay materiales en el stock. Añade uno abajo o importa tu Excel.") + "</div>") + "\n        </div>\n      </div>\n\n      <div class=\"panel\" style=\"margin-top:14px;\">\n        <p class=\"panel-title\">Añadir stock manualmente</p>\n        <div class=\"manual-stock-form\">\n          <input type=\"text\" name=\"mCode\" id=\"mCode\" placeholder=\"Código\">\n          <input type=\"text\" name=\"mDesc\" id=\"mDesc\" placeholder=\"Artículo\">\n          <input type=\"text\" name=\"mRef\" id=\"mRef\" placeholder=\"Referencia (opcional)\">\n          <input type=\"text\" name=\"mLoc\" id=\"mLoc\" placeholder=\"Ubicación (ej. Pasillo 3 - B2)\" list=\"ubicacionesList\">\n          <input type=\"number\" name=\"mQty\" id=\"mQty\" placeholder=\"Cant.\" min=\"1\" value=\"1\">\n          <select id=\"mCategoria\">\n            <option value=\"\">Categoría…</option>\n            " + _0x23f5f6.map(_0x37c48c => "<option value=\"" + _0x1d1ab0(_0x37c48c) + "\">" + _0x1d1ab0(_0x37c48c) + "</option>").join("") + "\n          </select>\n          <button class=\"cam-btn\" id=\"addManualBtn\">+ Registrar entrada</button>\n        </div>\n      </div>\n    <button class=\"cam-btn\" id=\"almacenMasOpcionesBtn\" style=\"width:100%; margin-top:10px;\">" + (_0x1c3cca.masOp ? "Ocultar opciones" : "Más opciones (bobinas, cables…)") + "</button>\n    <div id=\"almacenMasOpcionesZone\" style=\"" + (_0x1c3cca.masOp ? "" : "display:none;") + "\"></div>\n    ";
+    const _0x4641a7 = _0x39c62a.map(_0x4a3c61 => "\n      <div class=\"stock-row\">\n        <input type=\"checkbox\" class=\"stock-select\" aria-label=\"Seleccionar referencia\" data-select-id=\"" + _0x4a3c61.id + "\" " + (_0xf103fd.has(_0x4a3c61.id) ? "checked" : "") + " style=\"flex:none; width:16px; height:16px; margin-right:4px;\">\n        <div class=\"row-main\">\n          <div class=\"row-code\">" + escaparHtml(_0x4a3c61.code) + (_0x4a3c61.marca ? " · <span style=\"color:var(--text-faint); font-weight:400;\">" + escaparHtml(_0x4a3c61.marca) + "</span>" : "") + "</div>\n          <div class=\"row-desc\">" + (escaparHtml(_0x4a3c61.desc) || "<span style=\"color:var(--text-faint); font-style:italic;\">Sin artículo — pulsa \"Editar\" o edítalo desde el Excel</span>") + "</div>\n          " + (_0x4a3c61.referencia ? "<div style=\"font-size:11px; color:var(--text-faint); margin-top:1px;\">Ref: " + escaparHtml(_0x4a3c61.referencia) + "</div>" : "") + "\n        </div>\n        <div class=\"row-actions\">\n          <span class=\"stock-loc " + (_0x4a3c61.location ? "set" : "unset") + "\">" + (escaparHtml(_0x4a3c61.location) || "Sin ubicar") + "</span>\n          " + (_0x4a3c61.categoria ? "<span class=\"stock-loc set\">Cat: " + escaparHtml(_0x4a3c61.categoria) + "</span>" : "") + "\n          <span class=\"stock-qty " + (_0x4a3c61.qty > 0 ? "ok" : "low") + "\">" + _0x4a3c61.qty + "</span>\n          <button class=\"cam-btn\" style=\"padding:9px 14px; font-size:13px; min-height:44px;\" data-edit-btn=\"" + _0x4a3c61.id + "\">" + _0x56ae2b("editar") + "Editar</button>\n          <button class=\"cam-btn\" style=\"padding:9px 14px; font-size:13px; min-height:44px;\" data-qty-btn=\"" + _0x4a3c61.id + "\">Cambiar cantidad</button>\n        </div>\n      </div>\n    ").join("") + (_0x1318d4.length > _0x39c62a.length ? "\n      <button class=\"cam-btn\" id=\"stockLoadMoreBtn\" style=\"width:100%; margin-top:4px;\">Cargar más (quedan " + (_0x1318d4.length - _0x39c62a.length) + ")</button>\n    " : "");
+    _0x231638.innerHTML = "\n      " + (_0xf103fd.size ? "\n      <div class=\"panel\" style=\"margin-bottom:14px;\">\n        <p class=\"panel-title\">" + _0xf103fd.size + " referencia(s) seleccionada(s)</p>\n        <div class=\"backup-row\">\n          <button class=\"cam-btn\" id=\"bulkLocBtn\">Cambiar ubicación a todas</button>\n          <button class=\"cam-btn\" id=\"bulkQtyBtn\">Cambiar cantidad a todas</button>\n          <button class=\"btn-return\" id=\"bulkDelBtn\">Eliminar seleccionadas</button>\n        </div>\n      </div>" : "") + "\n\n      <div class=\"panel\" style=\"margin-bottom:14px;\">\n        <p class=\"panel-title\">Filtros</p>\n        <div class=\"manual-stock-form\" style=\"margin-top:0;\">\n          <select id=\"stockFiltroCategoriaSel\">\n            <option value=\"\">Todas las categorías</option>\n            " + _0x23f5f6.map(_0x5599e4 => "<option value=\"" + escaparHtml(_0x5599e4) + "\" " + (_0x1b0226 === _0x5599e4 ? "selected" : "") + ">" + escaparHtml(_0x5599e4) + "</option>").join("") + "\n          </select>\n          <label style=\"display:flex; align-items:center; gap:6px; flex:1; min-width:150px; font-size:13px; color:var(--text-primary);\">\n            <input type=\"checkbox\" id=\"stockFiltroBajoChk\" " + (_0x30947e ? "checked" : "") + " style=\"width:16px; height:16px;\"> Solo stock bajo (0)\n          </label>\n          <label style=\"display:flex; align-items:center; gap:6px; flex:1; min-width:150px; font-size:13px; color:var(--text-primary);\">\n            <input type=\"checkbox\" id=\"stockFiltroSinUbicarChk\" " + (_0x101019 ? "checked" : "") + " style=\"width:16px; height:16px;\"> Solo sin ubicar\n          </label>\n          " + (_0x1b0226 || _0x30947e || _0x101019 ? "<button class=\"cam-btn\" id=\"stockFiltroLimpiarBtn\" style=\"flex:none;\">Quitar filtros</button>" : "") + "\n        </div>\n      </div>\n\n      <div class=\"ticket\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\"><label style=\"cursor:pointer; display:flex; align-items:center; gap:5px;\"><input type=\"checkbox\" id=\"selectAllStock\" style=\"width:15px; height:15px;\"> Stock actual</label></span>\n          <span class=\"ticket-title\">" + _0x1318d4.length + " referencias</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + (_0x4641a7 || "<div class=\"empty-state\">" + (_0x2580ea || _0x1b0226 || _0x30947e || _0x101019 ? "Sin coincidencias con estos filtros." : "Todavía no hay materiales en el stock. Añade uno abajo o importa tu Excel.") + "</div>") + "\n        </div>\n      </div>\n\n      <div class=\"panel\" style=\"margin-top:14px;\">\n        <p class=\"panel-title\">Añadir stock manualmente</p>\n        <div class=\"manual-stock-form\">\n          <input type=\"text\" name=\"mCode\" id=\"mCode\" placeholder=\"Código\">\n          <input type=\"text\" name=\"mDesc\" id=\"mDesc\" placeholder=\"Artículo\">\n          <input type=\"text\" name=\"mRef\" id=\"mRef\" placeholder=\"Referencia (opcional)\">\n          <input type=\"text\" name=\"mLoc\" id=\"mLoc\" placeholder=\"Ubicación (ej. Pasillo 3 - B2)\" list=\"ubicacionesList\">\n          <input type=\"number\" name=\"mQty\" id=\"mQty\" placeholder=\"Cant.\" min=\"1\" value=\"1\">\n          <select id=\"mCategoria\">\n            <option value=\"\">Categoría…</option>\n            " + _0x23f5f6.map(_0x37c48c => "<option value=\"" + escaparHtml(_0x37c48c) + "\">" + escaparHtml(_0x37c48c) + "</option>").join("") + "\n          </select>\n          <button class=\"cam-btn\" id=\"addManualBtn\">+ Registrar entrada</button>\n        </div>\n      </div>\n    <button class=\"cam-btn\" id=\"almacenMasOpcionesBtn\" style=\"width:100%; margin-top:10px;\">" + (_0x1c3cca.masOp ? "Ocultar opciones" : "Más opciones (bobinas, cables…)") + "</button>\n    <div id=\"almacenMasOpcionesZone\" style=\"" + (_0x1c3cca.masOp ? "" : "display:none;") + "\"></div>\n    ";
     (function () {
       const _0xzonaMasOp = $("#almacenMasOpcionesZone");
       if (_0xzonaMasOp) {
@@ -10057,7 +10109,7 @@
           }
           const _0x1fd639 = _0x3e2b29 - _0x49e930.qty;
           if (_0x1fd639 !== 0) {
-            _0x1d4277(_0x49e930, Math.abs(_0x1fd639), _0x1fd639 > 0 ? "entrada" : "salida", "Almacén (ajuste manual en bloque)");
+            registrarMovimiento(_0x49e930, Math.abs(_0x1fd639), _0x1fd639 > 0 ? "entrada" : "salida", "Almacén (ajuste manual en bloque)");
           }
         });
         _0xf103fd.clear();
@@ -10086,7 +10138,7 @@
             });
           }
         });
-        _0x240f8a();
+        guardarMovimientos();
         estado.catalog = estado.catalog.filter(_0x35723d => !_0xf103fd.has(_0x35723d.id));
         guardarCatalogo();
         _0xf103fd.clear();
@@ -10264,12 +10316,12 @@
       const _0x58412e = _0x1a6d34(_0x5d3d4d.expira);
       const _0x135633 = _0x58412e < 0 ? "low" : _0x58412e <= estado.settings.bobinaAvisoDias ? "low" : "ok";
       const _0x5a615f = _0x58412e < 0 ? "vencida hace " + Math.abs(_0x58412e) + " días" : _0x58412e === 0 ? "vence hoy" : "quedan " + _0x58412e + " días";
-      return "\n        <div class=\"stock-row\">\n          <div class=\"row-main\">\n            <div class=\"row-code\">" + (_0x1d1ab0(_0x5d3d4d.codigo) || "—") + " · " + _0x1d1ab0(_0x5d3d4d.matricula) + "</div>\n            <div class=\"row-desc\">" + _0x1d1ab0(_0x5d3d4d.desc) + "</div>\n            <div class=\"row-ts\">Devolver antes del " + _0x5d3d4d.expira + " — " + _0x5a615f + "</div>\n          </div>\n          <div class=\"row-actions\">\n            <span class=\"stock-qty " + _0x135633 + "\">" + (_0x58412e < 0 ? "Vencida: " : "") + _0x5d3d4d.expira + "</span>\n            <button class=\"btn-return\" style=\"padding:9px 14px; font-size:13px; min-height:44px;\" data-bobina-del=\"" + _0x5d3d4d.id + "\">" + _0x56ae2b("eliminar") + "Eliminar</button>\n          </div>\n        </div>\n      ";
+      return "\n        <div class=\"stock-row\">\n          <div class=\"row-main\">\n            <div class=\"row-code\">" + (escaparHtml(_0x5d3d4d.codigo) || "—") + " · " + escaparHtml(_0x5d3d4d.matricula) + "</div>\n            <div class=\"row-desc\">" + escaparHtml(_0x5d3d4d.desc) + "</div>\n            <div class=\"row-ts\">Devolver antes del " + _0x5d3d4d.expira + " — " + _0x5a615f + "</div>\n          </div>\n          <div class=\"row-actions\">\n            <span class=\"stock-qty " + _0x135633 + "\">" + (_0x58412e < 0 ? "Vencida: " : "") + _0x5d3d4d.expira + "</span>\n            <button class=\"btn-return\" style=\"padding:9px 14px; font-size:13px; min-height:44px;\" data-bobina-del=\"" + _0x5d3d4d.id + "\">" + _0x56ae2b("eliminar") + "Eliminar</button>\n          </div>\n        </div>\n      ";
     }).join("");
     return "\n      <div class=\"panel\" style=\"margin-top:14px;\">\n        <p class=\"panel-title\">Bobinas (con fecha de devolución)</p>\n        <div class=\"manual-stock-form\">\n          <input type=\"text\" id=\"bCodigo\" placeholder=\"Código\">\n          <button class=\"cam-btn\" id=\"bCamBtn\" style=\"flex:none; padding:9px 12px;\">Cám.</button>\n          <input type=\"text\" id=\"bDesc\" placeholder=\"Referencia\" style=\"flex:2; min-width:140px;\">\n          <input type=\"text\" id=\"bMatricula\" placeholder=\"Matrícula\" style=\"flex:1; min-width:100px;\">\n          <input type=\"date\" id=\"bFecha\" style=\"flex:1; min-width:150px;\">\n          <button class=\"cam-btn\" id=\"addBobinaBtn\">+ Registrar bobina</button>\n        </div>\n        <div class=\"scan-hint\" style=\"margin-top:6px;\">Si el código ya existe en stock, la referencia se rellena sola.</div>\n      </div>\n\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\">Bobinas registradas</span>\n          <span class=\"ticket-title\">" + estado.bobinas.length + "</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + (_0x380069 || "<div class=\"empty-state\">Todavía no hay bobinas registradas.</div>") + "\n        </div>\n      </div>\n    ";
   }
   function _0xa19f12() {
-    return "\n      <div class=\"panel\" style=\"margin-top:14px;\">\n        <p class=\"panel-title\">Cables y mangueras</p>\n        <input type=\"text\" id=\"cablesSearch\" placeholder=\"Buscar entre los cables/mangueras que ya tengo en stock…\" value=\"" + _0x1d1ab0(_0x506050) + "\" style=\"width:100%; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:9px 10px; border-radius:7px; font-size:13px; margin-bottom:8px;\">\n        <div id=\"cablesResults\" style=\"max-height:240px; overflow-y:auto;\"></div>\n        <p class=\"panel-title\" style=\"margin-top:12px;\">Añadir uno nuevo</p>\n        <div class=\"manual-stock-form\">\n          <input type=\"text\" id=\"cabCodigo\" placeholder=\"Código\">\n          <input type=\"text\" id=\"cabArticulo\" placeholder=\"Artículo (ej. Manguera hidráulica 1/2\\\")\" style=\"flex:2; min-width:140px;\">\n          <input type=\"text\" id=\"cabRef\" placeholder=\"Referencia (opcional)\">\n          <input type=\"text\" id=\"cabLoc\" placeholder=\"Ubicación\" list=\"ubicacionesList\">\n          <input type=\"number\" id=\"cabQty\" placeholder=\"Cant.\" min=\"1\" value=\"1\">\n          <button class=\"cam-btn\" id=\"addCableBtn\">+ Registrar</button>\n        </div>\n      </div>\n    ";
+    return "\n      <div class=\"panel\" style=\"margin-top:14px;\">\n        <p class=\"panel-title\">Cables y mangueras</p>\n        <input type=\"text\" id=\"cablesSearch\" placeholder=\"Buscar entre los cables/mangueras que ya tengo en stock…\" value=\"" + escaparHtml(_0x506050) + "\" style=\"width:100%; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:9px 10px; border-radius:7px; font-size:13px; margin-bottom:8px;\">\n        <div id=\"cablesResults\" style=\"max-height:240px; overflow-y:auto;\"></div>\n        <p class=\"panel-title\" style=\"margin-top:12px;\">Añadir uno nuevo</p>\n        <div class=\"manual-stock-form\">\n          <input type=\"text\" id=\"cabCodigo\" placeholder=\"Código\">\n          <input type=\"text\" id=\"cabArticulo\" placeholder=\"Artículo (ej. Manguera hidráulica 1/2\\\")\" style=\"flex:2; min-width:140px;\">\n          <input type=\"text\" id=\"cabRef\" placeholder=\"Referencia (opcional)\">\n          <input type=\"text\" id=\"cabLoc\" placeholder=\"Ubicación\" list=\"ubicacionesList\">\n          <input type=\"number\" id=\"cabQty\" placeholder=\"Cant.\" min=\"1\" value=\"1\">\n          <button class=\"cam-btn\" id=\"addCableBtn\">+ Registrar</button>\n        </div>\n      </div>\n    ";
   }
   function _0x2436d1() {
     const _0xd3cc54 = $("#cablesResults");
@@ -10283,7 +10335,7 @@
       _0xd3cc54.innerHTML = "<div style=\"color:var(--text-faint); font-size:12px; padding:6px 0;\">" + (_0x28a956.length ? "Sin coincidencias." : "Todavía no hay cables ni mangueras dados de alta en el stock.") + "</div>";
       return;
     }
-    _0xd3cc54.innerHTML = _0x1171a5.slice(0, 25).map(_0x3b1b1e => "\n      <div class=\"stock-row\">\n        <div class=\"row-main\">\n          <div class=\"row-code\">" + _0x1d1ab0(_0x3b1b1e.code) + "</div>\n          <div class=\"row-desc\">" + _0x1d1ab0(_0x3b1b1e.desc) + "</div>\n        </div>\n        <div class=\"row-actions\">\n          <span class=\"stock-loc " + (_0x3b1b1e.location ? "set" : "unset") + "\">" + (_0x1d1ab0(_0x3b1b1e.location) || "Sin ubicar") + "</span>\n          <span class=\"stock-qty " + (_0x3b1b1e.qty > 0 ? "ok" : "low") + "\">" + _0x3b1b1e.qty + "</span>\n        </div>\n      </div>\n    ").join("");
+    _0xd3cc54.innerHTML = _0x1171a5.slice(0, 25).map(_0x3b1b1e => "\n      <div class=\"stock-row\">\n        <div class=\"row-main\">\n          <div class=\"row-code\">" + escaparHtml(_0x3b1b1e.code) + "</div>\n          <div class=\"row-desc\">" + escaparHtml(_0x3b1b1e.desc) + "</div>\n        </div>\n        <div class=\"row-actions\">\n          <span class=\"stock-loc " + (_0x3b1b1e.location ? "set" : "unset") + "\">" + (escaparHtml(_0x3b1b1e.location) || "Sin ubicar") + "</span>\n          <span class=\"stock-qty " + (_0x3b1b1e.qty > 0 ? "ok" : "low") + "\">" + _0x3b1b1e.qty + "</span>\n        </div>\n      </div>\n    ").join("");
   }
   let _0x4a2938 = "chat";
   const _0x539500 = [{
@@ -10375,7 +10427,7 @@
           return;
         }
         estado.mode = _0x26ba70.dataset.irA === "trabajo" ? _0x1e9600 : _0x26ba70.dataset.irA;
-        _0x430fb2();
+        guardarPantallaActual();
         render();
       });
     });
@@ -10393,7 +10445,7 @@
     const _0x1972b3 = _0x267a5a() || estado.vehiculos[0];
     if (_0x1972b3.id !== estado.vehiculoActualId) {
       estado.vehiculoActualId = _0x1972b3.id;
-      _0x430fb2();
+      guardarPantallaActual();
     }
     const _0x2e9928 = _0x1972b3.kmActual || 0;
     const _0x36c069 = _0x4f0ebd(_0x1972b3.id).map(_0x3b00cd => ({
@@ -10404,10 +10456,10 @@
     const _0x5df632 = _0x36c069.filter(_0x5af261 => _0x5af261.calc.estado === "atrasada").length;
     const _0x409ede = _0x36c069.filter(_0x107869 => _0x107869.calc.estado === "pronto").length;
     const _0x17692b = _0x36c069.filter(_0x468f35 => _0x468f35.calc.estado === "ok").length;
-    _0x101ace.innerHTML = "\n      <div class=\"project-bar\">\n        <select id=\"vehiculoSelect\" style=\"flex:1;\">\n          " + estado.vehiculos.map(_0x5d2845 => "<option value=\"" + _0x5d2845.id + "\" " + (_0x5d2845.id === _0x1972b3.id ? "selected" : "") + ">" + _0x1d1ab0(_0x5d2845.matricula) + (_0x5d2845.marca || _0x5d2845.modelo ? " — " + _0x1d1ab0(_0x5d2845.marca || "") + " " + _0x1d1ab0(_0x5d2845.modelo || "") : "") + "</option>").join("") + "\n        </select>\n        <button class=\"cam-btn\" id=\"addVehiculoBtn\" style=\"flex:none; padding:9px 14px; min-height:auto;\">+ Nuevo</button>\n      </div>\n      <div class=\"project-bar\" style=\"margin-top:0;\">\n        <label for=\"kmActualInput\" style=\"font-size:12px; font-weight:700; color:var(--text-faint); white-space:nowrap;\">Km actuales:</label>\n        <input type=\"number\" id=\"kmActualInput\" value=\"" + _0x2e9928 + "\" min=\"0\" style=\"flex:1;\">\n        <button class=\"cam-btn\" id=\"editVehiculoBtn\" style=\"flex:none; padding:9px 14px; min-height:auto;\">" + _0x56ae2b("editar") + "Editar</button>\n        <button class=\"btn-return\" id=\"delVehiculoBtn\" style=\"flex:none; padding:9px 14px; min-height:auto;\">Eliminar vehículo</button>\n      </div>\n\n      <div class=\"panel\">\n        <p class=\"panel-title\">Resumen</p>\n        <div class=\"stat-row\"><span>Atrasadas</span><span class=\"num\" style=\"color:var(--danger);\">" + _0x5df632 + "</span></div>\n        <div class=\"stat-row\"><span>Pronto</span><span class=\"num\" style=\"color:var(--warning);\">" + _0x409ede + "</span></div>\n        <div class=\"stat-row\"><span>Al día</span><span class=\"num\" style=\"color:var(--success);\">" + _0x17692b + "</span></div>\n      </div>\n\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Mantenimiento — " + _0x1d1ab0(_0x1972b3.matricula) + "</span></div>\n        <div class=\"ticket-body\">\n          " + (_0x36c069.length ? _0x36c069.map(_0xa8f528).join("") : "<div class=\"empty-state\">Añade la primera tarea de mantenimiento abajo.</div>") + "\n        </div>\n      </div>\n      <button class=\"cam-btn\" id=\"addTareaMantBtn\" style=\"width:100%; margin-top:10px;\">+ Añadir tarea de mantenimiento</button>\n\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\" id=\"toggleFotosBtn\" style=\"cursor:pointer;\">\n          <span class=\"ticket-title\">Fotos de " + _0x1d1ab0(_0x1972b3.matricula) + ((_0x1972b3.fotos || []).length ? " (" + _0x1972b3.fotos.length + ")" : "") + "</span>\n          <span class=\"ticket-title\">" + (_0xcbd78e ? "Ocultar" : "Ver") + "</span>\n        </div>\n        " + (_0xcbd78e ? "\n        <div class=\"ticket-body\">\n          " + ((_0x1972b3.fotos || []).length ? "\n          <div style=\"display:grid; grid-template-columns:repeat(auto-fill, minmax(90px, 1fr)); gap:8px; padding:12px 14px;\">\n            " + (_0x1972b3.fotos || []).map((_0x13fec3, _0x235626) => "\n              <div style=\"position:relative;\">\n                <img src=\"" + _0x13fec3 + "\" style=\"width:100%; aspect-ratio:1; object-fit:cover; border-radius:6px; border:1px solid var(--border); cursor:pointer;\" data-ver-foto=\"" + _0x235626 + "\">\n                <button class=\"btn-return\" data-del-foto=\"" + _0x235626 + "\" style=\"position:absolute; top:2px; right:2px; padding:2px 6px; font-size:10px; min-height:auto;\">×</button>\n              </div>\n            ").join("") + "\n          </div>\n          " : "<div class=\"empty-state\">Todavía no hay ninguna foto de este vehículo.</div>") + "\n          <div style=\"padding:0 14px 14px;\">\n            <input type=\"file\" id=\"fotoInput\" accept=\"image/*\" capture=\"environment\" style=\"display:none;\">\n            <button class=\"cam-btn\" id=\"addFotoBtn\" style=\"width:100%;\">+ Añadir foto</button>\n          </div>\n        </div>\n        " : "") + "\n      </div>\n    ";
+    _0x101ace.innerHTML = "\n      <div class=\"project-bar\">\n        <select id=\"vehiculoSelect\" style=\"flex:1;\">\n          " + estado.vehiculos.map(_0x5d2845 => "<option value=\"" + _0x5d2845.id + "\" " + (_0x5d2845.id === _0x1972b3.id ? "selected" : "") + ">" + escaparHtml(_0x5d2845.matricula) + (_0x5d2845.marca || _0x5d2845.modelo ? " — " + escaparHtml(_0x5d2845.marca || "") + " " + escaparHtml(_0x5d2845.modelo || "") : "") + "</option>").join("") + "\n        </select>\n        <button class=\"cam-btn\" id=\"addVehiculoBtn\" style=\"flex:none; padding:9px 14px; min-height:auto;\">+ Nuevo</button>\n      </div>\n      <div class=\"project-bar\" style=\"margin-top:0;\">\n        <label for=\"kmActualInput\" style=\"font-size:12px; font-weight:700; color:var(--text-faint); white-space:nowrap;\">Km actuales:</label>\n        <input type=\"number\" id=\"kmActualInput\" value=\"" + _0x2e9928 + "\" min=\"0\" style=\"flex:1;\">\n        <button class=\"cam-btn\" id=\"editVehiculoBtn\" style=\"flex:none; padding:9px 14px; min-height:auto;\">" + _0x56ae2b("editar") + "Editar</button>\n        <button class=\"btn-return\" id=\"delVehiculoBtn\" style=\"flex:none; padding:9px 14px; min-height:auto;\">Eliminar vehículo</button>\n      </div>\n\n      <div class=\"panel\">\n        <p class=\"panel-title\">Resumen</p>\n        <div class=\"stat-row\"><span>Atrasadas</span><span class=\"num\" style=\"color:var(--danger);\">" + _0x5df632 + "</span></div>\n        <div class=\"stat-row\"><span>Pronto</span><span class=\"num\" style=\"color:var(--warning);\">" + _0x409ede + "</span></div>\n        <div class=\"stat-row\"><span>Al día</span><span class=\"num\" style=\"color:var(--success);\">" + _0x17692b + "</span></div>\n      </div>\n\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Mantenimiento — " + escaparHtml(_0x1972b3.matricula) + "</span></div>\n        <div class=\"ticket-body\">\n          " + (_0x36c069.length ? _0x36c069.map(_0xa8f528).join("") : "<div class=\"empty-state\">Añade la primera tarea de mantenimiento abajo.</div>") + "\n        </div>\n      </div>\n      <button class=\"cam-btn\" id=\"addTareaMantBtn\" style=\"width:100%; margin-top:10px;\">+ Añadir tarea de mantenimiento</button>\n\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\" id=\"toggleFotosBtn\" style=\"cursor:pointer;\">\n          <span class=\"ticket-title\">Fotos de " + escaparHtml(_0x1972b3.matricula) + ((_0x1972b3.fotos || []).length ? " (" + _0x1972b3.fotos.length + ")" : "") + "</span>\n          <span class=\"ticket-title\">" + (_0xcbd78e ? "Ocultar" : "Ver") + "</span>\n        </div>\n        " + (_0xcbd78e ? "\n        <div class=\"ticket-body\">\n          " + ((_0x1972b3.fotos || []).length ? "\n          <div style=\"display:grid; grid-template-columns:repeat(auto-fill, minmax(90px, 1fr)); gap:8px; padding:12px 14px;\">\n            " + (_0x1972b3.fotos || []).map((_0x13fec3, _0x235626) => "\n              <div style=\"position:relative;\">\n                <img src=\"" + _0x13fec3 + "\" style=\"width:100%; aspect-ratio:1; object-fit:cover; border-radius:6px; border:1px solid var(--border); cursor:pointer;\" data-ver-foto=\"" + _0x235626 + "\">\n                <button class=\"btn-return\" data-del-foto=\"" + _0x235626 + "\" style=\"position:absolute; top:2px; right:2px; padding:2px 6px; font-size:10px; min-height:auto;\">×</button>\n              </div>\n            ").join("") + "\n          </div>\n          " : "<div class=\"empty-state\">Todavía no hay ninguna foto de este vehículo.</div>") + "\n          <div style=\"padding:0 14px 14px;\">\n            <input type=\"file\" id=\"fotoInput\" accept=\"image/*\" capture=\"environment\" style=\"display:none;\">\n            <button class=\"cam-btn\" id=\"addFotoBtn\" style=\"width:100%;\">+ Añadir foto</button>\n          </div>\n        </div>\n        " : "") + "\n      </div>\n    ";
     $("#vehiculoSelect").addEventListener("change", _0x21152f => {
       estado.vehiculoActualId = _0x21152f.target.value;
-      _0x430fb2();
+      guardarPantallaActual();
       render();
     });
     $("#addVehiculoBtn").addEventListener("click", _0x4f1e92);
@@ -10419,14 +10471,14 @@
       estado.vehiculos = estado.vehiculos.filter(_0x5d4fa8 => _0x5d4fa8.id !== _0x1972b3.id);
       estado.tareasMantenimiento = estado.tareasMantenimiento.filter(_0x1cc00c => _0x1cc00c.vehiculoId !== _0x1972b3.id);
       estado.vehiculoActualId = estado.vehiculos.length ? estado.vehiculos[0].id : null;
-      _0x932e35();
-      _0x3e790f();
-      _0x430fb2();
+      guardarVehiculos();
+      guardarTareasMantenimiento();
+      guardarPantallaActual();
       render();
     });
     $("#kmActualInput").addEventListener("change", _0x21f1df => {
       _0x1972b3.kmActual = Math.max(0, parseInt(_0x21f1df.target.value, 10) || 0);
-      _0x932e35();
+      guardarVehiculos();
       render();
     });
     $("#addTareaMantBtn").addEventListener("click", () => _0x5e4b81());
@@ -10439,7 +10491,7 @@
           return;
         }
         estado.tareasMantenimiento = estado.tareasMantenimiento.filter(_0x77ee06 => _0x77ee06.id !== _0x2acfe8.dataset.delTareaId);
-        _0x3e790f();
+        guardarTareasMantenimiento();
         render();
       });
     });
@@ -10461,7 +10513,7 @@
         if (!_0x11fc60) {
           return;
         }
-        _0x279f78("Guardando foto…");
+        mostrarAviso("Guardando foto…");
         try {
           const _0x310082 = await _0x5300fc(_0x11fc60, 1000, 0.6);
           _0x1972b3.fotos = _0x1972b3.fotos || [];
@@ -10469,10 +10521,10 @@
           if (_0x1972b3.fotos.length > 30) {
             _0x1972b3.fotos = _0x1972b3.fotos.slice(0, 30);
           }
-          _0x932e35();
+          guardarVehiculos();
           render();
         } catch (_0x1720ba) {
-          _0x279f78("No se pudo guardar la foto: " + _0x1720ba.message);
+          mostrarAviso("No se pudo guardar la foto: " + _0x1720ba.message);
         }
         _0x3cb796.value = "";
       });
@@ -10486,7 +10538,7 @@
           return;
         }
         _0x1972b3.fotos.splice(parseInt(_0x45e8cc.dataset.delFoto, 10), 1);
-        _0x932e35();
+        guardarVehiculos();
         render();
       });
     });
@@ -10516,19 +10568,19 @@
     if (_0x53bc6b.proximaFecha) {
       _0x151dfb.push(new Date(_0x53bc6b.proximaFecha + "T00:00:00").toLocaleDateString("es-ES"));
     }
-    return "\n      <div style=\"display:flex; align-items:center; gap:10px; padding:12px 14px; border-bottom:1px dashed var(--border); border-top:3px solid " + _0x317941 + ";\">\n        <div style=\"flex:1; min-width:0; cursor:pointer;\" data-editar-tarea-id=\"" + _0x5f1501.id + "\">\n          <div style=\"font-weight:700; font-size:13.5px;\">" + _0x1d1ab0(_0x5f1501.nombre) + "</div>\n          <div style=\"font-size:11.5px; color:var(--text-faint); margin-top:2px;\">" + (_0x21b7b9.join(" · ") || "sin intervalo definido") + (_0x24c3f3.length ? " · última vez: " + _0x24c3f3.join(" · ") : "") + "</div>\n        </div>\n        <div style=\"text-align:right; flex:none;\">\n          <span style=\"font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:20px; background:color-mix(in srgb, " + _0x317941 + " 16%, transparent); color:" + _0x317941 + ";\">" + _0x30cf5a + "</span>\n          <div style=\"font-size:11px; color:var(--text-faint); margin-top:4px; font-family:ui-monospace,monospace;\">" + (_0x151dfb.join(" · ") || "—") + "</div>\n        </div>\n        <div style=\"display:flex; flex-direction:column; gap:4px; flex:none;\">\n          <button class=\"cam-btn\" data-hecho-tarea-id=\"" + _0x5f1501.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">Hecho</button>\n          <button class=\"btn-return\" data-del-tarea-id=\"" + _0x5f1501.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">" + _0x56ae2b("eliminar") + "Eliminar</button>\n        </div>\n      </div>\n    ";
+    return "\n      <div style=\"display:flex; align-items:center; gap:10px; padding:12px 14px; border-bottom:1px dashed var(--border); border-top:3px solid " + _0x317941 + ";\">\n        <div style=\"flex:1; min-width:0; cursor:pointer;\" data-editar-tarea-id=\"" + _0x5f1501.id + "\">\n          <div style=\"font-weight:700; font-size:13.5px;\">" + escaparHtml(_0x5f1501.nombre) + "</div>\n          <div style=\"font-size:11.5px; color:var(--text-faint); margin-top:2px;\">" + (_0x21b7b9.join(" · ") || "sin intervalo definido") + (_0x24c3f3.length ? " · última vez: " + _0x24c3f3.join(" · ") : "") + "</div>\n        </div>\n        <div style=\"text-align:right; flex:none;\">\n          <span style=\"font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:20px; background:color-mix(in srgb, " + _0x317941 + " 16%, transparent); color:" + _0x317941 + ";\">" + _0x30cf5a + "</span>\n          <div style=\"font-size:11px; color:var(--text-faint); margin-top:4px; font-family:ui-monospace,monospace;\">" + (_0x151dfb.join(" · ") || "—") + "</div>\n        </div>\n        <div style=\"display:flex; flex-direction:column; gap:4px; flex:none;\">\n          <button class=\"cam-btn\" data-hecho-tarea-id=\"" + _0x5f1501.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">Hecho</button>\n          <button class=\"btn-return\" data-del-tarea-id=\"" + _0x5f1501.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">" + _0x56ae2b("eliminar") + "Eliminar</button>\n        </div>\n      </div>\n    ";
   }
   function _0x4f1e92(_0x3a87c0) {
     const _0x5c555c = _0x3a87c0 ? estado.vehiculos.find(_0x10c01b => _0x10c01b.id === _0x3a87c0) : null;
     const _0x3d40a2 = $("#mantOverlay");
     const _0xdb2066 = $("#mantOverlayCard");
-    _0xdb2066.innerHTML = "\n      <p class=\"panel-title\">" + (_0x5c555c ? "Editar vehículo" : "Añadir vehículo") + "</p>\n      <div class=\"scanner-row\" style=\"margin-bottom:8px;\">\n        <input type=\"text\" id=\"vMatricula\" placeholder=\"Matrícula\" value=\"" + (_0x5c555c ? _0x1d1ab0(_0x5c555c.matricula || "") : "") + "\" style=\"flex:1;\">\n        <input type=\"number\" id=\"vKm\" placeholder=\"Km actuales\" min=\"0\" value=\"" + (_0x5c555c ? _0x5c555c.kmActual || 0 : "") + "\" style=\"flex:1;\">\n      </div>\n      <div class=\"scanner-row\" style=\"margin-bottom:12px;\">\n        <input type=\"text\" id=\"vMarca\" placeholder=\"Marca\" value=\"" + (_0x5c555c ? _0x1d1ab0(_0x5c555c.marca || "") : "") + "\" style=\"flex:1;\">\n        <input type=\"text\" id=\"vModelo\" placeholder=\"Modelo\" value=\"" + (_0x5c555c ? _0x1d1ab0(_0x5c555c.modelo || "") : "") + "\" style=\"flex:1;\">\n        <input type=\"number\" id=\"vAnio\" placeholder=\"Año\" value=\"" + (_0x5c555c ? _0x1d1ab0(_0x5c555c.anio || "") : "") + "\" style=\"flex:1;\">\n      </div>\n      <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 6px 2px;\">Mecánico habitual (opcional)</p>\n      <div class=\"scanner-row\" style=\"margin-bottom:12px;\">\n        <input type=\"text\" id=\"vMecanicoNombre\" placeholder=\"Nombre o taller\" value=\"" + (_0x5c555c ? _0x1d1ab0(_0x5c555c.mecanicoNombre || "") : "") + "\" style=\"flex:1;\">\n        <input type=\"text\" id=\"vMecanicoContacto\" placeholder=\"Teléfono o email\" value=\"" + (_0x5c555c ? _0x1d1ab0(_0x5c555c.mecanicoContacto || "") : "") + "\" style=\"flex:1;\">\n      </div>\n      <div class=\"scanner-row\">\n        <button class=\"btn-return\" id=\"vCancelar\" style=\"flex:1;\">Cancelar</button>\n        <button class=\"btn primary\" id=\"vGuardar\" style=\"flex:1;\">" + (_0x5c555c ? "Guardar" : "Añadir") + "</button>\n      </div>\n    ";
+    _0xdb2066.innerHTML = "\n      <p class=\"panel-title\">" + (_0x5c555c ? "Editar vehículo" : "Añadir vehículo") + "</p>\n      <div class=\"scanner-row\" style=\"margin-bottom:8px;\">\n        <input type=\"text\" id=\"vMatricula\" placeholder=\"Matrícula\" value=\"" + (_0x5c555c ? escaparHtml(_0x5c555c.matricula || "") : "") + "\" style=\"flex:1;\">\n        <input type=\"number\" id=\"vKm\" placeholder=\"Km actuales\" min=\"0\" value=\"" + (_0x5c555c ? _0x5c555c.kmActual || 0 : "") + "\" style=\"flex:1;\">\n      </div>\n      <div class=\"scanner-row\" style=\"margin-bottom:12px;\">\n        <input type=\"text\" id=\"vMarca\" placeholder=\"Marca\" value=\"" + (_0x5c555c ? escaparHtml(_0x5c555c.marca || "") : "") + "\" style=\"flex:1;\">\n        <input type=\"text\" id=\"vModelo\" placeholder=\"Modelo\" value=\"" + (_0x5c555c ? escaparHtml(_0x5c555c.modelo || "") : "") + "\" style=\"flex:1;\">\n        <input type=\"number\" id=\"vAnio\" placeholder=\"Año\" value=\"" + (_0x5c555c ? escaparHtml(_0x5c555c.anio || "") : "") + "\" style=\"flex:1;\">\n      </div>\n      <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 6px 2px;\">Mecánico habitual (opcional)</p>\n      <div class=\"scanner-row\" style=\"margin-bottom:12px;\">\n        <input type=\"text\" id=\"vMecanicoNombre\" placeholder=\"Nombre o taller\" value=\"" + (_0x5c555c ? escaparHtml(_0x5c555c.mecanicoNombre || "") : "") + "\" style=\"flex:1;\">\n        <input type=\"text\" id=\"vMecanicoContacto\" placeholder=\"Teléfono o email\" value=\"" + (_0x5c555c ? escaparHtml(_0x5c555c.mecanicoContacto || "") : "") + "\" style=\"flex:1;\">\n      </div>\n      <div class=\"scanner-row\">\n        <button class=\"btn-return\" id=\"vCancelar\" style=\"flex:1;\">Cancelar</button>\n        <button class=\"btn primary\" id=\"vGuardar\" style=\"flex:1;\">" + (_0x5c555c ? "Guardar" : "Añadir") + "</button>\n      </div>\n    ";
     _0x3d40a2.style.display = "flex";
     $("#vCancelar").addEventListener("click", () => _0x3d40a2.style.display = "none");
     $("#vGuardar").addEventListener("click", () => {
       const _0x303798 = $("#vMatricula").value.trim();
       if (!_0x303798) {
-        _0x279f78("Escribe la matrícula del vehículo.");
+        mostrarAviso("Escribe la matrícula del vehículo.");
         return;
       }
       const _0x1e95c8 = {
@@ -10550,9 +10602,9 @@
         };
         estado.vehiculos.push(_0x749646);
         estado.vehiculoActualId = _0x749646.id;
-        _0x430fb2();
+        guardarPantallaActual();
       }
-      _0x932e35();
+      guardarVehiculos();
       _0x3d40a2.style.display = "none";
       render();
     });
@@ -10565,7 +10617,7 @@
     const _0x2863cd = _0x11c1ae ? estado.tareasMantenimiento.find(_0x4df2ce => _0x4df2ce.id === _0x11c1ae) : null;
     const _0x17dfae = $("#mantOverlay");
     const _0x25238d = $("#mantOverlayCard");
-    _0x25238d.innerHTML = "\n      <p class=\"panel-title\">" + (_0x2863cd ? "Editar tarea" : "Añadir tarea de mantenimiento") + "</p>\n      " + (!_0x2863cd ? "\n      <select id=\"tPreset\" style=\"width:100%; margin-bottom:8px;\">\n        <option value=\"\">— Escribir a mano —</option>\n        " + _0x539500.map((_0xa5a8d8, _0x43f4a0) => "<option value=\"" + _0x43f4a0 + "\">" + _0x1d1ab0(_0xa5a8d8.nombre) + "</option>").join("") + "\n      </select>\n      " : "") + "\n      <input type=\"text\" id=\"tNombre\" placeholder=\"Nombre de la tarea\" value=\"" + (_0x2863cd ? _0x1d1ab0(_0x2863cd.nombre) : "") + "\" style=\"width:100%; margin-bottom:8px;\">\n      <div class=\"scanner-row\" style=\"margin-bottom:8px;\">\n        <input type=\"number\" id=\"tKm\" placeholder=\"Cada cuántos km\" min=\"0\" value=\"" + (_0x2863cd && _0x2863cd.intervaloKm ? _0x2863cd.intervaloKm : "") + "\" style=\"flex:1;\">\n        <input type=\"number\" id=\"tMeses\" placeholder=\"Cada cuántos meses\" min=\"0\" value=\"" + (_0x2863cd && _0x2863cd.intervaloMeses ? _0x2863cd.intervaloMeses : "") + "\" style=\"flex:1;\">\n      </div>\n      <p style=\"font-size:11.5px; color:var(--text-faint); margin:-4px 0 10px;\">Rellena uno de los dos, o los dos — avisa con lo que llegue antes.</p>\n      <div class=\"scanner-row\" style=\"margin-bottom:12px;\">\n        <input type=\"number\" id=\"tUltimoKm\" placeholder=\"Km la última vez\" min=\"0\" value=\"" + (_0x2863cd && _0x2863cd.ultimoKm != null ? _0x2863cd.ultimoKm : _0xf3330b.kmActual || 0) + "\" style=\"flex:1;\">\n        <input type=\"date\" id=\"tUltimaFecha\" value=\"" + (_0x2863cd && _0x2863cd.ultimaFecha ? _0x2863cd.ultimaFecha : _0x535f33()) + "\" style=\"flex:1;\">\n      </div>\n      <div class=\"scanner-row\">\n        <button class=\"btn-return\" id=\"tCancelar\" style=\"flex:1;\">Cancelar</button>\n        <button class=\"btn primary\" id=\"tGuardar\" style=\"flex:1;\">" + (_0x2863cd ? "Guardar" : "Añadir") + "</button>\n      </div>\n    ";
+    _0x25238d.innerHTML = "\n      <p class=\"panel-title\">" + (_0x2863cd ? "Editar tarea" : "Añadir tarea de mantenimiento") + "</p>\n      " + (!_0x2863cd ? "\n      <select id=\"tPreset\" style=\"width:100%; margin-bottom:8px;\">\n        <option value=\"\">— Escribir a mano —</option>\n        " + _0x539500.map((_0xa5a8d8, _0x43f4a0) => "<option value=\"" + _0x43f4a0 + "\">" + escaparHtml(_0xa5a8d8.nombre) + "</option>").join("") + "\n      </select>\n      " : "") + "\n      <input type=\"text\" id=\"tNombre\" placeholder=\"Nombre de la tarea\" value=\"" + (_0x2863cd ? escaparHtml(_0x2863cd.nombre) : "") + "\" style=\"width:100%; margin-bottom:8px;\">\n      <div class=\"scanner-row\" style=\"margin-bottom:8px;\">\n        <input type=\"number\" id=\"tKm\" placeholder=\"Cada cuántos km\" min=\"0\" value=\"" + (_0x2863cd && _0x2863cd.intervaloKm ? _0x2863cd.intervaloKm : "") + "\" style=\"flex:1;\">\n        <input type=\"number\" id=\"tMeses\" placeholder=\"Cada cuántos meses\" min=\"0\" value=\"" + (_0x2863cd && _0x2863cd.intervaloMeses ? _0x2863cd.intervaloMeses : "") + "\" style=\"flex:1;\">\n      </div>\n      <p style=\"font-size:11.5px; color:var(--text-faint); margin:-4px 0 10px;\">Rellena uno de los dos, o los dos — avisa con lo que llegue antes.</p>\n      <div class=\"scanner-row\" style=\"margin-bottom:12px;\">\n        <input type=\"number\" id=\"tUltimoKm\" placeholder=\"Km la última vez\" min=\"0\" value=\"" + (_0x2863cd && _0x2863cd.ultimoKm != null ? _0x2863cd.ultimoKm : _0xf3330b.kmActual || 0) + "\" style=\"flex:1;\">\n        <input type=\"date\" id=\"tUltimaFecha\" value=\"" + (_0x2863cd && _0x2863cd.ultimaFecha ? _0x2863cd.ultimaFecha : _0x535f33()) + "\" style=\"flex:1;\">\n      </div>\n      <div class=\"scanner-row\">\n        <button class=\"btn-return\" id=\"tCancelar\" style=\"flex:1;\">Cancelar</button>\n        <button class=\"btn primary\" id=\"tGuardar\" style=\"flex:1;\">" + (_0x2863cd ? "Guardar" : "Añadir") + "</button>\n      </div>\n    ";
     _0x17dfae.style.display = "flex";
     const _0x4b99ab = $("#tPreset");
     if (_0x4b99ab) {
@@ -10583,13 +10635,13 @@
     $("#tGuardar").addEventListener("click", () => {
       const _0x84cb62 = $("#tNombre").value.trim();
       if (!_0x84cb62) {
-        _0x279f78("Escribe el nombre de la tarea.");
+        mostrarAviso("Escribe el nombre de la tarea.");
         return;
       }
       const _0x285ac4 = parseInt($("#tKm").value, 10);
       const _0x12b1cb = parseInt($("#tMeses").value, 10);
       if (!_0x285ac4 && !_0x12b1cb) {
-        _0x279f78("Indica al menos un intervalo, en km o en meses, para poder avisarte.");
+        mostrarAviso("Indica al menos un intervalo, en km o en meses, para poder avisarte.");
         return;
       }
       const _0x5a728c = {
@@ -10608,7 +10660,7 @@
           ..._0x5a728c
         });
       }
-      _0x3e790f();
+      guardarTareasMantenimiento();
       _0x17dfae.style.display = "none";
       render();
     });
@@ -10621,7 +10673,7 @@
     }
     const _0x3a73ee = $("#mantOverlay");
     const _0x7d155b = $("#mantOverlayCard");
-    _0x7d155b.innerHTML = "\n      <p class=\"panel-title\">Marcar \"" + _0x1d1ab0(_0x4fd70c.nombre) + "\" como hecho</p>\n      <div class=\"scanner-row\" style=\"margin-bottom:12px;\">\n        <input type=\"number\" id=\"dKm\" placeholder=\"Km en ese momento\" min=\"0\" value=\"" + (_0xeece32.kmActual || 0) + "\" style=\"flex:1;\">\n        <input type=\"date\" id=\"dFecha\" value=\"" + _0x535f33() + "\" style=\"flex:1;\">\n      </div>\n      <div class=\"scanner-row\">\n        <button class=\"btn-return\" id=\"dCancelar\" style=\"flex:1;\">Cancelar</button>\n        <button class=\"btn primary\" id=\"dGuardar\" style=\"flex:1;\">" + _0x56ae2b("guardar") + "Guardar</button>\n      </div>\n    ";
+    _0x7d155b.innerHTML = "\n      <p class=\"panel-title\">Marcar \"" + escaparHtml(_0x4fd70c.nombre) + "\" como hecho</p>\n      <div class=\"scanner-row\" style=\"margin-bottom:12px;\">\n        <input type=\"number\" id=\"dKm\" placeholder=\"Km en ese momento\" min=\"0\" value=\"" + (_0xeece32.kmActual || 0) + "\" style=\"flex:1;\">\n        <input type=\"date\" id=\"dFecha\" value=\"" + _0x535f33() + "\" style=\"flex:1;\">\n      </div>\n      <div class=\"scanner-row\">\n        <button class=\"btn-return\" id=\"dCancelar\" style=\"flex:1;\">Cancelar</button>\n        <button class=\"btn primary\" id=\"dGuardar\" style=\"flex:1;\">" + _0x56ae2b("guardar") + "Guardar</button>\n      </div>\n    ";
     _0x3a73ee.style.display = "flex";
     $("#dCancelar").addEventListener("click", () => _0x3a73ee.style.display = "none");
     $("#dGuardar").addEventListener("click", () => {
@@ -10629,9 +10681,9 @@
       _0x4fd70c.ultimaFecha = $("#dFecha").value || _0x535f33();
       if (_0x4fd70c.ultimoKm > (_0xeece32.kmActual || 0)) {
         _0xeece32.kmActual = _0x4fd70c.ultimoKm;
-        _0x932e35();
+        guardarVehiculos();
       }
-      _0x3e790f();
+      guardarTareasMantenimiento();
       _0x3a73ee.style.display = "none";
       render();
     });
@@ -10641,7 +10693,7 @@
       return;
     }
     const _0x3a71dc = $("#mainList");
-    const _0x1538e9 = estado.pedidoItems.map(_0x49a1a4 => "\n      <div class=\"ticket-row\" data-id=\"" + _0x49a1a4.id + "\">\n        <div class=\"row-main\">\n          <div class=\"row-code\">" + _0x1d1ab0(_0x49a1a4.code) + "</div>\n          <div class=\"row-desc\">" + _0x1d1ab0(_0x49a1a4.desc) + "</div>\n        </div>\n        <div class=\"row-qty\">x" + _0x49a1a4.qty + "</div>\n        <button class=\"btn-return\" data-pedido-del=\"" + _0x49a1a4.id + "\">Quitar</button>\n      </div>\n    ").join("");
+    const _0x1538e9 = estado.pedidoItems.map(_0x49a1a4 => "\n      <div class=\"ticket-row\" data-id=\"" + _0x49a1a4.id + "\">\n        <div class=\"row-main\">\n          <div class=\"row-code\">" + escaparHtml(_0x49a1a4.code) + "</div>\n          <div class=\"row-desc\">" + escaparHtml(_0x49a1a4.desc) + "</div>\n        </div>\n        <div class=\"row-qty\">x" + _0x49a1a4.qty + "</div>\n        <button class=\"btn-return\" data-pedido-del=\"" + _0x49a1a4.id + "\">Quitar</button>\n      </div>\n    ").join("");
     const _0x5976cf = "\n      <div class=\"scanner-row\" style=\"margin-bottom:10px; flex-wrap:wrap;\">\n        <button class=\"mode-btn\" data-pedido-view=\"chat\" style=\"flex:none; padding:8px 16px; " + (_0x4a2938 === "chat" ? "background:var(--accent); color:#2A0800;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Chat</button>\n        <button class=\"mode-btn\" data-pedido-view=\"lista\" style=\"flex:none; padding:8px 16px; " + (_0x4a2938 === "lista" ? "background:var(--accent); color:#2A0800;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Lista (" + estado.pedidoItems.length + ")</button>\n      </div>\n    ";
     const _0x3e2599 = _0x4a2938 === "chat" ? "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Chat</span></div>\n        <div class=\"ticket-body\">" + _0x17a460(estado.pedidoChat) + "</div>\n        <div style=\"display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border);\">\n          <input type=\"text\" id=\"chatMensajeInput\" placeholder=\"Describe qué hace falta pedir…\" style=\"flex:2; min-width:0;\">\n          <input type=\"number\" id=\"chatCantidadInput\" placeholder=\"Uds\" min=\"1\" value=\"1\" style=\"flex:none; width:64px;\">\n          <button class=\"btn primary\" id=\"chatEnviarBtn\" style=\"width:auto; flex:none;\">" + _0x56ae2b("enviar") + "Enviar</button>\n        </div>\n      </div>\n    " : "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\">Pedido de materiales</span>\n          <span class=\"ticket-title\">" + estado.pedidoItems.length + " referencias</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + (_0x1538e9 || "<div class=\"empty-state\">Todavía no has añadido nada al pedido. Escanea o busca un material del stock para empezar.</div>") + "\n        </div>\n      </div>\n    ";
     _0x3a71dc.innerHTML = _0x5976cf + _0x3e2599;
@@ -10690,7 +10742,7 @@
     if (_0xe5dca9 && (_0x5592da === "servido" || _0x5592da === "devuelto")) {
       _0x5592da = "hoja";
     }
-    const _0x222547 = _0x5592da !== "hoja" && _0x4368d0.pendiente.items.length ? "\n      <div class=\"ticket\" style=\"margin-bottom:14px; border-color:var(--accent);\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\">Solicitud pendiente de recoger</span>\n          <span class=\"ticket-title\">" + _0x4368d0.pendiente.items.length + " referencias</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + _0x4368d0.pendiente.items.map(_0xebbac1 => "\n            <div class=\"ticket-row\" data-id=\"" + _0xebbac1.id + "\">\n              <div class=\"row-main\">\n                <div class=\"row-code\">" + (_0xebbac1.textoLibre ? "(sin referencia)" : _0x1d1ab0(_0xebbac1.code)) + " " + (_0xebbac1.reservado ? "<span class=\"tag-entrada\" style=\"margin-left:4px;\">Reservado</span>" : "") + "</div>\n                <div class=\"row-desc\">" + (_0xebbac1.textoLibre ? "<em>" + _0x1d1ab0(_0xebbac1.textoLibre) + "</em>" : _0x1d1ab0(_0xebbac1.desc)) + "</div>\n              </div>\n              <div class=\"row-qty\">x" + _0xebbac1.qty + "</div>\n              <button class=\"btn-return\" data-pendiente-del=\"" + _0xebbac1.id + "\">Quitar</button>\n            </div>\n          ").join("") + "\n        </div>\n      </div>\n      " + (_0xe5dca9 ? "" : "<button class=\"btn primary\" id=\"prepareGroupDeliveryBtn\" style=\"margin-bottom:14px;\">" + (_0x4368d0.pendiente.items.some(_0x6d729f => _0x6d729f.reservado) ? "Ir a firmar la recogida" : "Preparar recogida y firmar") + "</button>") + "\n    " : "";
+    const _0x222547 = _0x5592da !== "hoja" && _0x4368d0.pendiente.items.length ? "\n      <div class=\"ticket\" style=\"margin-bottom:14px; border-color:var(--accent);\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\">Solicitud pendiente de recoger</span>\n          <span class=\"ticket-title\">" + _0x4368d0.pendiente.items.length + " referencias</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + _0x4368d0.pendiente.items.map(_0xebbac1 => "\n            <div class=\"ticket-row\" data-id=\"" + _0xebbac1.id + "\">\n              <div class=\"row-main\">\n                <div class=\"row-code\">" + (_0xebbac1.textoLibre ? "(sin referencia)" : escaparHtml(_0xebbac1.code)) + " " + (_0xebbac1.reservado ? "<span class=\"tag-entrada\" style=\"margin-left:4px;\">Reservado</span>" : "") + "</div>\n                <div class=\"row-desc\">" + (_0xebbac1.textoLibre ? "<em>" + escaparHtml(_0xebbac1.textoLibre) + "</em>" : escaparHtml(_0xebbac1.desc)) + "</div>\n              </div>\n              <div class=\"row-qty\">x" + _0xebbac1.qty + "</div>\n              <button class=\"btn-return\" data-pendiente-del=\"" + _0xebbac1.id + "\">Quitar</button>\n            </div>\n          ").join("") + "\n        </div>\n      </div>\n      " + (_0xe5dca9 ? "" : "<button class=\"btn primary\" id=\"prepareGroupDeliveryBtn\" style=\"margin-bottom:14px;\">" + (_0x4368d0.pendiente.items.some(_0x6d729f => _0x6d729f.reservado) ? "Ir a firmar la recogida" : "Preparar recogida y firmar") + "</button>") + "\n    " : "";
     // Franja con el estado del pedido de esta orden: lo primero que necesita saber el taller
     const __cuentaEstados = new Map();
     _0x4368d0.pendiente.items.forEach(__l => {
@@ -10707,7 +10759,7 @@
       _0x4895bf = "\n        <div class=\"ticket\">\n          <div class=\"ticket-header\">\n            <span class=\"ticket-title\">Chat</span>\n          </div>\n          <div class=\"ticket-body\">" + _0x17a460(_0x4368d0.chat, {
         target: _0x4368d0,
         puedeAsociar: !_0xe5dca9
-      }) + "</div>\n          " + (estado.materialesRapidos.length ? "\n          <div style=\"padding:10px 14px; border-top:1px solid var(--border);\">\n            <p style=\"font-size:11px; font-weight:700; color:var(--text-faint); text-transform:uppercase; letter-spacing:.03em; margin:0 0 8px 2px;\">Lista rápida</p>\n            <div style=\"display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto;\">\n              " + estado.materialesRapidos.map(_0x2fccc7 => "\n                <label style=\"display:flex; align-items:center; gap:8px; font-size:12.5px;\">\n                  <input type=\"checkbox\" class=\"rapido-check\" aria-label=\"Añadir este material\" data-rapido-id=\"" + _0x2fccc7.id + "\" style=\"width:16px; height:16px; flex:none;\">\n                  <span style=\"flex:1;\">" + _0x1d1ab0(_0x2fccc7.nombre) + "</span>\n                  <input type=\"number\" class=\"rapido-qty\" aria-label=\"Cantidad\" data-rapido-qty=\"" + _0x2fccc7.id + "\" value=\"1\" min=\"1\" style=\"width:52px; flex:none;\">\n                </label>\n              ").join("") + "\n            </div>\n            <button class=\"cam-btn\" id=\"anadirRapidosBtn\" style=\"width:100%; margin-top:8px;\">Añadir seleccionados</button>\n          </div>\n          " : "") + "\n          <div style=\"display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border);\">\n            <textarea id=\"chatMensajeInput\" rows=\"2\" placeholder=\"Escribe qué hace falta: un artículo por línea o separados por comas…\" style=\"flex:2; min-width:0;\"></textarea>\n            <button type=\"button\" id=\"chatReservaToggleBtn\" class=\"cam-btn\" style=\"flex:none; padding:8px 12px; font-size:12px;\">Reserva</button>\n            <button class=\"btn primary\" id=\"chatEnviarBtn\" style=\"width:auto; flex:none;\">" + _0x56ae2b("enviar") + "Enviar</button>\n          </div>\n        </div>\n      ";
+      }) + "</div>\n          " + (estado.materialesRapidos.length ? "\n          <div style=\"padding:10px 14px; border-top:1px solid var(--border);\">\n            <p style=\"font-size:11px; font-weight:700; color:var(--text-faint); text-transform:uppercase; letter-spacing:.03em; margin:0 0 8px 2px;\">Lista rápida</p>\n            <div style=\"display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto;\">\n              " + estado.materialesRapidos.map(_0x2fccc7 => "\n                <label style=\"display:flex; align-items:center; gap:8px; font-size:12.5px;\">\n                  <input type=\"checkbox\" class=\"rapido-check\" aria-label=\"Añadir este material\" data-rapido-id=\"" + _0x2fccc7.id + "\" style=\"width:16px; height:16px; flex:none;\">\n                  <span style=\"flex:1;\">" + escaparHtml(_0x2fccc7.nombre) + "</span>\n                  <input type=\"number\" class=\"rapido-qty\" aria-label=\"Cantidad\" data-rapido-qty=\"" + _0x2fccc7.id + "\" value=\"1\" min=\"1\" style=\"width:52px; flex:none;\">\n                </label>\n              ").join("") + "\n            </div>\n            <button class=\"cam-btn\" id=\"anadirRapidosBtn\" style=\"width:100%; margin-top:8px;\">Añadir seleccionados</button>\n          </div>\n          " : "") + "\n          <div style=\"display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border);\">\n            <textarea id=\"chatMensajeInput\" rows=\"2\" placeholder=\"Escribe qué hace falta: un artículo por línea o separados por comas…\" style=\"flex:2; min-width:0;\"></textarea>\n            <button type=\"button\" id=\"chatReservaToggleBtn\" class=\"cam-btn\" style=\"flex:none; padding:8px 12px; font-size:12px;\">Reserva</button>\n            <button class=\"btn primary\" id=\"chatEnviarBtn\" style=\"width:auto; flex:none;\">" + _0x56ae2b("enviar") + "Enviar</button>\n          </div>\n        </div>\n      ";
     } else if (_0x5592da === "hoja") {
       const _0x2b90c7 = estado.current[estado.mode] || "";
       const _0x4b4727 = _0x4368d0.pendiente.items.map(_0x358905 => ({
@@ -10753,34 +10805,34 @@
         bloqueada: true
       }));
       _0x5f4a21 = [..._0x4b4727, ..._0x2576c3];
-      _0x4895bf = "\n        <div class=\"ticket\">\n          <div class=\"ticket-header\">\n            <span class=\"ticket-title\">Hoja de pedido de materiales</span>\n            <span class=\"ticket-title\">OT: " + _0x1d1ab0(_0x2b90c7) + ((buscarGrupo(estado.mode, _0x2b90c7) || {}).tipo ? " · " + _0x1d1ab0(buscarGrupo(estado.mode, _0x2b90c7).tipo) : "") + "</span>\n          </div>\n          <div style=\"display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid var(--border);\">\n            <label for=\"hojaPlanoInput\" style=\"font-size:12px; font-weight:700; color:var(--text-faint); white-space:nowrap;\">Plano:</label>\n            <input type=\"text\" id=\"hojaPlanoInput\" placeholder=\"Nº de plano de toda la orden\" value=\"" + _0x1d1ab0((buscarGrupo(estado.mode, _0x2b90c7) || {}).plano || "") + "\" style=\"flex:1;\">\n          </div>\n          <div class=\"ticket-body\" style=\"overflow-x:auto;\">\n            " + (_0x5f4a21.length ? "\n            " + (!_0xe5dca9 ? "\n            <div class=\"scanner-row\" style=\"margin-bottom:8px; align-items:center;\">\n              <span style=\"font-size:12px; color:var(--text-faint); flex:1;\">" + (_0x236c29.size ? _0x236c29.size + " línea(s) seleccionada(s)" : "Marca varias líneas para ponerles Escandallo/Pedido a la vez") + "</span>\n              " + (_0x236c29.size ? "\n                <button class=\"cam-btn\" id=\"marcarEscandalloBtn\" style=\"flex:none;\">Marcar como Escandallo</button>\n                <button class=\"cam-btn\" id=\"marcarPedidoBtn\" style=\"flex:none;\">Marcar como Pedido</button>\n                <button class=\"btn-return\" id=\"quitarMarcaBtn\" style=\"flex:none;\">Quitar marca</button>\n                <button class=\"cam-btn\" id=\"marcarProveedorBtn\" style=\"flex:none;\">Enviar a Proveedor</button>\n                <button class=\"cam-btn\" id=\"marcarHojaBtn\" style=\"flex:none;\">Volver a Hoja de pedido</button>\n              " : "") + "\n            </div>\n            " : "") + "\n            <table class=\"hoja-pedido-table\">\n              <thead>\n                <tr>" + "<th></th>" + "<th>OT</th><th>Fecha</th><th>Artículo</th><th>Referencia</th><th>Cantidad</th><th>Reserva</th><th>Escandallo/Pedido</th><th>Recibido</th></tr>\n              </thead>\n              <tbody>\n                " + _0x5f4a21.map(_0x9b12df => {
+      _0x4895bf = "\n        <div class=\"ticket\">\n          <div class=\"ticket-header\">\n            <span class=\"ticket-title\">Hoja de pedido de materiales</span>\n            <span class=\"ticket-title\">OT: " + escaparHtml(_0x2b90c7) + ((buscarGrupo(estado.mode, _0x2b90c7) || {}).tipo ? " · " + escaparHtml(buscarGrupo(estado.mode, _0x2b90c7).tipo) : "") + "</span>\n          </div>\n          <div style=\"display:flex; align-items:center; gap:8px; padding:10px 14px; border-bottom:1px solid var(--border);\">\n            <label for=\"hojaPlanoInput\" style=\"font-size:12px; font-weight:700; color:var(--text-faint); white-space:nowrap;\">Plano:</label>\n            <input type=\"text\" id=\"hojaPlanoInput\" placeholder=\"Nº de plano de toda la orden\" value=\"" + escaparHtml((buscarGrupo(estado.mode, _0x2b90c7) || {}).plano || "") + "\" style=\"flex:1;\">\n          </div>\n          <div class=\"ticket-body\" style=\"overflow-x:auto;\">\n            " + (_0x5f4a21.length ? "\n            " + (!_0xe5dca9 ? "\n            <div class=\"scanner-row\" style=\"margin-bottom:8px; align-items:center;\">\n              <span style=\"font-size:12px; color:var(--text-faint); flex:1;\">" + (_0x236c29.size ? _0x236c29.size + " línea(s) seleccionada(s)" : "Marca varias líneas para ponerles Escandallo/Pedido a la vez") + "</span>\n              " + (_0x236c29.size ? "\n                <button class=\"cam-btn\" id=\"marcarEscandalloBtn\" style=\"flex:none;\">Marcar como Escandallo</button>\n                <button class=\"cam-btn\" id=\"marcarPedidoBtn\" style=\"flex:none;\">Marcar como Pedido</button>\n                <button class=\"btn-return\" id=\"quitarMarcaBtn\" style=\"flex:none;\">Quitar marca</button>\n                <button class=\"cam-btn\" id=\"marcarProveedorBtn\" style=\"flex:none;\">Enviar a Proveedor</button>\n                <button class=\"cam-btn\" id=\"marcarHojaBtn\" style=\"flex:none;\">Volver a Hoja de pedido</button>\n              " : "") + "\n            </div>\n            " : "") + "\n            <table class=\"hoja-pedido-table\">\n              <thead>\n                <tr>" + "<th></th>" + "<th>OT</th><th>Fecha</th><th>Artículo</th><th>Referencia</th><th>Cantidad</th><th>Reserva</th><th>Escandallo/Pedido</th><th>Recibido</th></tr>\n              </thead>\n              <tbody>\n                " + _0x5f4a21.map(_0x9b12df => {
         const __placa = "<span class=\"estado-linea\" data-estado=\"" + _0x9b12df.estado.clave + "\">" + _0x9b12df.estado.texto + "</span> ";
-        const _0x3570ca = __placa + (_0x9b12df.textoLibre ? "<em>" + _0x1d1ab0(_0x9b12df.textoLibre) + "</em> <span style=\"color:var(--danger); font-size:10.5px;\">(sin referencia)</span>" : _0x1d1ab0(_0x9b12df.articulo));
-        const _0x1f8e54 = _0x9b12df.textoLibre ? _0xe5dca9 ? "—" : "<button class=\"cam-btn\" style=\"padding:7px 12px; font-size:12px;\" data-asignar-ref=\"" + _0x9b12df.id + "\">Asignar referencia</button>" : _0x1d1ab0(_0x9b12df.referencia);
-        const _0x175e6b = _0xe5dca9 ? _0x9b12df.escandalloPedido ? _0x1d1ab0(_0x9b12df.escandalloPedido) + (_0x9b12df.escandalloPedidoNumero ? " Nº " + _0x1d1ab0(_0x9b12df.escandalloPedidoNumero) : "") : "—" : "\n                        <select class=\"hoja-num\" data-hoja-id=\"" + _0x9b12df.id + "\" data-hoja-texto=\"escandalloPedido\" aria-label=\"Escandallo o pedido\" style=\"margin-bottom:4px;\">\n                          <option value=\"\" " + (!_0x9b12df.escandalloPedido ? "selected" : "") + ">—</option>\n                          <option value=\"Escandallo\" " + (_0x9b12df.escandalloPedido === "Escandallo" ? "selected" : "") + ">Escandallo</option>\n                          <option value=\"Pedido\" " + (_0x9b12df.escandalloPedido === "Pedido" ? "selected" : "") + ">Pedido</option>\n                        </select>\n                        <input type=\"text\" value=\"" + _0x1d1ab0(_0x9b12df.escandalloPedidoNumero) + "\" class=\"hoja-num\" data-hoja-id=\"" + _0x9b12df.id + "\" data-hoja-texto=\"escandalloPedidoNumero\" aria-label=\"Número de escandallo o pedido\" placeholder=\"Nº\" style=\"min-width:80px;\">\n                      ";
+        const _0x3570ca = __placa + (_0x9b12df.textoLibre ? "<em>" + escaparHtml(_0x9b12df.textoLibre) + "</em> <span style=\"color:var(--danger); font-size:10.5px;\">(sin referencia)</span>" : escaparHtml(_0x9b12df.articulo));
+        const _0x1f8e54 = _0x9b12df.textoLibre ? _0xe5dca9 ? "—" : "<button class=\"cam-btn\" style=\"padding:7px 12px; font-size:12px;\" data-asignar-ref=\"" + _0x9b12df.id + "\">Asignar referencia</button>" : escaparHtml(_0x9b12df.referencia);
+        const _0x175e6b = _0xe5dca9 ? _0x9b12df.escandalloPedido ? escaparHtml(_0x9b12df.escandalloPedido) + (_0x9b12df.escandalloPedidoNumero ? " Nº " + escaparHtml(_0x9b12df.escandalloPedidoNumero) : "") : "—" : "\n                        <select class=\"hoja-num\" data-hoja-id=\"" + _0x9b12df.id + "\" data-hoja-texto=\"escandalloPedido\" aria-label=\"Escandallo o pedido\" style=\"margin-bottom:4px;\">\n                          <option value=\"\" " + (!_0x9b12df.escandalloPedido ? "selected" : "") + ">—</option>\n                          <option value=\"Escandallo\" " + (_0x9b12df.escandalloPedido === "Escandallo" ? "selected" : "") + ">Escandallo</option>\n                          <option value=\"Pedido\" " + (_0x9b12df.escandalloPedido === "Pedido" ? "selected" : "") + ">Pedido</option>\n                        </select>\n                        <input type=\"text\" value=\"" + escaparHtml(_0x9b12df.escandalloPedidoNumero) + "\" class=\"hoja-num\" data-hoja-id=\"" + _0x9b12df.id + "\" data-hoja-texto=\"escandalloPedidoNumero\" aria-label=\"Número de escandallo o pedido\" placeholder=\"Nº\" style=\"min-width:80px;\">\n                      ";
         if (!_0x9b12df.esPendiente || _0x9b12df.bloqueada) {
-          return "\n                    <tr style=\"opacity:.75;\">\n                      " + (_0xe5dca9 ? "<td></td>" : "<td><input type=\"checkbox\" class=\"hoja-select\" aria-label=\"Seleccionar línea\" data-select-hoja-id=\"" + _0x9b12df.id + "\" " + (_0x236c29.has(_0x9b12df.id) ? "checked" : "") + " style=\"width:16px; height:16px;\"></td>") + "\n                      <td>" + _0x1d1ab0(_0x2b90c7) + "</td>\n                      <td>" + _0x9b12df.fecha + "</td>\n                      <td class=\"col-articulo\">" + _0x3570ca + "</td>\n                      <td>" + _0x1f8e54 + "</td>\n                      <td>" + _0x9b12df.cantidad + "</td>\n                      <td>" + _0x9b12df.reserva + "</td>\n                      <td>" + _0x175e6b + "</td>\n                      <td style=\"text-align:center;\">" + (_0x9b12df.esPendiente ? "" : "<input type=\"checkbox\" checked disabled> " + _0x9b12df.recibido) + "</td>\n                    </tr>";
+          return "\n                    <tr style=\"opacity:.75;\">\n                      " + (_0xe5dca9 ? "<td></td>" : "<td><input type=\"checkbox\" class=\"hoja-select\" aria-label=\"Seleccionar línea\" data-select-hoja-id=\"" + _0x9b12df.id + "\" " + (_0x236c29.has(_0x9b12df.id) ? "checked" : "") + " style=\"width:16px; height:16px;\"></td>") + "\n                      <td>" + escaparHtml(_0x2b90c7) + "</td>\n                      <td>" + _0x9b12df.fecha + "</td>\n                      <td class=\"col-articulo\">" + _0x3570ca + "</td>\n                      <td>" + _0x1f8e54 + "</td>\n                      <td>" + _0x9b12df.cantidad + "</td>\n                      <td>" + _0x9b12df.reserva + "</td>\n                      <td>" + _0x175e6b + "</td>\n                      <td style=\"text-align:center;\">" + (_0x9b12df.esPendiente ? "" : "<input type=\"checkbox\" checked disabled> " + _0x9b12df.recibido) + "</td>\n                    </tr>";
         }
-        return "\n                    <tr>\n                      " + (_0xe5dca9 ? "<td></td>" : "<td><input type=\"checkbox\" class=\"hoja-select\" aria-label=\"Seleccionar línea\" data-select-hoja-id=\"" + _0x9b12df.id + "\" " + (_0x236c29.has(_0x9b12df.id) ? "checked" : "") + " style=\"width:16px; height:16px;\"></td>") + "\n                      <td>" + _0x1d1ab0(_0x2b90c7) + "</td>\n                      <td>" + _0x9b12df.fecha + "</td>\n                      <td class=\"col-articulo\">" + _0x3570ca + "</td>\n                      <td>" + _0x1f8e54 + "</td>\n                      <td><input type=\"number\" min=\"0\" value=\"" + _0x9b12df.cantidad + "\" class=\"hoja-num\" data-hoja-id=\"" + _0x9b12df.id + "\" data-hoja-campo=\"qty\" aria-label=\"Cantidad\"></td>\n                      <td><input type=\"number\" min=\"0\" value=\"" + _0x9b12df.reserva + "\" class=\"hoja-num\" data-hoja-id=\"" + _0x9b12df.id + "\" data-hoja-campo=\"reserva\" aria-label=\"Reserva\"></td>\n                      <td>" + _0x175e6b + "</td>\n                      <td style=\"text-align:center;\">" + (_0xe5dca9 ? "—" : "<input type=\"checkbox\" data-hoja-recibido=\"" + _0x9b12df.id + "\">") + "</td>\n                    </tr>";
+        return "\n                    <tr>\n                      " + (_0xe5dca9 ? "<td></td>" : "<td><input type=\"checkbox\" class=\"hoja-select\" aria-label=\"Seleccionar línea\" data-select-hoja-id=\"" + _0x9b12df.id + "\" " + (_0x236c29.has(_0x9b12df.id) ? "checked" : "") + " style=\"width:16px; height:16px;\"></td>") + "\n                      <td>" + escaparHtml(_0x2b90c7) + "</td>\n                      <td>" + _0x9b12df.fecha + "</td>\n                      <td class=\"col-articulo\">" + _0x3570ca + "</td>\n                      <td>" + _0x1f8e54 + "</td>\n                      <td><input type=\"number\" min=\"0\" value=\"" + _0x9b12df.cantidad + "\" class=\"hoja-num\" data-hoja-id=\"" + _0x9b12df.id + "\" data-hoja-campo=\"qty\" aria-label=\"Cantidad\"></td>\n                      <td><input type=\"number\" min=\"0\" value=\"" + _0x9b12df.reserva + "\" class=\"hoja-num\" data-hoja-id=\"" + _0x9b12df.id + "\" data-hoja-campo=\"reserva\" aria-label=\"Reserva\"></td>\n                      <td>" + _0x175e6b + "</td>\n                      <td style=\"text-align:center;\">" + (_0xe5dca9 ? "—" : "<input type=\"checkbox\" data-hoja-recibido=\"" + _0x9b12df.id + "\">") + "</td>\n                    </tr>";
       }).join("") + "\n              </tbody>\n            </table>\n            <button class=\"cam-btn\" id=\"addFreeTextBtn\" style=\"margin-top:8px;\">+ No sé la referencia — escribir qué hace falta</button>\n            " + (_0x4368d0.pendiente.items.length ? "\n              <p style=\"font-size:11px; color:var(--text-faint); margin:10px 0 0 0;\">" + (_0xe5dca9 ? "Rellena y pulsa \"Guardar\" — almacén prepara y firma la recogida." : "\"Recibido\" abre la firma de recogida de toda la solicitud.") + "</p>\n              <button class=\"btn primary\" id=\"saveHojaPedidoBtn\" style=\"margin-top:8px;\">Guardar y avisar a almacén</button>\n            " : "") + "\n            " : "<div class=\"empty-state\">Todavía no hay nada pedido ni servido en esta orden/proyecto.</div>") + "\n          </div>\n        </div>\n      ";
     } else if (_0x5592da === "devuelto") {
-      const _0x2d3031 = _0x4368d0.devuelto.map(_0x192b63 => "\n        <div class=\"devuelto-row\">\n          <div>\n            <div class=\"row-code\" style=\"font-size:13px;\">" + _0x1d1ab0(_0x192b63.code) + "</div>\n            <div style=\"color:var(--text-muted);\">" + _0x1d1ab0(_0x192b63.desc) + "</div>\n            <div class=\"row-ts\">Entregado: " + (_0x192b63.deliveredAt || "—") + "</div>\n          </div>\n          <span class=\"tag-devuelto\">x" + _0x192b63.qty + "</span>\n          <span>Devuelto: " + _0x192b63.ts + "</span>\n        </div>\n      ").join("");
+      const _0x2d3031 = _0x4368d0.devuelto.map(_0x192b63 => "\n        <div class=\"devuelto-row\">\n          <div>\n            <div class=\"row-code\" style=\"font-size:13px;\">" + escaparHtml(_0x192b63.code) + "</div>\n            <div style=\"color:var(--text-muted);\">" + escaparHtml(_0x192b63.desc) + "</div>\n            <div class=\"row-ts\">Entregado: " + (_0x192b63.deliveredAt || "—") + "</div>\n          </div>\n          <span class=\"tag-devuelto\">x" + _0x192b63.qty + "</span>\n          <span>Devuelto: " + _0x192b63.ts + "</span>\n        </div>\n      ").join("");
       _0x4895bf = "\n        <div class=\"ticket\">\n          <div class=\"ticket-header\">\n            <span class=\"ticket-title\">Unidades devueltas</span>\n            <span class=\"ticket-title\">" + _0x4368d0.devuelto.length + " registros</span>\n          </div>\n          <div class=\"ticket-body\">\n            " + (_0x2d3031 || "<div class=\"empty-state\">Todavía no se ha devuelto ningún material.</div>") + "\n          </div>\n        </div>\n      ";
     } else {
-      const _0x4d10a7 = _0x4368d0.servido.map(_0x58b9e4 => "\n        <div class=\"ticket-row\" data-id=\"" + _0x58b9e4.id + "\">\n          <div class=\"row-main\">\n            <div class=\"row-code\">" + _0x1d1ab0(_0x58b9e4.code) + "</div>\n            <div class=\"row-desc\">" + _0x1d1ab0(_0x58b9e4.desc) + "</div>\n            <div class=\"row-ts\">Entregado: " + (_0x58b9e4.firstTs || _0x58b9e4.ts) + (_0x58b9e4.ts && _0x58b9e4.firstTs && _0x58b9e4.ts !== _0x58b9e4.firstTs ? " · Actualizado: " + _0x58b9e4.ts : "") + "</div>\n          </div>\n          <div class=\"row-qty\">x" + _0x58b9e4.qty + "</div>\n          <input class=\"return-qty\" aria-label=\"Cantidad a devolver\" type=\"number\" min=\"1\" max=\"" + _0x58b9e4.qty + "\" value=\"" + _0x58b9e4.qty + "\" data-return-for=\"" + _0x58b9e4.id + "\">\n          <button class=\"cam-btn\" data-return-btn=\"" + _0x58b9e4.id + "\" aria-label=\"Devolver " + _0x1d1ab0(_0x58b9e4.code) + "\">Devolver</button>\n        </div>\n      ").join("");
+      const _0x4d10a7 = _0x4368d0.servido.map(_0x58b9e4 => "\n        <div class=\"ticket-row\" data-id=\"" + _0x58b9e4.id + "\">\n          <div class=\"row-main\">\n            <div class=\"row-code\">" + escaparHtml(_0x58b9e4.code) + "</div>\n            <div class=\"row-desc\">" + escaparHtml(_0x58b9e4.desc) + "</div>\n            <div class=\"row-ts\">Entregado: " + (_0x58b9e4.firstTs || _0x58b9e4.ts) + (_0x58b9e4.ts && _0x58b9e4.firstTs && _0x58b9e4.ts !== _0x58b9e4.firstTs ? " · Actualizado: " + _0x58b9e4.ts : "") + "</div>\n          </div>\n          <div class=\"row-qty\">x" + _0x58b9e4.qty + "</div>\n          <input class=\"return-qty\" aria-label=\"Cantidad a devolver\" type=\"number\" min=\"1\" max=\"" + _0x58b9e4.qty + "\" value=\"" + _0x58b9e4.qty + "\" data-return-for=\"" + _0x58b9e4.id + "\">\n          <button class=\"cam-btn\" data-return-btn=\"" + _0x58b9e4.id + "\" aria-label=\"Devolver " + escaparHtml(_0x58b9e4.code) + "\">Devolver</button>\n        </div>\n      ").join("");
       _0x4895bf = "\n        <div class=\"ticket\">\n          <div class=\"ticket-header\">\n            <span class=\"ticket-title\">" + _0x198ddf() + "</span>\n            <span class=\"ticket-title\">" + _0x4368d0.servido.length + " referencias</span>\n          </div>\n          <div class=\"ticket-body\">\n            " + (_0x4d10a7 || "<div class=\"empty-state\">Todavía no se ha registrado ningún material.</div>") + "\n          </div>\n        </div>\n      ";
     }
-    const _0x37393c = _0x1a8185 ? "\n      <div class=\"panel\" style=\"border-color:var(--accent); margin-top:14px;\">\n        <p class=\"panel-title\">Material reconocido — elige a qué artículo corresponde cada línea (proveedor: " + _0x1d1ab0(_0x1a8185.proveedor) + ")</p>\n        <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 10px 0;\">Escribe el código si corresponde a algo del stock — se sirve de verdad y descuenta esa cantidad. Si lo dejas en blanco, la línea queda como material faltante en esta orden, sin tocar el stock.</p>\n        <div style=\"max-height:320px; overflow-y:auto; margin-bottom:10px;\">\n          " + _0x1a8185.plan.map(_0x5de4e8 => "\n            <div style=\"padding:8px 0; border-bottom:1px dashed var(--border);\">\n              <div style=\"display:flex; flex-wrap:wrap; align-items:center; gap:10px;\">\n                <div style=\"order:1; flex:1; min-width:150px; font-size:12.5px; line-height:1.4;\">\"" + _0x1d1ab0(_0x5de4e8.texto) + "\"" + (_0x5de4e8.codigoSugerido ? " <span style=\"color:var(--text-faint);\">(ya se relacionó antes con " + _0x1d1ab0(_0x5de4e8.codigoSugerido) + ")</span>" : "") + "</div>\n                <input type=\"text\" list=\"catalogCodesList\" placeholder=\"Código del stock (vacío = falta)\" style=\"order:3; flex-basis:100%; width:100%; margin-top:4px; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:8px 10px; border-radius:6px; font-size:13px;\" value=\"" + _0x1d1ab0(_0x5de4e8.codigoSugerido) + "\" data-ocr-codigo=\"" + _0x5de4e8.id + "\">\n                <input type=\"number\" min=\"1\" style=\"order:2; width:78px; flex:none; text-align:center; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:8px 6px; border-radius:6px; font-size:13px;\" value=\"" + _0x5de4e8.cantidad + "\" data-ocr-cantidad=\"" + _0x5de4e8.id + "\">\n              </div>\n            </div>\n          ").join("") + "\n        </div>\n        <button class=\"btn primary\" id=\"applyOcrPlanBtn\">Confirmar</button>\n        <button class=\"btn ghost-danger\" id=\"cancelOcrPlanBtn\">Cancelar</button>\n      </div>\n    " : "";
-    const _0x944ffb = (_0x4368d0.materialesFaltantes || []).length ? "\n      <div class=\"ticket\" style=\"margin-top:14px; border-left-color:var(--warning);\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Material faltante (" + _0x4368d0.materialesFaltantes.length + ")</span></div>\n        <div class=\"ticket-body\">\n          " + _0x4368d0.materialesFaltantes.map(_0x3b0770 => "\n            <div style=\"display:flex; align-items:center; gap:10px; padding:11px 14px; border-bottom:1px dashed var(--border);\">\n              <div style=\"flex:1; min-width:0;\">\n                <div style=\"font-weight:700; font-size:13px;\">" + _0x1d1ab0(_0x3b0770.descripcion) + "</div>\n                <div style=\"font-size:11px; color:var(--text-faint); margin-top:2px;\">" + _0x3b0770.cantidad + " uds · proveedor " + _0x1d1ab0(_0x3b0770.proveedor) + " · " + _0x3b0770.fecha + "</div>\n              </div>\n              <button class=\"cam-btn\" data-pedir-faltante=\"" + _0x3b0770.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">Pedir</button>\n              <button class=\"btn-return\" data-quitar-faltante=\"" + _0x3b0770.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">Quitar</button>\n            </div>\n          ").join("") + "\n        </div>\n      </div>\n    " : "";
+    const _0x37393c = _0x1a8185 ? "\n      <div class=\"panel\" style=\"border-color:var(--accent); margin-top:14px;\">\n        <p class=\"panel-title\">Material reconocido — elige a qué artículo corresponde cada línea (proveedor: " + escaparHtml(_0x1a8185.proveedor) + ")</p>\n        <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 10px 0;\">Escribe el código si corresponde a algo del stock — se sirve de verdad y descuenta esa cantidad. Si lo dejas en blanco, la línea queda como material faltante en esta orden, sin tocar el stock.</p>\n        <div style=\"max-height:320px; overflow-y:auto; margin-bottom:10px;\">\n          " + _0x1a8185.plan.map(_0x5de4e8 => "\n            <div style=\"padding:8px 0; border-bottom:1px dashed var(--border);\">\n              <div style=\"display:flex; flex-wrap:wrap; align-items:center; gap:10px;\">\n                <div style=\"order:1; flex:1; min-width:150px; font-size:12.5px; line-height:1.4;\">\"" + escaparHtml(_0x5de4e8.texto) + "\"" + (_0x5de4e8.codigoSugerido ? " <span style=\"color:var(--text-faint);\">(ya se relacionó antes con " + escaparHtml(_0x5de4e8.codigoSugerido) + ")</span>" : "") + "</div>\n                <input type=\"text\" list=\"catalogCodesList\" placeholder=\"Código del stock (vacío = falta)\" style=\"order:3; flex-basis:100%; width:100%; margin-top:4px; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:8px 10px; border-radius:6px; font-size:13px;\" value=\"" + escaparHtml(_0x5de4e8.codigoSugerido) + "\" data-ocr-codigo=\"" + _0x5de4e8.id + "\">\n                <input type=\"number\" min=\"1\" style=\"order:2; width:78px; flex:none; text-align:center; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:8px 6px; border-radius:6px; font-size:13px;\" value=\"" + _0x5de4e8.cantidad + "\" data-ocr-cantidad=\"" + _0x5de4e8.id + "\">\n              </div>\n            </div>\n          ").join("") + "\n        </div>\n        <button class=\"btn primary\" id=\"applyOcrPlanBtn\">Confirmar</button>\n        <button class=\"btn ghost-danger\" id=\"cancelOcrPlanBtn\">Cancelar</button>\n      </div>\n    " : "";
+    const _0x944ffb = (_0x4368d0.materialesFaltantes || []).length ? "\n      <div class=\"ticket\" style=\"margin-top:14px; border-left-color:var(--warning);\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Material faltante (" + _0x4368d0.materialesFaltantes.length + ")</span></div>\n        <div class=\"ticket-body\">\n          " + _0x4368d0.materialesFaltantes.map(_0x3b0770 => "\n            <div style=\"display:flex; align-items:center; gap:10px; padding:11px 14px; border-bottom:1px dashed var(--border);\">\n              <div style=\"flex:1; min-width:0;\">\n                <div style=\"font-weight:700; font-size:13px;\">" + escaparHtml(_0x3b0770.descripcion) + "</div>\n                <div style=\"font-size:11px; color:var(--text-faint); margin-top:2px;\">" + _0x3b0770.cantidad + " uds · proveedor " + escaparHtml(_0x3b0770.proveedor) + " · " + _0x3b0770.fecha + "</div>\n              </div>\n              <button class=\"cam-btn\" data-pedir-faltante=\"" + _0x3b0770.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">Pedir</button>\n              <button class=\"btn-return\" data-quitar-faltante=\"" + _0x3b0770.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">Quitar</button>\n            </div>\n          ").join("") + "\n        </div>\n      </div>\n    " : "";
     // Esquemas que manda la app hermana para esta OT (ya filtrados a https al recibirlos)
     const __esquemasOT = (buscarGrupo(estado.mode, estado.current[estado.mode] || "") || {}).esquemas || [];
-    const __seccionEsquemas = __esquemasOT.length ? "\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Esquemas de la OT</span><span class=\"ticket-title\">" + __esquemasOT.length + "</span></div>\n        <div class=\"ticket-body\">" + __esquemasOT.map(__e => "\n          <div style=\"display:flex; align-items:center; gap:10px; padding:11px 14px; border-bottom:1px dashed var(--border);\"><div style=\"flex:1; min-width:0; font-weight:700; font-size:13px;\">" + _0x1d1ab0(__e.nombre) + "</div><a class=\"cam-btn\" href=\"" + _0x1d1ab0(__e.url) + "\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"padding:6px 10px; font-size:11px; min-height:auto; text-decoration:none;\">Abrir</a></div>").join("") + "\n        </div>\n      </div>\n    " : "";
+    const __seccionEsquemas = __esquemasOT.length ? "\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Esquemas de la OT</span><span class=\"ticket-title\">" + __esquemasOT.length + "</span></div>\n        <div class=\"ticket-body\">" + __esquemasOT.map(__e => "\n          <div style=\"display:flex; align-items:center; gap:10px; padding:11px 14px; border-bottom:1px dashed var(--border);\"><div style=\"flex:1; min-width:0; font-weight:700; font-size:13px;\">" + escaparHtml(__e.nombre) + "</div><a class=\"cam-btn\" href=\"" + escaparHtml(__e.url) + "\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"padding:6px 10px; font-size:11px; min-height:auto; text-decoration:none;\">Abrir</a></div>").join("") + "\n        </div>\n      </div>\n    " : "";
     const _0x12fefa = (_0x4368d0.documentos || []).length;
-    const _0x583e89 = _0x2df77d() === "taller" ? "" : "\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\" id=\"toggleDocumentosBtn\" style=\"cursor:pointer;\">\n          <span class=\"ticket-title\">Documentos escaneados" + (_0x12fefa ? " (" + _0x12fefa + ")" : "") + "</span>\n          <span class=\"ticket-title\">" + (_0x15a759 ? "Ocultar" : "Ver") + "</span>\n        </div>\n        " + (_0x15a759 ? "\n        <div class=\"ticket-body\">\n          " + (_0x12fefa ? (_0x4368d0.documentos || []).map(_0x44966c => "\n            <div style=\"display:flex; align-items:center; gap:10px; padding:11px 14px; border-bottom:1px dashed var(--border);\">\n              <div style=\"flex:1; min-width:0;\">\n                <div style=\"font-weight:700; font-size:13px;\">" + _0x1d1ab0(_0x44966c.nombre) + "</div>\n                <div style=\"font-size:11px; color:var(--text-faint); margin-top:2px;\">" + _0x44966c.fecha + " · " + _0x44966c.paginas + " página(s)</div>\n              </div>\n              <button class=\"cam-btn\" data-ver-doc=\"" + _0x44966c.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">Ver</button>\n              <button class=\"btn-return\" data-del-doc=\"" + _0x44966c.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">" + _0x56ae2b("eliminar") + "Eliminar</button>\n            </div>\n          ").join("") : "<div class=\"empty-state\">Todavía no hay ningún documento escaneado para esta orden/proyecto.</div>") + "\n          <div style=\"padding:12px 14px;\">\n            <button class=\"cam-btn\" id=\"escanearDocBtn\" style=\"width:100%;\">Escanear documento</button>\n          </div>\n        </div>\n        " : "") + "\n      </div>\n    ";
+    const _0x583e89 = _0x2df77d() === "taller" ? "" : "\n      <div class=\"ticket\" style=\"margin-top:14px;\">\n        <div class=\"ticket-header\" id=\"toggleDocumentosBtn\" style=\"cursor:pointer;\">\n          <span class=\"ticket-title\">Documentos escaneados" + (_0x12fefa ? " (" + _0x12fefa + ")" : "") + "</span>\n          <span class=\"ticket-title\">" + (_0x15a759 ? "Ocultar" : "Ver") + "</span>\n        </div>\n        " + (_0x15a759 ? "\n        <div class=\"ticket-body\">\n          " + (_0x12fefa ? (_0x4368d0.documentos || []).map(_0x44966c => "\n            <div style=\"display:flex; align-items:center; gap:10px; padding:11px 14px; border-bottom:1px dashed var(--border);\">\n              <div style=\"flex:1; min-width:0;\">\n                <div style=\"font-weight:700; font-size:13px;\">" + escaparHtml(_0x44966c.nombre) + "</div>\n                <div style=\"font-size:11px; color:var(--text-faint); margin-top:2px;\">" + _0x44966c.fecha + " · " + _0x44966c.paginas + " página(s)</div>\n              </div>\n              <button class=\"cam-btn\" data-ver-doc=\"" + _0x44966c.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">Ver</button>\n              <button class=\"btn-return\" data-del-doc=\"" + _0x44966c.id + "\" style=\"padding:6px 10px; font-size:11px; min-height:auto;\">" + _0x56ae2b("eliminar") + "Eliminar</button>\n            </div>\n          ").join("") : "<div class=\"empty-state\">Todavía no hay ningún documento escaneado para esta orden/proyecto.</div>") + "\n          <div style=\"padding:12px 14px;\">\n            <button class=\"cam-btn\" id=\"escanearDocBtn\" style=\"width:100%;\">Escanear documento</button>\n          </div>\n        </div>\n        " : "") + "\n      </div>\n    ";
     const __lineasProveedor = (typeof _0x5f4a21 !== "undefined" && _0x5f4a21 ? _0x5f4a21 : []).filter(__r => __r.destino === "proveedor");
-    const __seccionProveedor = __lineasProveedor.length ? "\n      <div class=\"ticket\" style=\"margin-top:14px; border-left-color:var(--accent);\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Proveedor</span><span class=\"ticket-title\">" + __lineasProveedor.length + " línea(s)</span></div>\n        <div class=\"ticket-body\">" + __lineasProveedor.map(__r => "\n          <div style=\"display:flex; align-items:center; gap:10px; padding:11px 14px; border-bottom:1px dashed var(--border);\"><div style=\"flex:1; min-width:0;\"><div style=\"font-weight:700; font-size:13px;\">" + _0x1d1ab0(__r.textoLibre ? __r.textoLibre : __r.articulo) + "</div><div style=\"font-size:11px; color:var(--text-faint); margin-top:2px;\">Cantidad: " + __r.cantidad + (__r.reserva ? " · Reserva: " + __r.reserva : "") + (__r.recibidoCantidad != null ? " · Recibido: " + __r.recibidoCantidad : "") + "</div>" + (__r.pendienteReclamar ? "<span class=\"badge\" style=\"background:var(--warning); color:#000; font-size:10px; padding:2px 6px; border-radius:4px; margin-top:4px; display:inline-block;\">Pendiente-reclamar</span>" : "") + (__r.avisoDevolverReserva ? "<span class=\"badge\" style=\"background:var(--accent); color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; margin-top:4px; display:inline-block; margin-left:4px;\">Para devolver a reserva</span>" : "") + "</div><input type=\"text\" placeholder=\"Proveedor\" value=\"" + _0x1d1ab0(__r.proveedorNombre || "") + "\" data-proveedor-nombre=\"" + __r.id + "\" style=\"flex:none; width:140px; font-size:12px; padding:6px 8px;\"></div>").join("") + "\n        </div>\n      </div>\n    " : "";
+    const __seccionProveedor = __lineasProveedor.length ? "\n      <div class=\"ticket\" style=\"margin-top:14px; border-left-color:var(--accent);\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Proveedor</span><span class=\"ticket-title\">" + __lineasProveedor.length + " línea(s)</span></div>\n        <div class=\"ticket-body\">" + __lineasProveedor.map(__r => "\n          <div style=\"display:flex; align-items:center; gap:10px; padding:11px 14px; border-bottom:1px dashed var(--border);\"><div style=\"flex:1; min-width:0;\"><div style=\"font-weight:700; font-size:13px;\">" + escaparHtml(__r.textoLibre ? __r.textoLibre : __r.articulo) + "</div><div style=\"font-size:11px; color:var(--text-faint); margin-top:2px;\">Cantidad: " + __r.cantidad + (__r.reserva ? " · Reserva: " + __r.reserva : "") + (__r.recibidoCantidad != null ? " · Recibido: " + __r.recibidoCantidad : "") + "</div>" + (__r.pendienteReclamar ? "<span class=\"badge\" style=\"background:var(--warning); color:#000; font-size:10px; padding:2px 6px; border-radius:4px; margin-top:4px; display:inline-block;\">Pendiente-reclamar</span>" : "") + (__r.avisoDevolverReserva ? "<span class=\"badge\" style=\"background:var(--accent); color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; margin-top:4px; display:inline-block; margin-left:4px;\">Para devolver a reserva</span>" : "") + "</div><input type=\"text\" placeholder=\"Proveedor\" value=\"" + escaparHtml(__r.proveedorNombre || "") + "\" data-proveedor-nombre=\"" + __r.id + "\" style=\"flex:none; width:140px; font-size:12px; padding:6px 8px;\"></div>").join("") + "\n        </div>\n      </div>\n    " : "";
     const __lineasOCRProveedor = _0x1a8185 && _0x1a8185.proveedorLineas ? _0x1a8185.proveedorLineas : [];
-    const __panelProveedorOCR = __lineasOCRProveedor.length ? "\n      <div class=\"panel\" style=\"border-color:var(--accent); margin-top:14px;\">\n        <p class=\"panel-title\">Proveedor — confirma cantidad recibida por línea</p>\n        <div style=\"max-height:320px; overflow-y:auto;\">" + __lineasOCRProveedor.map(__l => "\n          <div style=\"display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px dashed var(--border);\"><div style=\"flex:1; min-width:0; font-size:12.5px;\">" + _0x1d1ab0(__l.texto) + " <span style=\"color:var(--text-faint);\">(pedido: " + __l.cantidadPedida + ")</span></div><input type=\"number\" min=\"0\" data-ocr-proveedor-cantidad=\"" + __l.id + "\" value=\"" + __l.cantidadDetectada + "\" style=\"width:78px; flex:none; text-align:center; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:8px 6px; border-radius:6px; font-size:13px;\"></div>").join("") + "\n        </div>\n      </div>\n    " : "";
+    const __panelProveedorOCR = __lineasOCRProveedor.length ? "\n      <div class=\"panel\" style=\"border-color:var(--accent); margin-top:14px;\">\n        <p class=\"panel-title\">Proveedor — confirma cantidad recibida por línea</p>\n        <div style=\"max-height:320px; overflow-y:auto;\">" + __lineasOCRProveedor.map(__l => "\n          <div style=\"display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px dashed var(--border);\"><div style=\"flex:1; min-width:0; font-size:12.5px;\">" + escaparHtml(__l.texto) + " <span style=\"color:var(--text-faint);\">(pedido: " + __l.cantidadPedida + ")</span></div><input type=\"number\" min=\"0\" data-ocr-proveedor-cantidad=\"" + __l.id + "\" value=\"" + __l.cantidadDetectada + "\" style=\"width:78px; flex:none; text-align:center; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:8px 6px; border-radius:6px; font-size:13px;\"></div>").join("") + "\n        </div>\n      </div>\n    " : "";
     _0x1b7047.innerHTML = _0x196921 + _0x2616e9 + _0x4895bf + _0x222547 + _0x37393c + _0x944ffb + __seccionEsquemas + _0x583e89 + __seccionProveedor + __panelProveedorOCR;
     _0x241b98(_0x1b7047);
     const _0x52c60a = $("#applyOcrPlanBtn");
@@ -11025,10 +11077,10 @@
     const _0x13ac6b = $("#sidePanel");
     if (estado.mode === "almacen") {
       const _0x5e2d34 = estado.catalog.filter(_0x4ecd13 => _0x4ecd13.qty <= 0).length;
-      const _0x3bf112 = estado.movements.slice(0, 5).map(_0xeec882 => "\n        <div class=\"movement-row\">\n          <span class=\"tag-" + _0xeec882.type + "\">" + _0x11c4a1(_0xeec882.type) + "</span>\n          <span class=\"m-code\">" + _0x1d1ab0(_0xeec882.code) + " <span style=\"color:var(--text-faint);\">x" + _0xeec882.qty + "</span></span>\n          <span style=\"color:var(--text-faint); font-size:11px;\">" + _0xeec882.ts + (_0xeec882.usuario ? " · " + _0x1d1ab0(_0xeec882.usuario) : "") + "</span>\n          <span class=\"m-desc\">" + _0x1d1ab0(_0xeec882.desc) + "</span>\n          <span class=\"m-origin\">" + _0x1d1ab0(_0xeec882.origin) + "</span>\n        </div>\n      ").join("");
-      _0x13ac6b.innerHTML = "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Resumen de stock</p>\n          <div class=\"stat-row\"><span>Referencias en stock</span><span class=\"num\">" + estado.catalog.length + "</span></div>\n          <div class=\"stat-row\"><span>Referencias a 0 o negativo</span><span class=\"num\">" + _0x5e2d34 + "</span></div>\n          <div class=\"stat-row\"><span>Valor total del inventario</span><span class=\"num\">" + estado.catalog.reduce((_0x338635, _0xadcaa0) => _0x338635 + (_0xadcaa0.qty > 0 ? _0xadcaa0.qty * (_0xadcaa0.coste || 0) : 0), 0).toFixed(2) + "€</span></div>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Últimos movimientos</p>\n          " + (_0x3bf112 || "<div style=\"color:var(--text-faint); font-size:12.5px;\">Sin movimientos todavía.</div>") + "\n          " + (estado.movementsArchive.length ? "\n          <p style=\"font-size:11px; color:var(--text-faint); margin-top:8px;\">\n            Histórico más antiguo archivado por mes: " + estado.movementsArchive.slice(0, 3).map(_0x204573 => _0x204573.month + " (" + _0x204573.entradas + " entr. / " + _0x204573.salidas + " sal.)").join(" · ") + (estado.movementsArchive.length > 3 ? "…" : "") + "\n          </p>" : "") + "\n        </div>\n\n        <button class=\"cam-btn\" id=\"masOpcionesAlmacenBtn\" style=\"width:100%;\">" + (_0x39b15b ? "Ocultar ajustes de almacén" : "Ajustes de almacén") + "</button>\n\n        " + (_0x39b15b ? "\n        <div class=\"panel\" style=\"margin-top:14px;\">\n          <p class=\"panel-title\">Exportar / Importar</p>\n          <button class=\"btn primary\" id=\"exportStockBtn\">Exportar stock y movimientos</button>\n          <label class=\"btn\" style=\"text-align:center; display:block;\">\n            Importar catálogo (añade y actualiza, no borra)\n            <input type=\"file\" id=\"catalogFile\" accept=\".xlsx,.xls,.csv\" style=\"display:none;\">\n          </label>\n          <input type=\"text\" id=\"catalogSearch\" placeholder=\"Buscar en el stock…\" value=\"" + _0x1a8b0d + "\" style=\"width:100%; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:9px 10px; border-radius:7px; font-size:13px; margin-top:4px;\">\n        </div>\n\n        <div class=\"panel\" style=\"border-color:var(--danger);\">\n          <p class=\"panel-title\" style=\"color:var(--danger);\">Sobrescribir todo el stock</p>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 8px 0;\">El stock queda igual que el Excel: cantidades exactas, borra lo que no esté.</p>\n          <label class=\"btn ghost-danger\" style=\"text-align:center; display:block;\">\n            Sobrescribir con este Excel\n            <input type=\"file\" id=\"overwriteCatalogFile\" accept=\".xlsx,.xls,.csv\" style=\"display:none;\">\n          </label>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Copia de seguridad</p>\n          <div class=\"backup-row\">\n            <button class=\"btn\" id=\"exportBackupBtn\">Descargar todo</button>\n            <label class=\"btn\" style=\"text-align:center; display:block;\">\n              Restaurar\n              <input type=\"file\" id=\"backupFile\" accept=\".json\" style=\"display:none;\">\n            </label>\n          </div>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Avisos</p>\n          <div class=\"manual-stock-form\" style=\"flex-direction:column;\">\n            <label style=\"font-size:11.5px; color:var(--text-muted);\">Avisar con cuántos días de margen antes de la devolución de una bobina</label>\n            <input type=\"number\" id=\"setBobinaDias\" min=\"0\" value=\"" + estado.settings.bobinaAvisoDias + "\">\n            <label style=\"font-size:11.5px; color:var(--text-muted); margin-top:6px;\">Considerar stock bajo con esta cantidad o menos</label>\n            <input type=\"number\" id=\"setStockUmbral\" min=\"0\" value=\"" + estado.settings.stockBajoUmbral + "\">\n            <label style=\"font-size:11.5px; color:var(--text-muted); margin-top:6px;\">Hora del día (0-23) a partir de la cual se hace la comprobación diaria</label>\n            <input type=\"number\" id=\"setAvisoHora\" min=\"0\" max=\"23\" value=\"" + estado.settings.avisoHora + "\">\n            <label style=\"font-size:11.5px; color:var(--text-muted); margin-top:6px;\">Correo al que quiero que me lleguen los avisos</label>\n            <input type=\"email\" id=\"setEmailDestino\" placeholder=\"tu@email.com\" value=\"" + estado.settings.emailDestino + "\">\n            <label style=\"display:flex; align-items:center; gap:6px; margin-top:8px; font-size:12.5px; color:var(--text-primary);\">\n              <input type=\"checkbox\" id=\"setSonidoEscaneo\" " + (estado.settings.sonidoEscaneo ? "checked" : "") + " style=\"width:16px; height:16px;\"> Pitido al escanear con éxito\n            </label>\n            <button class=\"btn primary\" id=\"saveSettingsBtn\" style=\"margin-top:8px;\">Guardar avisos</button>\n          </div>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Ubicaciones</p>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 8px 0;\">Lista para autocompletar — la ubicación sigue siendo texto libre, esto solo evita erratas.</p>\n          <div class=\"manual-stock-form\" style=\"margin-top:0;\">\n            <input type=\"text\" id=\"nuevaUbicacionInput\" placeholder=\"Nueva ubicación (ej. Pasillo 3 - B2)\">\n            <button class=\"cam-btn\" id=\"addUbicacionBtn\" style=\"flex:none;\">+ Añadir</button>\n          </div>\n          " + (estado.ubicaciones.length ? "\n          <div style=\"margin-top:10px; max-height:160px; overflow-y:auto;\">\n            " + estado.ubicaciones.map(_0x22784c => "\n              <div style=\"display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px dashed var(--border); font-size:12.5px;\">\n                <span>" + _0x1d1ab0(_0x22784c) + "</span>\n                <button class=\"btn-return\" data-ubicacion-del=\"" + _0x1d1ab0(_0x22784c) + "\" style=\"padding:4px 9px; font-size:10.5px; min-height:auto;\">Quitar</button>\n              </div>\n            ").join("") + "\n          </div>" : "<p style=\"font-size:11.5px; color:var(--text-faint); margin-top:8px;\">Todavía no hay ninguna en la lista.</p>") + "\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Lista rápida (Trabajo)</p>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 8px 0;\">Materiales frecuentes para elegir de un vistazo junto al chat de cualquier orden o proyecto." + (supabaseCliente ? "" : " Se podrá configurar cuando se conecte Supabase (ver README).") + "</p>\n          <div class=\"manual-stock-form\" style=\"margin-top:0;" + (supabaseCliente ? "" : " display:none;") + "\">\n            <input type=\"text\" id=\"nuevoRapidoCodigo\" placeholder=\"Código (opcional)\">\n            <input type=\"text\" id=\"nuevoRapidoNombre\" placeholder=\"Nombre a mostrar\">\n            <button class=\"cam-btn\" id=\"addRapidoBtn\" style=\"flex:none;\">+ Añadir</button>\n          </div>\n          " + (estado.materialesRapidos.length ? "\n          <div style=\"margin-top:10px; max-height:160px; overflow-y:auto;\">\n            " + estado.materialesRapidos.map(_0x1f6978 => "\n              <div style=\"display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px dashed var(--border); font-size:12.5px;\">\n                <span>" + _0x1d1ab0(_0x1f6978.nombre) + (_0x1f6978.codigo ? " <span style=\"color:var(--text-faint);\">(" + _0x1d1ab0(_0x1f6978.codigo) + ")</span>" : "") + "</span>\n                <button class=\"btn-return\" data-rapido-del=\"" + _0x1f6978.id + "\" style=\"padding:4px 9px; font-size:10.5px; min-height:auto;\">Quitar</button>\n              </div>\n            ").join("") + "\n          </div>" : "<p style=\"font-size:11.5px; color:var(--text-faint); margin-top:8px;\">Todavía no hay ningún material en la lista.</p>") + "\n        </div>\n\n        " + (hayBackend ? (() => {
+      const _0x3bf112 = estado.movements.slice(0, 5).map(_0xeec882 => "\n        <div class=\"movement-row\">\n          <span class=\"tag-" + _0xeec882.type + "\">" + _0x11c4a1(_0xeec882.type) + "</span>\n          <span class=\"m-code\">" + escaparHtml(_0xeec882.code) + " <span style=\"color:var(--text-faint);\">x" + _0xeec882.qty + "</span></span>\n          <span style=\"color:var(--text-faint); font-size:11px;\">" + _0xeec882.ts + (_0xeec882.usuario ? " · " + escaparHtml(_0xeec882.usuario) : "") + "</span>\n          <span class=\"m-desc\">" + escaparHtml(_0xeec882.desc) + "</span>\n          <span class=\"m-origin\">" + escaparHtml(_0xeec882.origin) + "</span>\n        </div>\n      ").join("");
+      _0x13ac6b.innerHTML = "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Resumen de stock</p>\n          <div class=\"stat-row\"><span>Referencias en stock</span><span class=\"num\">" + estado.catalog.length + "</span></div>\n          <div class=\"stat-row\"><span>Referencias a 0 o negativo</span><span class=\"num\">" + _0x5e2d34 + "</span></div>\n          <div class=\"stat-row\"><span>Valor total del inventario</span><span class=\"num\">" + estado.catalog.reduce((_0x338635, _0xadcaa0) => _0x338635 + (_0xadcaa0.qty > 0 ? _0xadcaa0.qty * (_0xadcaa0.coste || 0) : 0), 0).toFixed(2) + "€</span></div>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Últimos movimientos</p>\n          " + (_0x3bf112 || "<div style=\"color:var(--text-faint); font-size:12.5px;\">Sin movimientos todavía.</div>") + "\n          " + (estado.movementsArchive.length ? "\n          <p style=\"font-size:11px; color:var(--text-faint); margin-top:8px;\">\n            Histórico más antiguo archivado por mes: " + estado.movementsArchive.slice(0, 3).map(_0x204573 => _0x204573.month + " (" + _0x204573.entradas + " entr. / " + _0x204573.salidas + " sal.)").join(" · ") + (estado.movementsArchive.length > 3 ? "…" : "") + "\n          </p>" : "") + "\n        </div>\n\n        <button class=\"cam-btn\" id=\"masOpcionesAlmacenBtn\" style=\"width:100%;\">" + (_0x39b15b ? "Ocultar ajustes de almacén" : "Ajustes de almacén") + "</button>\n\n        " + (_0x39b15b ? "\n        <div class=\"panel\" style=\"margin-top:14px;\">\n          <p class=\"panel-title\">Exportar / Importar</p>\n          <button class=\"btn primary\" id=\"exportStockBtn\">Exportar stock y movimientos</button>\n          <label class=\"btn\" style=\"text-align:center; display:block;\">\n            Importar catálogo (añade y actualiza, no borra)\n            <input type=\"file\" id=\"catalogFile\" accept=\".xlsx,.xls,.csv\" style=\"display:none;\">\n          </label>\n          <input type=\"text\" id=\"catalogSearch\" placeholder=\"Buscar en el stock…\" value=\"" + _0x1a8b0d + "\" style=\"width:100%; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:9px 10px; border-radius:7px; font-size:13px; margin-top:4px;\">\n        </div>\n\n        <div class=\"panel\" style=\"border-color:var(--danger);\">\n          <p class=\"panel-title\" style=\"color:var(--danger);\">Sobrescribir todo el stock</p>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 8px 0;\">El stock queda igual que el Excel: cantidades exactas, borra lo que no esté.</p>\n          <label class=\"btn ghost-danger\" style=\"text-align:center; display:block;\">\n            Sobrescribir con este Excel\n            <input type=\"file\" id=\"overwriteCatalogFile\" accept=\".xlsx,.xls,.csv\" style=\"display:none;\">\n          </label>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Copia de seguridad</p>\n          <div class=\"backup-row\">\n            <button class=\"btn\" id=\"exportBackupBtn\">Descargar todo</button>\n            <label class=\"btn\" style=\"text-align:center; display:block;\">\n              Restaurar\n              <input type=\"file\" id=\"backupFile\" accept=\".json\" style=\"display:none;\">\n            </label>\n          </div>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Avisos</p>\n          <div class=\"manual-stock-form\" style=\"flex-direction:column;\">\n            <label style=\"font-size:11.5px; color:var(--text-muted);\">Avisar con cuántos días de margen antes de la devolución de una bobina</label>\n            <input type=\"number\" id=\"setBobinaDias\" min=\"0\" value=\"" + estado.settings.bobinaAvisoDias + "\">\n            <label style=\"font-size:11.5px; color:var(--text-muted); margin-top:6px;\">Considerar stock bajo con esta cantidad o menos</label>\n            <input type=\"number\" id=\"setStockUmbral\" min=\"0\" value=\"" + estado.settings.stockBajoUmbral + "\">\n            <label style=\"font-size:11.5px; color:var(--text-muted); margin-top:6px;\">Hora del día (0-23) a partir de la cual se hace la comprobación diaria</label>\n            <input type=\"number\" id=\"setAvisoHora\" min=\"0\" max=\"23\" value=\"" + estado.settings.avisoHora + "\">\n            <label style=\"font-size:11.5px; color:var(--text-muted); margin-top:6px;\">Correo al que quiero que me lleguen los avisos</label>\n            <input type=\"email\" id=\"setEmailDestino\" placeholder=\"tu@email.com\" value=\"" + estado.settings.emailDestino + "\">\n            <label style=\"display:flex; align-items:center; gap:6px; margin-top:8px; font-size:12.5px; color:var(--text-primary);\">\n              <input type=\"checkbox\" id=\"setSonidoEscaneo\" " + (estado.settings.sonidoEscaneo ? "checked" : "") + " style=\"width:16px; height:16px;\"> Pitido al escanear con éxito\n            </label>\n            <button class=\"btn primary\" id=\"saveSettingsBtn\" style=\"margin-top:8px;\">Guardar avisos</button>\n          </div>\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Ubicaciones</p>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 8px 0;\">Lista para autocompletar — la ubicación sigue siendo texto libre, esto solo evita erratas.</p>\n          <div class=\"manual-stock-form\" style=\"margin-top:0;\">\n            <input type=\"text\" id=\"nuevaUbicacionInput\" placeholder=\"Nueva ubicación (ej. Pasillo 3 - B2)\">\n            <button class=\"cam-btn\" id=\"addUbicacionBtn\" style=\"flex:none;\">+ Añadir</button>\n          </div>\n          " + (estado.ubicaciones.length ? "\n          <div style=\"margin-top:10px; max-height:160px; overflow-y:auto;\">\n            " + estado.ubicaciones.map(_0x22784c => "\n              <div style=\"display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px dashed var(--border); font-size:12.5px;\">\n                <span>" + escaparHtml(_0x22784c) + "</span>\n                <button class=\"btn-return\" data-ubicacion-del=\"" + escaparHtml(_0x22784c) + "\" style=\"padding:4px 9px; font-size:10.5px; min-height:auto;\">Quitar</button>\n              </div>\n            ").join("") + "\n          </div>" : "<p style=\"font-size:11.5px; color:var(--text-faint); margin-top:8px;\">Todavía no hay ninguna en la lista.</p>") + "\n        </div>\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Lista rápida (Trabajo)</p>\n          <p style=\"font-size:11.5px; color:var(--text-faint); margin:0 0 8px 0;\">Materiales frecuentes para elegir de un vistazo junto al chat de cualquier orden o proyecto." + (supabaseCliente ? "" : " Se podrá configurar cuando se conecte Supabase (ver README).") + "</p>\n          <div class=\"manual-stock-form\" style=\"margin-top:0;" + (supabaseCliente ? "" : " display:none;") + "\">\n            <input type=\"text\" id=\"nuevoRapidoCodigo\" placeholder=\"Código (opcional)\">\n            <input type=\"text\" id=\"nuevoRapidoNombre\" placeholder=\"Nombre a mostrar\">\n            <button class=\"cam-btn\" id=\"addRapidoBtn\" style=\"flex:none;\">+ Añadir</button>\n          </div>\n          " + (estado.materialesRapidos.length ? "\n          <div style=\"margin-top:10px; max-height:160px; overflow-y:auto;\">\n            " + estado.materialesRapidos.map(_0x1f6978 => "\n              <div style=\"display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:1px dashed var(--border); font-size:12.5px;\">\n                <span>" + escaparHtml(_0x1f6978.nombre) + (_0x1f6978.codigo ? " <span style=\"color:var(--text-faint);\">(" + escaparHtml(_0x1f6978.codigo) + ")</span>" : "") + "</span>\n                <button class=\"btn-return\" data-rapido-del=\"" + _0x1f6978.id + "\" style=\"padding:4px 9px; font-size:10.5px; min-height:auto;\">Quitar</button>\n              </div>\n            ").join("") + "\n          </div>" : "<p style=\"font-size:11.5px; color:var(--text-faint); margin-top:8px;\">Todavía no hay ningún material en la lista.</p>") + "\n        </div>\n\n        " + (hayBackend ? (() => {
         const _0x2d9f54 = estado.catalog.filter(_0xcd95ea => !_0xcd95ea.origenA3);
-        return "\n          <div class=\"panel\">\n            <p class=\"panel-title\">Salud de datos frente a A3</p>\n            <div class=\"stat-row\"><span>Artículos confirmados en A3</span><span class=\"num\" style=\"color:var(--success);\">" + (estado.catalog.length - _0x2d9f54.length) + "</span></div>\n            <div class=\"stat-row\"><span>Dados de alta a mano, sin confirmar</span><span class=\"num\" style=\"color:" + (_0x2d9f54.length ? "var(--warning)" : "var(--success)") + ";\">" + _0x2d9f54.length + "</span></div>\n            " + (_0x2d9f54.length ? "\n            <p style=\"font-size:11.5px; color:var(--text-faint); margin:8px 0;\">Su código todavía no ha llegado desde A3 — puede ser un artículo nuevo pendiente de dar de alta allí, un código con una errata, o un duplicado.</p>\n            <div style=\"max-height:180px; overflow-y:auto;\">\n              " + _0x2d9f54.slice(0, 30).map(_0x395629 => "\n                <div style=\"padding:5px 0; border-bottom:1px dashed var(--border); font-size:12px;\">\n                  <span style=\"font-weight:700;\">" + _0x1d1ab0(_0x395629.code) + "</span> — " + _0x1d1ab0(_0x395629.desc) + "\n                </div>\n              ").join("") + "\n              " + (_0x2d9f54.length > 30 ? "<p style=\"font-size:11px; color:var(--text-faint); margin-top:6px;\">… y " + (_0x2d9f54.length - 30) + " más.</p>" : "") + "\n            </div>\n            " : "") + "\n          </div>";
+        return "\n          <div class=\"panel\">\n            <p class=\"panel-title\">Salud de datos frente a A3</p>\n            <div class=\"stat-row\"><span>Artículos confirmados en A3</span><span class=\"num\" style=\"color:var(--success);\">" + (estado.catalog.length - _0x2d9f54.length) + "</span></div>\n            <div class=\"stat-row\"><span>Dados de alta a mano, sin confirmar</span><span class=\"num\" style=\"color:" + (_0x2d9f54.length ? "var(--warning)" : "var(--success)") + ";\">" + _0x2d9f54.length + "</span></div>\n            " + (_0x2d9f54.length ? "\n            <p style=\"font-size:11.5px; color:var(--text-faint); margin:8px 0;\">Su código todavía no ha llegado desde A3 — puede ser un artículo nuevo pendiente de dar de alta allí, un código con una errata, o un duplicado.</p>\n            <div style=\"max-height:180px; overflow-y:auto;\">\n              " + _0x2d9f54.slice(0, 30).map(_0x395629 => "\n                <div style=\"padding:5px 0; border-bottom:1px dashed var(--border); font-size:12px;\">\n                  <span style=\"font-weight:700;\">" + escaparHtml(_0x395629.code) + "</span> — " + escaparHtml(_0x395629.desc) + "\n                </div>\n              ").join("") + "\n              " + (_0x2d9f54.length > 30 ? "<p style=\"font-size:11px; color:var(--text-faint); margin-top:6px;\">… y " + (_0x2d9f54.length - 30) + " más.</p>" : "") + "\n            </div>\n            " : "") + "\n          </div>";
       })() : "") + "\n\n        " + (estado.groups.montaje.length || estado.groups.proyecto.length ? "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Histórico general</p>\n          " + (estado.groups.montaje.length ? "\n          <div class=\"stat-row\"><span>Órdenes de montaje</span><span class=\"num\">" + estado.groups.montaje.length + "</span></div>\n          <button class=\"btn\" id=\"exportAllMontajeBtn\">Exportar todas las órdenes</button>\n          " : "") + "\n          " + (estado.groups.proyecto.length ? "\n          <div class=\"stat-row\"><span>Proyectos creados</span><span class=\"num\">" + estado.groups.proyecto.length + "</span></div>\n          <button class=\"btn\" id=\"exportAllProyectoBtn\">Exportar todos los proyectos</button>\n          " : "") + "\n        </div>" : "") + "\n\n        <div class=\"panel\">\n          <p class=\"panel-title\">Actividad (últimos 30 días)</p>\n          " + _0x27a88a() + "\n        </div>\n        " : "") + "\n      ";
       $("#masOpcionesAlmacenBtn").addEventListener("click", () => {
         _0x39b15b = !_0x39b15b;
@@ -11076,7 +11128,7 @@
           estado.settings.avisoHora = Math.min(23, Math.max(0, parseInt($("#setAvisoHora").value, 10) || 0));
           estado.settings.emailDestino = $("#setEmailDestino").value.trim();
           _0x37360d();
-          _0x279f78("Configuración de avisos guardada.");
+          mostrarAviso("Configuración de avisos guardada.");
           render();
         });
       }
@@ -11114,7 +11166,7 @@
         _0x4ea113.addEventListener("click", () => _0x311314(_0x4ea113.dataset.rapidoDel));
       });
       const _0x200e4b = $("#catalogSearch");
-      const _0x27a6f1 = _0x5cfc5(() => _0x1c3cca(), 220);
+      const _0x27a6f1 = conPausa(() => _0x1c3cca(), 220);
       if (_0x200e4b) {
         _0x200e4b.addEventListener("input", _0x44091e => {
           _0x1a8b0d = _0x44091e.target.value;
@@ -11149,7 +11201,7 @@
         ..._0x16e19b,
         calc: _0x22e6c7(_0x16e19b, _0x1a1107.kmActual || 0)
       })).filter(_0x105d61 => _0x105d61.calc.estado !== "ok").sort((_0x1f39b3, _0x41a71c) => _0x1f39b3.calc.urgencia - _0x41a71c.calc.urgencia).slice(0, 5);
-      _0x13ac6b.innerHTML = "\n        <div class=\"panel\">\n          <p class=\"panel-title\">" + _0x1d1ab0(_0x1a1107.matricula) + "</p>\n          <div class=\"stat-row\"><span>Marca / modelo</span><span class=\"num\" style=\"font-size:12px;\">" + _0x1d1ab0(_0x1a1107.marca || "—") + " " + _0x1d1ab0(_0x1a1107.modelo || "") + "</span></div>\n          <div class=\"stat-row\"><span>Año</span><span class=\"num\">" + _0x1d1ab0(_0x1a1107.anio || "—") + "</span></div>\n          <div class=\"stat-row\"><span>Km actuales</span><span class=\"num\">" + (_0x1a1107.kmActual || 0).toLocaleString("es-ES") + "</span></div>\n        </div>\n        " + (_0x1a1107.mecanicoNombre || _0x1a1107.mecanicoContacto ? "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Mecánico habitual</p>\n          " + (_0x1a1107.mecanicoNombre ? "<div class=\"stat-row\"><span>Nombre</span><span class=\"num\" style=\"font-size:12px;\">" + _0x1d1ab0(_0x1a1107.mecanicoNombre) + "</span></div>" : "") + "\n          " + (_0x1a1107.mecanicoContacto ? "<div class=\"stat-row\"><span>Contacto</span><span class=\"num\" style=\"font-size:12px;\">" + _0x1d1ab0(_0x1a1107.mecanicoContacto) + "</span></div>" : "") + "\n        </div>\n        " : "") + "\n        " + (_0x219008.length ? "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Próximas revisiones</p>\n          " + _0x219008.map(_0x54aa01 => "<div class=\"stat-row\"><span>" + _0x1d1ab0(_0x54aa01.nombre) + "</span><span class=\"num\" style=\"color:" + (_0x54aa01.calc.estado === "atrasada" ? "var(--danger)" : "var(--warning)") + ";\">" + (_0x54aa01.calc.estado === "atrasada" ? "Atrasada" : "Pronto") + "</span></div>").join("") + "\n        </div>\n        " : "") + "\n      ";
+      _0x13ac6b.innerHTML = "\n        <div class=\"panel\">\n          <p class=\"panel-title\">" + escaparHtml(_0x1a1107.matricula) + "</p>\n          <div class=\"stat-row\"><span>Marca / modelo</span><span class=\"num\" style=\"font-size:12px;\">" + escaparHtml(_0x1a1107.marca || "—") + " " + escaparHtml(_0x1a1107.modelo || "") + "</span></div>\n          <div class=\"stat-row\"><span>Año</span><span class=\"num\">" + escaparHtml(_0x1a1107.anio || "—") + "</span></div>\n          <div class=\"stat-row\"><span>Km actuales</span><span class=\"num\">" + (_0x1a1107.kmActual || 0).toLocaleString("es-ES") + "</span></div>\n        </div>\n        " + (_0x1a1107.mecanicoNombre || _0x1a1107.mecanicoContacto ? "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Mecánico habitual</p>\n          " + (_0x1a1107.mecanicoNombre ? "<div class=\"stat-row\"><span>Nombre</span><span class=\"num\" style=\"font-size:12px;\">" + escaparHtml(_0x1a1107.mecanicoNombre) + "</span></div>" : "") + "\n          " + (_0x1a1107.mecanicoContacto ? "<div class=\"stat-row\"><span>Contacto</span><span class=\"num\" style=\"font-size:12px;\">" + escaparHtml(_0x1a1107.mecanicoContacto) + "</span></div>" : "") + "\n        </div>\n        " : "") + "\n        " + (_0x219008.length ? "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Próximas revisiones</p>\n          " + _0x219008.map(_0x54aa01 => "<div class=\"stat-row\"><span>" + escaparHtml(_0x54aa01.nombre) + "</span><span class=\"num\" style=\"color:" + (_0x54aa01.calc.estado === "atrasada" ? "var(--danger)" : "var(--warning)") + ";\">" + (_0x54aa01.calc.estado === "atrasada" ? "Atrasada" : "Pronto") + "</span></div>").join("") + "\n        </div>\n        " : "") + "\n      ";
       return;
     }
     if (estado.mode === "resumen") {
@@ -11162,14 +11214,14 @@
     const _0x5a7b39 = _0x453578 ? "\n      <div class=\"panel\" style=\"border-color:var(--accent);\">\n        <p class=\"panel-title\">Revisa antes de aplicar (" + _0x453578.plan.length + " líneas)</p>\n        <div style=\"max-height:260px; overflow-y:auto; margin-bottom:10px;\">\n          " + _0x453578.plan.map(_0x3d7c30 => {
       const _0x36151e = _0x3d7c30.kind === "ok" ? "se sirve entera" : _0x3d7c30.kind === "parcial" ? "solo hay " + _0x3d7c30.toServe + " de " + _0x3d7c30.requested : _0x3d7c30.kind === "sin-stock" ? "sin stock, no se sirve" : "no existe — se crea como plantilla";
       const _0x550752 = _0x3d7c30.kind === "ok" ? "var(--success)" : _0x3d7c30.kind === "nueva" || _0x3d7c30.kind === "sin-stock" ? "var(--danger)" : "var(--accent)";
-      return "<div style=\"font-size:12px; padding:5px 0; border-bottom:1px dashed var(--border);\">\n              <strong>" + _0x1d1ab0(_0x3d7c30.code || "(sin código)") + "</strong> · " + _0x1d1ab0(_0x3d7c30.desc || "") + " · " + _0x3d7c30.requested + " uds\n              <div style=\"color:" + _0x550752 + ";\">" + _0x36151e + "</div>\n            </div>";
+      return "<div style=\"font-size:12px; padding:5px 0; border-bottom:1px dashed var(--border);\">\n              <strong>" + escaparHtml(_0x3d7c30.code || "(sin código)") + "</strong> · " + escaparHtml(_0x3d7c30.desc || "") + " · " + _0x3d7c30.requested + " uds\n              <div style=\"color:" + _0x550752 + ";\">" + _0x36151e + "</div>\n            </div>";
     }).join("") + "\n        </div>\n        <button class=\"btn primary\" id=\"applyOrderPlanBtn\">Confirmar y aplicar</button>\n        <button class=\"btn ghost-danger\" id=\"cancelOrderPlanBtn\">Cancelar</button>\n      </div>\n    " : "";
     _0x13ac6b.innerHTML = _0x5a7b39 + ("\n      <div class=\"panel\">\n        <p class=\"panel-title\">Resumen</p>\n        <div class=\"stat-row\"><span>Solicitud pendiente</span><span class=\"num\">" + (_0x3a7b10 ? _0x3a7b10.pendiente.items.reduce((_0x51442e, _0x376934) => _0x51442e + _0x376934.qty, 0) : 0) + " uds</span></div>\n        <div class=\"stat-row\"><span>Unidades servidas</span><span class=\"num\">" + _0xdc07e8 + "</span></div>\n        <div class=\"stat-row\"><span>Unidades devueltas</span><span class=\"num\">" + _0x57870e + "</span></div>\n        <div class=\"stat-row\"><span>Referencias en stock</span><span class=\"num\">" + estado.catalog.length + "</span></div>\n      </div>\n\n      <button class=\"cam-btn\" id=\"masOpcionesTrabajoLateralBtn\" style=\"width:100%;\">" + (_0x363017 ? "Ocultar herramientas de trabajo" : "Herramientas de trabajo") + "</button>\n\n      " + (_0x363017 ? "\n      <div class=\"panel\" style=\"margin-top:14px;\">\n        <p class=\"panel-title\">Exportar / Gestionar</p>\n        <button class=\"btn primary\" id=\"exportBtn\" " + (_0x3a7b10 ? "" : "disabled") + ">Exportar a Excel</button>\n        <button class=\"btn ghost-danger\" id=\"clearBtn\" " + (_0x3a7b10 ? "" : "disabled") + ">Vaciar esta lista</button>\n      </div>\n\n      <div class=\"panel\">\n        <p class=\"panel-title\">Crear " + (estado.mode === "montaje" ? "orden" : "líneas") + " desde archivo</p>\n        <label class=\"btn\" style=\"text-align:center; display:block; " + (_0x3a7b10 ? "" : "opacity:.5; pointer-events:none;") + "\">\n          Subir Excel / CSV / PDF\n          <input type=\"file\" id=\"orderFile\" accept=\".xlsx,.xls,.csv,.pdf\" style=\"display:none;\" " + (_0x3a7b10 ? "" : "disabled") + ">\n        </label>\n        <p style=\"font-size:11.5px; color:var(--text-faint); margin-top:6px;\">\n          Busca por código o referencia. El PDF es \"mejor esfuerzo\" — si falla, usa el Excel/CSV.\n        </p>\n      </div>\n\n      <div class=\"panel\">\n        <p class=\"panel-title\">Buscar en el stock</p>\n        <input type=\"text\" id=\"catalogSearch\" placeholder=\"Buscar por código o referencia…\" value=\"" + _0x1a8b0d + "\" style=\"width:100%; background:var(--bg-raised); border:1px solid var(--border); color:var(--text-primary); padding:9px 10px; border-radius:7px; font-size:13px;\">\n        <div id=\"catalogResults\" style=\"margin-top:8px; max-height:220px; overflow-y:auto;\"></div>\n      </div>\n\n      " + (estado.groups[estado.mode].length ? "\n      <div class=\"panel\">\n        <p class=\"panel-title\">Histórico general</p>\n        <div class=\"stat-row\"><span>" + (estado.mode === "montaje" ? "Órdenes creadas" : "Proyectos creados") + "</span><span class=\"num\">" + estado.groups[estado.mode].length + "</span></div>\n        <button class=\"btn\" id=\"exportAllBtn\">" + (estado.mode === "montaje" ? "Exportar todas las órdenes" : "Exportar todos los proyectos") + "</button>\n      </div>" : "") + "\n\n      " + (() => {
       const _0x5ce0ff = estado.deliveries.filter(_0xd487c3 => _0xd487c3.groupKind === estado.mode && _0xd487c3.groupName === estado.current[estado.mode]).slice(0, 8);
       if (!_0x5ce0ff.length) {
         return "";
       }
-      return "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Entregas firmadas (esta orden/proyecto)</p>\n          " + _0x5ce0ff.map(_0xe4bef7 => "\n            <div style=\"padding:8px 0; border-bottom:1px dashed var(--border); font-size:12px; display:flex; gap:8px; align-items:center;\">\n              <img src=\"" + _0xe4bef7.signature + "\" alt=\"firma\" style=\"width:52px; height:32px; object-fit:contain; background:#fff; border-radius:4px; border:1px solid var(--border);\">\n              <div style=\"flex:1;\">\n                <div>Pedido: " + _0x1d1ab0(_0xe4bef7.requesterName || "—") + " · Recogió: " + _0x1d1ab0(_0xe4bef7.recipientName || "—") + "</div>\n                <div style=\"color:var(--text-faint); font-size:11px;\">" + _0xe4bef7.ts + " · " + _0xe4bef7.items.length + " ref.</div>\n              </div>\n            </div>\n          ").join("") + "\n          <button class=\"btn\" id=\"exportDeliveriesBtn\" style=\"margin-top:8px;\">Exportar historial de entregas</button>\n        </div>";
+      return "\n        <div class=\"panel\">\n          <p class=\"panel-title\">Entregas firmadas (esta orden/proyecto)</p>\n          " + _0x5ce0ff.map(_0xe4bef7 => "\n            <div style=\"padding:8px 0; border-bottom:1px dashed var(--border); font-size:12px; display:flex; gap:8px; align-items:center;\">\n              <img src=\"" + _0xe4bef7.signature + "\" alt=\"firma\" style=\"width:52px; height:32px; object-fit:contain; background:#fff; border-radius:4px; border:1px solid var(--border);\">\n              <div style=\"flex:1;\">\n                <div>Pedido: " + escaparHtml(_0xe4bef7.requesterName || "—") + " · Recogió: " + escaparHtml(_0xe4bef7.recipientName || "—") + "</div>\n                <div style=\"color:var(--text-faint); font-size:11px;\">" + _0xe4bef7.ts + " · " + _0xe4bef7.items.length + " ref.</div>\n              </div>\n            </div>\n          ").join("") + "\n          <button class=\"btn\" id=\"exportDeliveriesBtn\" style=\"margin-top:8px;\">Exportar historial de entregas</button>\n        </div>";
     })() + "\n      " : "") + "\n    ");
     const _0x129374 = $("#masOpcionesTrabajoLateralBtn");
     if (_0x129374) {
@@ -11212,7 +11264,7 @@
     }
     const _0x32dcff = $("#catalogSearch");
     if (_0x32dcff) {
-      const _0x17fd94 = _0x5cfc5(() => _0x42ddc6(), 220);
+      const _0x17fd94 = conPausa(() => _0x42ddc6(), 220);
       _0x32dcff.addEventListener("input", _0x236369 => {
         _0x1a8b0d = _0x236369.target.value;
         _0x17fd94();
@@ -11239,7 +11291,7 @@
       _0x538deb.innerHTML = "<div style=\"color:var(--text-faint); font-size:12.5px;\">Sin coincidencias.</div>";
       return;
     }
-    _0x538deb.innerHTML = _0x53bac6.slice(0, 25).map(_0x51d27a => "\n      <div style=\"display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px dashed var(--border); font-size:12.5px;\">\n        <span class=\"row-code\" style=\"font-size:12px;\">" + _0x1d1ab0(_0x51d27a.code) + "</span>\n        <span style=\"color:var(--text-muted); text-align:right;\">" + _0x1d1ab0(_0x51d27a.desc) + " · Ubic: " + (_0x1d1ab0(_0x51d27a.location) || "sin ubicar") + " · <strong style=\"color:" + (_0x51d27a.qty > 0 ? "var(--success)" : "var(--danger)") + ";\">" + _0x51d27a.qty + "</strong></span>\n      </div>\n    ").join("") + (_0x53bac6.length > 25 ? "<div style=\"color:var(--text-faint); font-size:11.5px; padding-top:4px;\">+" + (_0x53bac6.length - 25) + " más…</div>" : "");
+    _0x538deb.innerHTML = _0x53bac6.slice(0, 25).map(_0x51d27a => "\n      <div style=\"display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px dashed var(--border); font-size:12.5px;\">\n        <span class=\"row-code\" style=\"font-size:12px;\">" + escaparHtml(_0x51d27a.code) + "</span>\n        <span style=\"color:var(--text-muted); text-align:right;\">" + escaparHtml(_0x51d27a.desc) + " · Ubic: " + (escaparHtml(_0x51d27a.location) || "sin ubicar") + " · <strong style=\"color:" + (_0x51d27a.qty > 0 ? "var(--success)" : "var(--danger)") + ";\">" + _0x51d27a.qty + "</strong></span>\n      </div>\n    ").join("") + (_0x53bac6.length > 25 ? "<div style=\"color:var(--text-faint); font-size:11.5px; padding-top:4px;\">+" + (_0x53bac6.length - 25) + " más…</div>" : "");
   }
 })();
 if ("serviceWorker" in navigator) {

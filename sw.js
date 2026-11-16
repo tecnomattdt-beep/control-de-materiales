@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tecnomat-materiales-v226';
+const CACHE_NAME = 'tecnomat-materiales-v227';
 const APP_SHELL = ['./', './index.html', './datos.js', './enlace.js', './app.js', './logo.jpg', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', event => {
@@ -21,7 +21,7 @@ self.addEventListener('message', event => {
   if(event.data === 'SKIP_WAITING') self.skipWaiting();
 });
 
-const ORIGENES_CACHE = ['https://www.gstatic.com', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com', 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
+const ORIGENES_CACHE = ['https://www.gstatic.com', 'https://cdn.jsdelivr.net', 'https://cdnjs.cloudflare.com', 'https://cdn.sheetjs.com', 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
 
 self.addEventListener('fetch', event => {
   if(event.request.method !== 'GET') return;
