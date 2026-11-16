@@ -1082,7 +1082,7 @@
     .clasif-seg button{min-height:42px;}
     #toggleMasOpcionesBtn{min-height:44px !important; padding:6px 14px !important; font-size:13px !important;}
     #app{position:relative;}
-    .tecnomat-logo-img{max-height:32px; width:auto;}
+    .tecnomat-logo-img{max-height:40px; width:auto;}
     h1{font-size:18px; margin:2px 0 8px;}
     .subtitle, .autosave-note{display:none;}
     #logoutArea{display:flex; flex-wrap:wrap; align-items:center; gap:6px; width:100%; margin-bottom:8px;}
@@ -1158,7 +1158,9 @@
 
   /* Cartel de sección: etiqueta blanca con el bloque de color de su nivel */
   .tecnomat-logo{margin-bottom:10px;}
-  .tecnomat-logo-img{height:34px; border-radius:var(--radio);}
+  .tecnomat-logo-img{height:40px; width:auto; aspect-ratio:185/76; border-radius:var(--radio);}
+  /* En claro, el amarillo del logo necesita su placa oscura para leerse */
+  html.tema-claro .tecnomat-logo-img, #app.tema-claro .tecnomat-logo-img{background:var(--tinta); padding:3px 6px; box-sizing:content-box;}
   #app > h1{
     display:inline-flex; align-items:stretch; gap:0; margin:0 0 12px; clip-path:none;
     background:var(--etiqueta); color:var(--tinta); border-radius:var(--radio); box-shadow:var(--sombra);
@@ -1289,6 +1291,7 @@
   .devuelto-row, .clasif-fila{border-bottom:1px solid var(--border); font-family:var(--letra);}
 
   .login-card{border-radius:0; border-top:4px solid var(--viga);}
+  .login-card .tecnomat-logo-img{height:64px; max-height:none; margin-bottom:14px;}
   #loginScreen h1{color:var(--text-primary); font-family:var(--letra-cartel);}
 
   #guiaTrabajo{border-left:1px solid var(--border); border-top:3px solid var(--zona); border-radius:var(--radio);}
@@ -1363,7 +1366,7 @@
 <div id="loginScreen" style="display:none;">
   <div class="login-card">
     <div class="tecnomat-logo">
-      <img src="logo.jpg" alt="Tecnomat" class="tecnomat-logo-img">
+      <img src="logo-transparente.png" alt="Tecnomat" class="tecnomat-logo-img" width="185" height="76">
     </div>
     <h1 style="font-size:22px;">Iniciar sesión</h1>
     <p class="subtitle" style="margin-bottom:16px;">Introduce tu usuario para acceder al stock.</p>
@@ -1380,7 +1383,7 @@
   <nav class="mode-bar" id="modeBar" aria-label="Secciones"></nav>
 
   <div class="tecnomat-logo">
-    <img src="logo.jpg" alt="Tecnomat" class="tecnomat-logo-img">
+    <img src="logo-transparente.png" alt="Tecnomat" class="tecnomat-logo-img" width="185" height="76">
     <details class="menu-cuenta">
       <summary><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menú</summary>
       <div id="logoutArea"></div>
