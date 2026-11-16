@@ -173,20 +173,11 @@
     width:100%;
     margin:0 auto;
     padding:24px 28px 18px 244px;
-    background:
-      linear-gradient(180deg, #191C20, #14161A),
-      repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 32px),
-      repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 32px);
+    background:var(--bg-base);
     border-radius:0;
     box-shadow:none;
     min-height:100vh;
     transition:box-shadow .3s, background .2s;
-  }
-  #app.tema-claro{
-    background:
-      linear-gradient(180deg, #F4F2EA, #EDEAE0),
-      repeating-linear-gradient(0deg, rgba(34,32,27,0.035) 0, rgba(34,32,27,0.035) 1px, transparent 1px, transparent 32px),
-      repeating-linear-gradient(90deg, rgba(34,32,27,0.035) 0, rgba(34,32,27,0.035) 1px, transparent 1px, transparent 32px);
   }
   .eyebrow{
     font-size:11px;
@@ -1124,7 +1115,7 @@
     --bg-base:#121A20; --bg-panel:#1A252E; --bg-raised:#22303B; --bg-raised-2:#2B3B47;
     --border:#344654; --text-primary:#F2F4F5; --text-muted:#AEB9C2; --text-faint:#97A3AD;
     --success:#2FBF71; --success-soft:rgba(47,191,113,.16);
-    --danger:#FF6B5E; --danger-soft:rgba(255,107,94,.16);
+    --danger:#FF7B70; --danger-soft:rgba(255,123,112,.14);
     --warning:#FFB020; --warning-soft:rgba(255,176,32,.16);
     --etiqueta:#F6F5F0; --tinta:#111417; --tinta-2:#3F4850; --viga:#F2701B; --cinta:#F2C230; --sobre-estado:#111417;
     --zona:#AEB9C2; --accent:#AEB9C2; --accent-dim:#6B7884; --accent-soft:rgba(174,185,194,.16); --lcd-green:var(--zona);
@@ -1191,7 +1182,7 @@
     background:var(--bg-panel); border:1px solid var(--border); border-radius:var(--radio);
     clip-path:none; box-shadow:var(--sombra);
   }
-  .ticket{border-top:4px solid var(--zona);}
+  .ticket{border-top:4px solid var(--zona); border-radius:0;}
   .project-bar{border-radius:var(--radio);}
   .ticket-header{background:var(--bg-raised); border-bottom:1px solid var(--border);}
   .ticket-body{padding:8px;}
@@ -1264,7 +1255,7 @@
   .clasif-seg button.on{background:var(--zona); border-color:var(--zona); color:var(--tinta);}
 
   /* Escáner: una etiqueta grande; al leer un código se ilumina en verde o rojo */
-  .scanner-panel{border-top:4px solid var(--zona);}
+  .scanner-panel{border-top:4px solid var(--zona); border-radius:0;}
   #scanInput{
     background:var(--etiqueta); color:var(--tinta); border:2px solid var(--tinta); border-radius:var(--radio); clip-path:none;
     font-family:var(--letra); font-weight:600; font-size:22px; letter-spacing:.02em; min-height:60px;
@@ -1288,7 +1279,7 @@
   /* Avisos: placa con franja de color superior, sin rayas */
   .alert-banner, #offlineBanner{
     background:var(--bg-panel); color:var(--text-primary); border:1px solid var(--border); border-top:5px solid var(--cinta);
-    border-radius:var(--radio); padding:12px 14px;
+    border-radius:0; padding:12px 14px;
   }
   #offlineBanner{color:var(--danger); border-top-color:var(--danger);}
   .status-banner{border-radius:var(--radio); font-size:14px; font-weight:600;}
@@ -1297,7 +1288,7 @@
   .chat-bubble.chat-bubble-accent{background:var(--zona); color:var(--tinta); border-radius:var(--radio);}
   .devuelto-row, .clasif-fila{border-bottom:1px solid var(--border); font-family:var(--letra);}
 
-  .login-card{border-radius:var(--radio); border-top:4px solid var(--viga);}
+  .login-card{border-radius:0; border-top:4px solid var(--viga);}
   #loginScreen h1{color:var(--text-primary); font-family:var(--letra-cartel);}
 
   #guiaTrabajo{border-left:1px solid var(--border); border-top:3px solid var(--zona); border-radius:var(--radio);}
