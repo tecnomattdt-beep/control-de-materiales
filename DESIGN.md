@@ -1,44 +1,45 @@
 # Design
 
-Mundo visual: **Señalética de nave**. Cada sección de la app es un pasillo señalizado de la nave: el operario sabe dónde está antes de leer nada. Conserva la esencia de la versión anterior (grafito oscuro, amarillo Tecnomat, letra condensada en mayúsculas) como sistema propio. El contrato de dirección está en `.impeccable/surfaces/index-html.md`.
+Mundo visual: **Etiqueta de estantería**. La nave en acero azul oscuro; cada material, una etiqueta blanca de estantería con su ubicación en grande, para leer de un vistazo dónde está y cuánto hay, con poca luz o al sol. Elegido el 2026-11-16 tras investigar apps de almacén (ubicación, material y cantidad en grande; respuesta inmediata al escanear; objetivos grandes para guantes). El contrato de dirección está en `.impeccable/surfaces/index-html.md`.
 
-## Tokens (`index.html`, bloque «Señalética de nave» al final del `<style>`)
+## Tokens (`index.html`, bloque «Etiqueta de estantería» del `<style>`)
 
 | Token | Oscuro (por defecto) | Claro (al sol) | Uso |
 |---|---|---|---|
-| `--bg-base` | `#121417` | `#E4E6E3` | Suelo de la página |
-| `--bg-panel` | `#1B1F23` | `#FFFFFF` | Placas: paneles y tickets |
-| `--bg-raised` / `--bg-raised-2` | `#242A30` / `#2E353C` | `#F1F2EF` / `#E3E5E1` | Campos, cabeceras de ticket |
-| `--border` | `#3A424A` | `#B9BEC2` | Bordes y filetes |
-| `--text-primary` / `--text-muted` / `--text-faint` | `#F2F4F5` / `#A9B1B9` / `#959EA7` | `#121417` / `#3F464D` / `#575E65` | Texto (todos ≥ 4,5:1) |
-| `--zona` | color de la sección | igual | Relleno de cartel, pestaña activa, acción principal, chat propio. Siempre con `--tinta` encima |
-| `--accent` | = `--zona` | versión oscura de la zona | Texto con el color de la sección |
-| `--tinta` | `#121417` | `#121417` | Texto sobre zona o cinta |
-| `--cinta` | `#FFC20E` | `#FFC20E` | Cinta de seguridad, solo en avisos |
+| `--bg-base` | `#121A20` | `#D5DBE0` | Suelo de la página (acero) |
+| `--bg-panel` | `#1A252E` | `#EEF1F3` | Placas: paneles y tickets |
+| `--bg-raised` / `--bg-raised-2` | `#22303B` / `#2B3B47` | `#E2E7EB` / `#D3DAE0` | Campos, cabeceras de ticket |
+| `--border` | `#344654` | `#9AA7B2` | Bordes |
+| `--text-primary` / `--text-muted` / `--text-faint` | `#F2F4F5` / `#AEB9C2` / `#97A3AD` | `#111417` / `#3F4850` / `#545E68` | Texto (todos ≥ 4,5:1) |
+| `--etiqueta` | `#F6F5F0` | `#FFFFFF` | Papel de las filas de material y del campo de escaneo |
+| `--tinta` / `--tinta-2` | `#111417` / `#3F4850` | igual | Texto sobre etiqueta; bloque de ubicación |
+| `--viga` | `#F2701B` | igual | Acción principal (botón relleno) y cursor |
+| `--zona` | color de nivel de la sección | igual | Pestaña activa, cartel, pestaña de la ubicación, foco. Siempre con `--tinta` encima |
+| `--accent` | versión legible de la zona | versión oscura | Texto con el color de la sección |
+| `--sobre-estado` | `#111417` | `#FFFFFF` | Texto sobre botones de estado (Entrada/Salida) |
 | `--success` / `--danger` / `--warning` | `#2FBF71` / `#FF6B5E` / `#FFB020` | `#1A6B3C` / `#B3261E` / `#8A5300` | Estados |
-| `--radio` | `3px` | | Esquinas de placas y controles |
+| `--radio` | `2px` | | Esquinas |
 
-Colores de zona: Resumen `#C9D1D8`, Montaje `#FF8A1F`, Proyecto `#3DA5FF`, Almacén `#FFC20E`, Pedido `#B98CFF`, Mantenimiento `#3CCB7F`, Trabajadores `#2EC4B6`. La clase `mode-<sección>` de `#app` los aplica.
+Colores de nivel: Resumen `#AEB9C2`, Montaje `#F2701B`, Proyecto `#4C8DF6`, Almacén `#F2C230`, Reponer `#B48CFF`, Mantenimiento `#3CCB7F`, Trabajadores `#2EC4B6`. Los aplica la clase `mode-<sección>` de `#app`.
 
 ## Tipografía
 
-- `--letra-cartel`: **Saira Condensed** 600/700/800, en mayúsculas, para carteles, pestañas, botones y títulos de panel.
-- `--letra`: **Saira** 400–700 para el texto y los datos. Cifras tabulares en toda la app.
+- `--letra-cartel`: **Barlow Condensed** 600–800, en mayúsculas, para carteles, pestañas, botones, ubicaciones y cantidades.
+- `--letra`: **Barlow** 400–700 para el texto. Cifras tabulares en toda la app.
 
 ## Componentes
 
-- **Cartel de pasillo** (`#app > h1`): bloque de tinta con el icono de la sección y el nombre sobre `--zona`, con la esquina superior derecha cortada como una chapa. Lo rellena `app.js` al pintar el menú.
-- **Menú**: carril lateral oscuro en ordenador y carril de suelo abajo en móvil. La pestaña activa se rellena de `--zona`.
-- **Placas** (`.panel`, `.ticket`): fondo de panel, borde de 1 px y sombra suave. El ticket lleva una franja superior de 4 px del color de la zona; nunca una franja lateral gruesa.
-- **Botones**: letra de cartel en mayúsculas. El principal se rellena de `--zona` y lleva la esquina cortada; el resto, borde de 1,5 px.
-- **Campo de escaneo** (`#scanInput`): el más grande de la app, con borde de 2 px de la zona y anillo de foco.
-- **Estados**: placas sólidas (entrada y devuelto en verde, salida en rojo) con texto de tinta.
-- **Avisos** (`.alert-banner`, `#offlineBanner`): única pieza con la cinta amarilla y negra (7 px arriba).
-- **Casillas**: 24 px. **Foco**: contorno de 2 px de la zona.
+- **Etiqueta de material** (`.stock-row`, `.ticket-row`): papel `--etiqueta` con tinta negra. Las variables de texto se redefinen dentro, así los estilos en línea de `app.js` se leen bien. Empieza por el **bloque de ubicación** (`.etq-ub`, de `etiquetaUbicacion()` en `app.js`): fondo de tinta, código en Barlow Condensed 800 a 22–26 px y pestaña de 6 px del color de nivel. Sin ubicación: «Sin ubicar» en pequeño.
+- **Cantidad** (`.stock-qty`): cifra grande con una barra de 4 px que mide el stock frente al doble de su mínimo (`--nivel`, de `nivelStock()`); en rojo si está en el mínimo o por debajo.
+- **Cartel de sección** (`#app > h1`): etiqueta blanca con el bloque de color de nivel y su icono.
+- **Barra de secciones**: negra; la activa se rellena con su color de nivel.
+- **Escáner** (`#scanInput`): etiqueta blanca grande con borde de tinta; foco en naranja de viga. Al leer un código el panel se ilumina en verde (bien) o rojo (error) y el móvil vibra (`destelloEscaner()`).
+- **Botones**: letra de cartel en mayúsculas; el principal en naranja de viga; Entrada/Salida de almacén en verde/rojo con `--sobre-estado`.
+- **Avisos**: placa con franja superior de 5 px (amarilla, o roja sin conexión). Sin rayas.
 
 ## Reglas
 
-1. El color de la zona orienta; no decora. Los estados usan sus propios colores.
-2. La cinta de seguridad es solo para avisos.
-3. Nada de franjas laterales gruesas ni esquinas redondeadas con franja: las franjas van arriba.
+1. Los datos van en etiquetas blancas; el acero es solo el fondo.
+2. El color de nivel orienta; los estados usan sus propios colores y siempre llevan texto.
+3. Ubicación y cantidad mandan: nunca más pequeñas que el nombre del material.
 4. Cambiar de aspecto toca este bloque de tokens, no las plantillas de `app.js`.
