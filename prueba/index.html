@@ -1335,10 +1335,10 @@
   @media (max-width:760px){
     .act-fila{grid-template-columns:auto 1fr;}
     .act-cuando{grid-column:2; margin-top:-2px;}
-    .pedir-acciones{flex-wrap:wrap;}
-    .pedir-reserva{flex:1 1 140px;}
-    .pedir-acciones .btn.primary{flex:1 1 160px;}
+    .pedir-reserva{padding:6px 10px;}
   }
+  /* La actividad se desplaza con la página, sin caja con scroll propio */
+  .actividad-ticket .ticket-body{max-height:none; overflow:visible;}
   /* ── Mejoras de uso ── */
   /* Estado de cada línea del pedido: placa con texto, nunca solo color */
   .estado-linea{display:inline-block; font-family:var(--letra-cartel); font-weight:700; font-size:12px; letter-spacing:.05em; text-transform:uppercase; padding:2px 7px; border-radius:2px; vertical-align:1px; white-space:nowrap; background:var(--bg-raised-2); color:var(--text-primary);}
