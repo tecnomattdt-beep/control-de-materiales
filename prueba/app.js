@@ -9499,7 +9499,6 @@
     } catch (_0xe) {}
   }
   function render() {
-    document.body.dataset.modo = estado.mode; // el CSS reordena cada pantalla según la sección
     const __uiEstado = __capturarEstadoUI();
     const __ctxNuevo = __clasifContexto();
     if (__uiEstado && __ctxNuevo !== __clasifCtxUltimo) {
@@ -9535,7 +9534,8 @@
       if (estado.mode === "almacen") {
         _0x169a42.parentNode.insertBefore(_0x4c5daa, _0x169a42);
       } else {
-        _0x169a42.parentNode.insertBefore(_0x4c5daa, _0x169a42.nextSibling);
+        // dentro de .cols: así el CSS del móvil puede subirlo justo debajo del selector de orden (Trabajo)
+        _0x169a42.appendChild(_0x4c5daa);
       }
     }
     _0x323e0f();

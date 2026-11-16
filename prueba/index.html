@@ -952,12 +952,12 @@
     .cols{flex-direction:column;}
     .col-main, .col-side{width:100%; min-width:0;}
     /* Trabajo: el escáner justo debajo del selector de orden; el resumen y las herramientas, después */
-    body:is([data-modo="montaje"],[data-modo="proyecto"]) .cols{align-items:stretch;}
-    body:is([data-modo="montaje"],[data-modo="proyecto"]) .cols > #mainList{display:contents;}
-    body:is([data-modo="montaje"],[data-modo="proyecto"]) #mainList > .project-bar ~ *{order:3;}
-    body:is([data-modo="montaje"],[data-modo="proyecto"]) .cols > #escanerBarra,
-    body:is([data-modo="montaje"],[data-modo="proyecto"]) .cols > #scannerZone{order:2;}
-    body:is([data-modo="montaje"],[data-modo="proyecto"]) .cols > #sidePanel{order:4;}
+    #app:is(.mode-montaje,.mode-proyecto) .cols{align-items:stretch;}
+    #app:is(.mode-montaje,.mode-proyecto) .cols > #mainList{display:contents;}
+    #app:is(.mode-montaje,.mode-proyecto) #mainList > .project-bar ~ *{order:3;}
+    #app:is(.mode-montaje,.mode-proyecto) .cols > #escanerBarra,
+    #app:is(.mode-montaje,.mode-proyecto) .cols > #scannerZone{order:2;}
+    #app:is(.mode-montaje,.mode-proyecto) .cols > #sidePanel{order:4;}
     /* 16px en todos los campos, también los que traen letra pequeña en línea: con menos, el iPhone amplía solo al tocarlos */
     input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea{font-size:16px !important;}
     /* Lista de stock: se desplaza con la página; una caja con scroll propio atrapa el pulgar */
