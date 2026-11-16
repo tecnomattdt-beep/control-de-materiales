@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tecnomat-materiales-v234';
+const CACHE_NAME = 'tecnomat-materiales-v235';
 const APP_SHELL = ['./', './index.html', './datos.js', './enlace.js', './app.js', './logo-transparente.png', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', event => {

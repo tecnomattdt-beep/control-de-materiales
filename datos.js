@@ -64,5 +64,25 @@
     }
   }
 
-  raiz.TecnomatDatos = { fusionarPorId, fusionarCatalogo, fusionarLista, estadoLinea, textoBarras, vaciarCola };
+  // Tipo de cada mensaje de la Actividad de una orden, por cómo empieza su texto (los escribe la propia app).
+  const TIPOS_ACTIVIDAD = [
+    [/^Recogida confirmada y firmada /, "firma", "Firmado", ""],
+    [/^Documento escaneado revisado \(proveedor ([^)]*)\):\s*/, "doc", "Albarán", "$1: "],
+    [/^Hoja de pedido guardada y avisada a almacén\s*/, "envio", "Enviado", "Hoja enviada a almacén "],
+    [/^Pedido el material faltante:?\s*/, "falta", "Faltante", ""],
+    [/^Asociado a /, "ref", "Referencia", ""],
+    [/^Escaneado:?\s*/, "pedido", "Escaneado", ""],
+    [/^(Pedido|Pequeño material|Lista de texto|Añadido desde la lista rápida|Taller \(app externa\) ·|Recibida desde otra app):?\s*/, "pedido", "Pedido", ""],
+    [/^(Quitado del pedido|Pedido vaciado):?\s*/, "cambio", "Quitado", ""]
+  ];
+  function tipoActividad(texto) {
+    const t = String(texto || "");
+    for (const [re, clase, etiqueta, cambio] of TIPOS_ACTIVIDAD) {
+      if (re.test(t)) {
+        return { clase, etiqueta, texto: t.replace(re, cambio).trim() || t };
+      }
+    }
+    return { clase: "nota", etiqueta: "Nota", texto: t };
+  }
+  raiz.TecnomatDatos = { fusionarPorId, fusionarCatalogo, fusionarLista, estadoLinea, textoBarras, vaciarCola, tipoActividad };
 })(globalThis);

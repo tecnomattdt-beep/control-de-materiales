@@ -5,7 +5,7 @@ import vm from 'node:vm';
 
 const ctx = vm.createContext({});
 vm.runInContext(readFileSync(new URL('../datos.js', import.meta.url), 'utf8'), ctx);
-const { fusionarPorId, fusionarCatalogo, fusionarLista, estadoLinea, textoBarras, vaciarCola } = ctx.TecnomatDatos;
+const { fusionarPorId, fusionarCatalogo, fusionarLista, estadoLinea, textoBarras, vaciarCola, tipoActividad } = ctx.TecnomatDatos;
 const plano = x => JSON.parse(JSON.stringify(x));
 const ids = l => plano(l).map(x => x.id);
 
@@ -105,6 +105,17 @@ test('stock sin conexión: un escaneo hecho mientras se envía también sale', a
   const enviar = async x => { await c.enviar(x); if (x.id === 'a') c.escribir([...c.leer(), { id: 'nuevo' }]); };
   await vaciarCola(c.leer, c.escribir, enviar);
   assert.deepEqual(c.recibidos, ['a', 'nuevo']);
+});
+
+test('actividad: cada mensaje de la app sale con su tipo y sin repetir la palabra de la etiqueta', () => {
+  const t = x => { const r = tipoActividad(x); return [r.clase, r.etiqueta, r.texto]; };
+  assert.deepEqual(t('Pedido: test · 1 uds (sin referencia todavía)'), ['pedido', 'Pedido', 'test · 1 uds (sin referencia todavía)']);
+  assert.deepEqual(t('Recogida confirmada y firmada por jonathan (3 línea(s))'), ['firma', 'Firmado', 'por jonathan (3 línea(s))']);
+  assert.deepEqual(t('Documento escaneado revisado (proveedor INOXPA): 0 servida(s), 4 marcada(s) como material faltante'), ['doc', 'Albarán', 'INOXPA: 0 servida(s), 4 marcada(s) como material faltante']);
+  assert.deepEqual(t('Asociado a 53195 — 3044160 BORNA'), ['ref', 'Referencia', '53195 — 3044160 BORNA']);
+  assert.equal(t('Pequeño material: Test ×1 (pide: test)')[0], 'pedido');
+  assert.equal(t('Algo que no conoce')[1], 'Nota');
+  assert.equal(t('')[1], 'Nota');
 });
 
 test('estado de cada línea de la hoja de pedido, en el orden que la vive el taller', () => {

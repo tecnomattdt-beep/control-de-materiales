@@ -1653,15 +1653,58 @@
       _0x478121.scrollTop = _0x478121.scrollHeight;
     }
   }
+  // Actividad (antes «chat»): cada mensaje lo escribe la app al pedir, escanear, firmar… Se muestra como líneas
+  // compactas con una etiqueta por tipo, agrupadas por día y lo más reciente arriba.
+  const tipoActividad = TecnomatDatos.tipoActividad;
+  const MESES_CORTOS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  function momentoActividad(m) {
+    let f = m.tsMs ? new Date(m.tsMs) : null;
+    if (!f) {
+      const p = String(m.ts || "").match(/(\d{1,2})\/(\d{1,2})\/(\d{4}),?\s*(\d{1,2}):(\d{2})/);
+      f = p ? new Date(+p[3], p[2] - 1, +p[1], +p[4], +p[5]) : null;
+    }
+    if (!f || isNaN(f)) {
+      return { dia: "Sin fecha", hora: "" };
+    }
+    const hoy = new Date();
+    const ayer = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() - 1);
+    const mismoDia = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+    const dia = mismoDia(f, hoy) ? "Hoy" : mismoDia(f, ayer) ? "Ayer" : f.getDate() + " " + MESES_CORTOS[f.getMonth()] + (f.getFullYear() === hoy.getFullYear() ? "" : " " + f.getFullYear());
+    return { dia, hora: f.getHours() + ":" + String(f.getMinutes()).padStart(2, "0") };
+  }
+  const quienActividad = u => {
+    const n = String(u || "").split("@")[0].toLowerCase();
+    return n === "almacen" ? "almacén" : n;
+  };
+  const ACTIVIDAD_VISIBLE = 7;
+  const actividadCompleta = new Set(); // historiales que el usuario ha desplegado («Ver los N anteriores»)
+  document.addEventListener("click", e => {
+    const b = e.target.closest && e.target.closest("[data-ver-actividad]");
+    if (b) {
+      actividadCompleta.add(b.dataset.verActividad);
+      render();
+    }
+  });
   function _0x17a460(_0x362fa9, _0x27790c) {
     _0x27790c = _0x27790c || {};
     if (!_0x362fa9.length) {
-      return "<div class=\"empty-state\">Todavía no hay nada — escanea o escribe algo para empezar.</div>";
+      return "<div class=\"empty-state\">Todavía no hay movimientos. Lo que pidas, escanees o firmes aparecerá aquí.</div>";
     }
-    return "<div class=\"chat-feed\">" + _0x362fa9.map(_0x3e7680 => {
+    const clave = _0x27790c.clave || "general";
+    const todos = _0x362fa9.slice().reverse();
+    const visibles = actividadCompleta.has(clave) ? todos : todos.slice(0, ACTIVIDAD_VISIBLE);
+    let diaAnterior = null;
+    const filas = visibles.map(_0x3e7680 => {
       const _0xd08edb = _0x27790c.target && _0x3e7680.pendienteId && _0x27790c.target.pendiente.items.find(_0x41faa6 => _0x41faa6.id === _0x3e7680.pendienteId && _0x41faa6.textoLibre);
-      return "\n      <div class=\"chat-bubble " + (/guardad|confirmad|enviad|vaciad|Asociado/i.test(_0x3e7680.texto) ? "chat-bubble-accent" : "") + "\">\n        " + escaparHtml(_0x3e7680.texto) + "\n        <div class=\"chat-bubble-meta\">" + _0x3e7680.ts + (_0x3e7680.usuario ? " · " + escaparHtml(_0x3e7680.usuario) : "") + "</div>\n        " + (_0xd08edb && _0x27790c.puedeAsociar ? "<button class=\"cam-btn\" data-asociar-chat=\"" + _0x3e7680.pendienteId + "\" style=\"margin-top:6px; padding:6px 10px; font-size:11px; min-height:auto;\">Asociar</button>" : "") + "\n      </div>\n    ";
-    }).join("") + "</div>";
+      const tipo = tipoActividad(_0x3e7680.texto);
+      const cuando = momentoActividad(_0x3e7680);
+      const cabecera = cuando.dia !== diaAnterior ? "<li class=\"act-dia\" aria-hidden=\"true\">" + cuando.dia + "</li>" : "";
+      diaAnterior = cuando.dia;
+      const importante = tipo.clase === "firma" || tipo.clase === "doc" || tipo.clase === "envio" || tipo.clase === "falta";
+      return cabecera + "<li class=\"act-fila" + (importante ? " importante" : "") + "\"><span class=\"act-tipo act-" + tipo.clase + "\">" + tipo.etiqueta + "</span><span class=\"act-texto\">" + escaparHtml(tipo.texto) + (_0xd08edb && _0x27790c.puedeAsociar ? " <button class=\"cam-btn act-asociar\" data-asociar-chat=\"" + _0x3e7680.pendienteId + "\">Asignar referencia</button>" : "") + "</span><span class=\"act-cuando\"><span class=\"sr-solo\">" + cuando.dia + ", </span>" + cuando.hora + (_0x3e7680.usuario ? " · " + escaparHtml(quienActividad(_0x3e7680.usuario)) : "") + "</span></li>";
+    }).join("");
+    const ocultos = todos.length - visibles.length;
+    return "<ul class=\"chat-feed actividad\" role=\"log\" aria-label=\"Actividad\">" + filas + "</ul>" + (ocultos ? "<button type=\"button\" class=\"cam-btn act-mas\" data-ver-actividad=\"" + escaparHtml(clave) + "\">Ver los " + ocultos + " anteriores</button>" : "");
   }
   function _0x529094() {
     // Cada entrega lleva la firma como imagen (hasta ~30 KB): con más de 30 el documento se acerca al límite de 1 MB de Firestore
@@ -10724,8 +10767,8 @@
     }
     const _0x3a71dc = $("#mainList");
     const _0x1538e9 = estado.pedidoItems.map(_0x49a1a4 => "\n      <div class=\"ticket-row\" data-id=\"" + _0x49a1a4.id + "\">" + etiquetaUbicacion(_0x49a1a4) + "\n        <div class=\"row-main\">\n          <div class=\"row-code\">" + escaparHtml(_0x49a1a4.code) + "</div>\n          <div class=\"row-desc\">" + escaparHtml(_0x49a1a4.desc) + "</div>\n        </div>\n        <div class=\"row-qty\">x" + _0x49a1a4.qty + "</div>\n        <button class=\"btn-return\" data-pedido-del=\"" + _0x49a1a4.id + "\">Quitar</button>\n      </div>\n    ").join("");
-    const _0x5976cf = "\n      <div class=\"scanner-row\" style=\"margin-bottom:10px; flex-wrap:wrap;\">\n        <button class=\"mode-btn\" data-pedido-view=\"chat\" style=\"flex:none; padding:8px 16px; " + (_0x4a2938 === "chat" ? "background:var(--accent); color:#2A0800;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Chat</button>\n        <button class=\"mode-btn\" data-pedido-view=\"lista\" style=\"flex:none; padding:8px 16px; " + (_0x4a2938 === "lista" ? "background:var(--accent); color:#2A0800;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Lista (" + estado.pedidoItems.length + ")</button>\n      </div>\n    ";
-    const _0x3e2599 = _0x4a2938 === "chat" ? "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Chat</span></div>\n        <div class=\"ticket-body\">" + _0x17a460(estado.pedidoChat) + "</div>\n        <div style=\"display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border);\">\n          <input type=\"text\" id=\"chatMensajeInput\" placeholder=\"Describe qué hace falta pedir…\" style=\"flex:2; min-width:0;\">\n          <input type=\"number\" id=\"chatCantidadInput\" placeholder=\"Uds\" min=\"1\" value=\"1\" style=\"flex:none; width:64px;\">\n          <button class=\"btn primary\" id=\"chatEnviarBtn\" style=\"width:auto; flex:none;\">" + _0x56ae2b("enviar") + "Enviar</button>\n        </div>\n      </div>\n    " : "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\">Pedido de materiales</span>\n          <span class=\"ticket-title\">" + estado.pedidoItems.length + " referencias</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + (_0x1538e9 || "<div class=\"empty-state\">Todavía no has añadido nada al pedido. Escanea o busca un material del stock para empezar.</div>") + "\n        </div>\n      </div>\n    ";
+    const _0x5976cf = "\n      <div class=\"scanner-row\" style=\"margin-bottom:10px; flex-wrap:wrap;\">\n        <button class=\"mode-btn\" data-pedido-view=\"chat\" style=\"flex:none; padding:8px 16px; " + (_0x4a2938 === "chat" ? "background:var(--accent); color:#2A0800;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Pedir</button>\n        <button class=\"mode-btn\" data-pedido-view=\"lista\" style=\"flex:none; padding:8px 16px; " + (_0x4a2938 === "lista" ? "background:var(--accent); color:#2A0800;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Lista (" + estado.pedidoItems.length + ")</button>\n      </div>\n    ";
+    const _0x3e2599 = _0x4a2938 === "chat" ? "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Pedir y actividad</span></div>\n        <div class=\"ticket-body\">" + _0x17a460(estado.pedidoChat, { clave: "reponer" }) + "</div>\n        <div style=\"display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border);\">\n          <input type=\"text\" id=\"chatMensajeInput\" placeholder=\"Describe qué hace falta pedir…\" style=\"flex:2; min-width:0;\">\n          <input type=\"number\" id=\"chatCantidadInput\" placeholder=\"Uds\" min=\"1\" value=\"1\" style=\"flex:none; width:64px;\">\n          <button class=\"btn primary\" id=\"chatEnviarBtn\" style=\"width:auto; flex:none;\">" + _0x56ae2b("enviar") + "Enviar</button>\n        </div>\n      </div>\n    " : "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\">Pedido de materiales</span>\n          <span class=\"ticket-title\">" + estado.pedidoItems.length + " referencias</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + (_0x1538e9 || "<div class=\"empty-state\">Todavía no has añadido nada al pedido. Escanea o busca un material del stock para empezar.</div>") + "\n        </div>\n      </div>\n    ";
     _0x3a71dc.innerHTML = _0x5976cf + _0x3e2599;
     _0x10279f(_0x3a71dc);
     _0x3a71dc.querySelectorAll("[data-pedido-view]").forEach(_0x363990 => {
@@ -10783,13 +10826,15 @@
       __cuentaEstados.set("recogido", { texto: "Recogido", n: _0x4368d0.servido.length });
     }
     const __franjaEstado = __cuentaEstados.size ? "<div class=\"franja-estado\" role=\"status\"><b>Estado del pedido</b>" + [...__cuentaEstados].map(([__k, __v]) => "<span class=\"estado-linea\" data-estado=\"" + __k + "\">" + __v.n + " · " + __v.texto + "</span>").join("") + "</div>" : "";
-    const _0x2616e9 = __franjaEstado + "\n      <div class=\"chat-tabs-row\" style=\"margin-bottom:10px;\">\n        <button class=\"mode-btn\" data-view=\"chat\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "chat" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Chat</button>\n        <button class=\"mode-btn\" data-view=\"hoja\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "hoja" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Hoja de pedido</button>\n        " + (_0xe5dca9 ? "" : "\n        <button class=\"mode-btn\" data-view=\"servido\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "servido" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Servido (" + _0x4368d0.servido.length + ")</button>\n        <button class=\"mode-btn\" data-view=\"devuelto\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "devuelto" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Devuelto (" + _0x4368d0.devuelto.length + ")</button>\n        ") + "\n      </div>\n    ";
+    const _0x2616e9 = __franjaEstado + "\n      <div class=\"chat-tabs-row\" role=\"tablist\" aria-label=\"Vistas de la orden\" style=\"margin-bottom:10px;\">\n        <button class=\"mode-btn\" data-view=\"chat\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "chat" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\" role=\"tab\" aria-selected=\"" + (_0x5592da === "chat") + "\">Pedir</button>\n        <button class=\"mode-btn\" data-view=\"hoja\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "hoja" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\" role=\"tab\" aria-selected=\"" + (_0x5592da === "hoja") + "\">Hoja de pedido" + (_0x4368d0.pendiente.items.length ? " (" + _0x4368d0.pendiente.items.length + ")" : "") + "</button>\n        " + (_0xe5dca9 ? "" : "\n        <button class=\"mode-btn\" data-view=\"servido\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "servido" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Servido (" + _0x4368d0.servido.length + ")</button>\n        <button class=\"mode-btn\" data-view=\"devuelto\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "devuelto" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Devuelto (" + _0x4368d0.devuelto.length + ")</button>\n        ") + "\n      </div>\n    ";
     let _0x4895bf;
     if (_0x5592da === "chat") {
-      _0x4895bf = "\n        <div class=\"ticket\">\n          <div class=\"ticket-header\">\n            <span class=\"ticket-title\">Chat</span>\n          </div>\n          <div class=\"ticket-body\">" + _0x17a460(_0x4368d0.chat, {
+      const __sinRef = _0x4368d0.pendiente.items.filter(__l => __l.textoLibre).length;
+      _0x4895bf = (__sinRef ? "<div class=\"aviso-sinref\" role=\"status\"><b>" + __sinRef + "</b><p>" + (__sinRef === 1 ? "línea sin referencia" : "líneas sin referencia") + (_0xe5dca9 ? ": almacén tiene que asignarla" + (__sinRef === 1 ? "" : "s") : ": asígnala" + (__sinRef === 1 ? "" : "s") + " con «Asignar referencia» en la Actividad") + "</p><button type=\"button\" class=\"cam-btn\" data-view=\"hoja\">Ver hoja</button></div>" : "") + "<div class=\"ticket pedir\"><div class=\"ticket-header\"><span class=\"ticket-title\">¿Qué necesitas?</span><span class=\"ticket-title pedir-orden\">" + escaparHtml(estado.current[estado.mode] || "") + "</span></div>" + "<div class=\"pedir-cuerpo\"><label for=\"chatMensajeInput\" class=\"sr-solo\">Qué hace falta</label><textarea id=\"chatMensajeInput\" rows=\"3\" placeholder=\"Un material por línea. Ej.: borna paso UT-10 x 20\"></textarea>" + "<div class=\"pedir-acciones\"><button type=\"button\" id=\"chatReservaToggleBtn\" class=\"cam-btn pedir-reserva\" aria-pressed=\"false\">Reservar<small>Apartar, no entregar aún</small></button><button class=\"btn primary\" id=\"chatEnviarBtn\">" + _0x56ae2b("enviar") + "Enviar a almacén</button></div></div>" + (estado.materialesRapidos.length ? "\n          <div style=\"padding:10px 14px; border-top:1px solid var(--border);\">\n            <p style=\"font-size:11px; font-weight:700; color:var(--text-faint); text-transform:uppercase; letter-spacing:.03em; margin:0 0 8px 2px;\">Lista rápida</p>\n            <div style=\"display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto;\">\n              " + estado.materialesRapidos.map(_0x2fccc7 => "\n                <label style=\"display:flex; align-items:center; gap:8px; font-size:12.5px;\">\n                  <input type=\"checkbox\" class=\"rapido-check\" aria-label=\"Añadir este material\" data-rapido-id=\"" + _0x2fccc7.id + "\" style=\"width:16px; height:16px; flex:none;\">\n                  <span style=\"flex:1;\">" + escaparHtml(_0x2fccc7.nombre) + "</span>\n                  <input type=\"number\" class=\"rapido-qty\" aria-label=\"Cantidad\" data-rapido-qty=\"" + _0x2fccc7.id + "\" value=\"1\" min=\"1\" style=\"width:52px; flex:none;\">\n                </label>\n              ").join("") + "\n            </div>\n            <button class=\"cam-btn\" id=\"anadirRapidosBtn\" style=\"width:100%; margin-top:8px;\">Añadir seleccionados</button>\n          </div>\n          " : "") + "</div><div class=\"ticket actividad-ticket\"><div class=\"ticket-header\"><span class=\"ticket-title\">Actividad</span><span class=\"ticket-title pedir-orden\">" + _0x4368d0.chat.length + " movimientos</span></div><div class=\"ticket-body\">" + _0x17a460(_0x4368d0.chat, {
         target: _0x4368d0,
-        puedeAsociar: !_0xe5dca9
-      }) + "</div>\n          " + (estado.materialesRapidos.length ? "\n          <div style=\"padding:10px 14px; border-top:1px solid var(--border);\">\n            <p style=\"font-size:11px; font-weight:700; color:var(--text-faint); text-transform:uppercase; letter-spacing:.03em; margin:0 0 8px 2px;\">Lista rápida</p>\n            <div style=\"display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto;\">\n              " + estado.materialesRapidos.map(_0x2fccc7 => "\n                <label style=\"display:flex; align-items:center; gap:8px; font-size:12.5px;\">\n                  <input type=\"checkbox\" class=\"rapido-check\" aria-label=\"Añadir este material\" data-rapido-id=\"" + _0x2fccc7.id + "\" style=\"width:16px; height:16px; flex:none;\">\n                  <span style=\"flex:1;\">" + escaparHtml(_0x2fccc7.nombre) + "</span>\n                  <input type=\"number\" class=\"rapido-qty\" aria-label=\"Cantidad\" data-rapido-qty=\"" + _0x2fccc7.id + "\" value=\"1\" min=\"1\" style=\"width:52px; flex:none;\">\n                </label>\n              ").join("") + "\n            </div>\n            <button class=\"cam-btn\" id=\"anadirRapidosBtn\" style=\"width:100%; margin-top:8px;\">Añadir seleccionados</button>\n          </div>\n          " : "") + "\n          <div style=\"display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border);\">\n            <textarea id=\"chatMensajeInput\" rows=\"2\" placeholder=\"Escribe qué hace falta: un artículo por línea o separados por comas…\" style=\"flex:2; min-width:0;\"></textarea>\n            <button type=\"button\" id=\"chatReservaToggleBtn\" class=\"cam-btn\" style=\"flex:none; padding:8px 12px; font-size:12px;\">Reserva</button>\n            <button class=\"btn primary\" id=\"chatEnviarBtn\" style=\"width:auto; flex:none;\">" + _0x56ae2b("enviar") + "Enviar</button>\n          </div>\n        </div>\n      ";
+        puedeAsociar: !_0xe5dca9,
+        clave: estado.mode + "::" + (estado.current[estado.mode] || "")
+      }) + "</div></div>";
     } else if (_0x5592da === "hoja") {
       const _0x2b90c7 = estado.current[estado.mode] || "";
       const _0x4b4727 = _0x4368d0.pendiente.items.map(_0x358905 => ({
@@ -10932,17 +10977,10 @@
     }
     const __btnReservaChat = $("#chatReservaToggleBtn");
     if (__btnReservaChat) {
-      if (_0x1b4d13.reservaActiva) {
-        __btnReservaChat.style.background = "var(--accent)";
-        __btnReservaChat.style.color = "#2A0800";
-        __btnReservaChat.style.borderColor = "var(--accent)";
-        __btnReservaChat.textContent = "✓ Reserva";
-      } else {
-        __btnReservaChat.style.background = "";
-        __btnReservaChat.style.color = "";
-        __btnReservaChat.style.borderColor = "";
-        __btnReservaChat.textContent = "Reserva";
-      }
+      // El aspecto activo lo pone el CSS con aria-pressed; el texto explica qué pasará al enviar
+      const __reservaOn = !!_0x1b4d13.reservaActiva;
+      __btnReservaChat.setAttribute("aria-pressed", String(__reservaOn));
+      __btnReservaChat.innerHTML = (__reservaOn ? "✓ Reservado" : "Reservar") + "<small>" + (__reservaOn ? "Se aparta, no se entrega aún" : "Apartar, no entregar aún") + "</small>";
       __btnReservaChat.addEventListener("click", () => {
         _0x1b4d13.reservaActiva = !_0x1b4d13.reservaActiva;
         _0x8db8ba();
