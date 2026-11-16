@@ -35,7 +35,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&family=Michroma&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Control de Materiales</title>
@@ -1363,27 +1363,10 @@
 </style>
 </head>
 <body>
-<!-- Logo de Tecnomat recreado en vector (a partir de logo.jpg): se usa con <use href="#logoTecnomat"> -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-  <defs>
-    <linearGradient id="logoOro" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#E9D600"/><stop offset=".42" stop-color="#FFF35A"/><stop offset=".52" stop-color="#FFFBC2"/><stop offset=".66" stop-color="#F6E500"/><stop offset="1" stop-color="#BFAA00"/>
-    </linearGradient>
-    <clipPath id="logoDisco"><circle cx="36" cy="36" r="34"/></clipPath>
-  </defs>
-  <symbol id="logoTecnomat" viewBox="0 0 185 76">
-    <g clip-path="url(#logoDisco)">
-      <g fill="#8F7E00" transform="translate(1.2 1.2)"><path d="M0 0H72V43H47V29H0Z"/><path d="M0 33H29V38H45V78H0Z"/></g>
-      <g fill="url(#logoOro)"><path d="M0 0H72V43H47V29H0Z"/><path d="M0 33H29V38H45V78H0Z"/></g>
-    </g>
-    <text x="49" y="63" fill="#F6E500" font-family="Michroma, sans-serif" font-size="19" textLength="131" lengthAdjust="spacingAndGlyphs" stroke="#F6E500" stroke-width="1.8" stroke-linejoin="round">TECNOMAT</text>
-    <rect x="51" y="67" width="129" height="3" fill="#F6E500"/>
-  </symbol>
-</svg>
 <div id="loginScreen" style="display:none;">
   <div class="login-card">
     <div class="tecnomat-logo">
-      <svg class="tecnomat-logo-img" viewBox="0 0 185 76" role="img" aria-label="Tecnomat"><use href="#logoTecnomat"/></svg>
+      <img src="logo-transparente.png" alt="Tecnomat" class="tecnomat-logo-img" width="185" height="76">
     </div>
     <h1 style="font-size:22px;">Iniciar sesión</h1>
     <p class="subtitle" style="margin-bottom:16px;">Introduce tu usuario para acceder al stock.</p>
@@ -1400,7 +1383,7 @@
   <nav class="mode-bar" id="modeBar" aria-label="Secciones"></nav>
 
   <div class="tecnomat-logo">
-    <svg class="tecnomat-logo-img" viewBox="0 0 185 76" role="img" aria-label="Tecnomat"><use href="#logoTecnomat"/></svg>
+    <img src="logo-transparente.png" alt="Tecnomat" class="tecnomat-logo-img" width="185" height="76">
     <details class="menu-cuenta">
       <summary><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Menú</summary>
       <div id="logoutArea"></div>
