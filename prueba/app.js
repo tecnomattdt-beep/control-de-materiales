@@ -1804,6 +1804,7 @@
     const el = clave && PANELES_CHAT[chatPanel] ? document.querySelector(PANELES_CHAT[chatPanel]) : null;
     if (el) {
       el.classList.add("chat-panel-activo");
+      el.classList.remove("cerrado"); // los paneles plegables se abren ya desplegados
     } else {
       chatPanel = "";
     }
