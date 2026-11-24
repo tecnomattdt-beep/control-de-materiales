@@ -3437,7 +3437,7 @@
       const _0x1b3be7 = estado.groupData[_0x57ba4d];
       if (_0x1b3be7 && _0x1b3be7.pendiente.items.length) {
         const _0x51e77e = _0x1b3be7.pendiente.items.reduce((_0x575887, _0xce2396) => _0x575887 + _0xce2396.qty, 0);
-        mostrarAviso("Esta " + (_0x5a7091 === "montaje" ? "orden" : "este proyecto") + " tiene " + _0x1b3be7.pendiente.items.length + " línea(s) sin recoger (" + _0x51e77e + " uds).");
+        mostrarAviso((_0x5a7091 === "montaje" ? "Esta orden" : "Este proyecto") + " tiene " + _0x1b3be7.pendiente.items.length + " línea(s) sin recoger (" + _0x51e77e + " uds).");
       }
     }
     _0x1b4d13.reservaActiva = false; // «Reservar» es de la orden en la que se marcó, no pasa a la siguiente
