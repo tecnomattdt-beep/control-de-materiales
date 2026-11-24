@@ -1072,10 +1072,6 @@
     .project-bar input[type=text]{flex:1 1 100%;}
     #toggleNuevoTrabajoBtn{width:auto; padding:10px 14px;}
     .chat-tabs-row .mode-btn{font-size:11.5px; padding:9px 11px; min-height:40px;}
-    div:has(> #chatMensajeInput){flex-wrap:wrap;}
-    #chatMensajeInput{flex:1 1 100% !important;}
-    #chatReservaToggleBtn{flex:1 1 auto !important;}
-    #chatEnviarBtn{flex:2 1 auto !important;}
     input[type=text], input[type=number], input[type=search], input:not([type]), select, textarea{font-size:16px;}
     #scanInput{font-size:16px; letter-spacing:0;}
     #scanInput::placeholder{font-size:14px; letter-spacing:0;}
@@ -1313,8 +1309,16 @@
   #chatMensajeInput{width:100%; min-height:84px; background:var(--etiqueta); color:var(--tinta); border:2px solid var(--tinta); font-size:16px; line-height:1.4; padding:10px 12px; resize:vertical;}
   #chatMensajeInput::placeholder{color:#56606A;}
   #chatMensajeInput:focus{border-color:var(--viga); box-shadow:0 0 0 4px rgba(242,112,27,.28);}
-  .pedir-acciones{display:flex; gap:8px; margin-top:10px; align-items:stretch;}
-  .pedir-acciones .btn.primary{flex:1; width:auto; margin:0;}
+  .pedir-barra{display:flex; gap:8px; align-items:flex-end;}
+  .pedir-barra #chatMensajeInput{flex:1; min-width:0; min-height:50px; max-height:140px; resize:none;}
+  .pedir-barra .btn.primary{flex:none; width:auto; min-height:50px; margin:0; padding:0 12px;}
+  .pedir-barra #chatCantidadInput{flex:none; width:54px; min-height:50px; padding:0 6px; text-align:center;}
+  .pedir-mas{flex:none; width:50px; height:50px; display:grid; place-items:center; border:1.5px solid var(--border); background:var(--bg-raised); color:var(--text-primary); border-radius:var(--radio); cursor:pointer;}
+  .pedir-mas:hover{border-color:var(--zona);}
+  .pedir-modos{display:flex; gap:6px; margin-bottom:8px;}
+  .pedir-modo{min-height:40px; padding:6px 12px; border:1.5px solid var(--border); background:var(--bg-raised); color:var(--text-muted); font-family:var(--letra-cartel); font-weight:700; font-size:14px; letter-spacing:.05em; text-transform:uppercase; border-radius:var(--radio); cursor:pointer;}
+  .pedir-modo[aria-pressed="true"]{background:var(--zona); border-color:var(--zona); color:var(--tinta);}
+  #app[data-chat-modo="nota"] #chatCantidadInput{display:none;}
   .pedir-reserva{flex:none; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:2px; min-height:50px; padding:6px 12px; text-align:left;}
   .pedir-reserva small{font-family:var(--letra); font-weight:500; font-size:12px; letter-spacing:0; text-transform:none; color:var(--text-muted);}
   .pedir-reserva[aria-pressed="true"]{background:var(--zona); border-color:var(--zona); color:var(--tinta);}
@@ -1325,7 +1329,7 @@
   .act-fila{display:grid; grid-template-columns:auto 1fr auto; gap:4px 10px; align-items:start; padding:9px 0; border-bottom:1px solid var(--border);}
   .act-fila:last-child{border-bottom:0;}
   .act-tipo{font-family:var(--letra-cartel); font-weight:800; font-size:12px; letter-spacing:.06em; text-transform:uppercase; padding:3px 6px; border-radius:var(--radio); color:var(--tinta); white-space:nowrap; margin-top:1px; background:#AEB9C2;}
-  .act-ref{background:#6FA3FF;} .act-firma{background:var(--success);} .act-doc{background:#B48CFF;} .act-envio{background:var(--cinta);} .act-falta{background:var(--danger);} .act-cambio, .act-nota{background:#7E8B96;}
+  .act-ref{background:#6FA3FF;} .act-firma{background:var(--success);} .act-doc{background:#B48CFF;} .act-envio{background:var(--cinta);} .act-falta{background:var(--danger);} .act-cambio, .act-tipo.act-nota{background:#7E8B96;}
   #app.tema-claro .act-firma, #app.tema-claro .act-falta{color:#FFFFFF;}
   .act-texto{font-size:14.5px; line-height:1.35; color:var(--text-primary); word-break:break-word;}
   .act-fila.importante .act-texto{font-weight:700;}
@@ -1339,6 +1343,61 @@
   }
   /* La actividad se desplaza con la página, sin caja con scroll propio */
   .actividad-ticket .ticket-body{max-height:none; overflow:visible;}
+  /* ── Chat a pantalla completa (Trabajo y Reponer): lo ocasional se abre desde el botón + ── */
+  #app[data-chat-pleno="trabajo"] :is(#clasifCorreoGlobal, .chat-tabs-row, #textoPanel, .ticket:has(> #toggleDocumentosBtn), #escanerBarra, #scannerZone, #guiaTrabajo):not(.chat-panel-activo){display:none !important;}
+  #app[data-chat-pleno="trabajo"][data-chat-pm="1"] .chat-tabs-row{display:flex !important;}
+  #app[data-chat-pleno="reponer"] :is(#escanerBarra, #scannerZone):not(.chat-panel-activo){display:none !important;}
+  #app[data-chat-pleno] .pedir-rapida:not(.chat-panel-activo){display:none !important;}
+  /* El chat ocupa toda la sección: fuera el cartel, el buscador, los avisos y los apartados que van al menú + */
+  #app[data-chat-pleno] :is([data-chat-sec], #globalSearchZone, #pedidoNotifBanner, #alertBanner, #statusBanner:empty):not(.chat-panel-activo){display:none !important;}
+  #app[data-chat-pleno] > h1, #app[data-chat-pleno] > .subtitle, #app[data-chat-pleno] > .autosave-note{display:none !important;}
+  #app[data-chat-pleno] .project-bar:not(.project-bar-inline){position:sticky; top:0; z-index:28; background:var(--bg-panel); box-shadow:0 6px 14px rgba(0,0,0,.3);}
+  #app[data-chat-pleno] .franja-estado{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none;}
+  #app[data-chat-pleno] .franja-estado::-webkit-scrollbar{display:none;}
+  #app[data-chat-pleno] #prepareGroupDeliveryBtn{order:45; margin:8px 0 0;}
+  .pedir-mas{position:relative;}
+  .pedir-mas[data-hay="1"]::after{content:""; position:absolute; top:6px; right:6px; width:10px; height:10px; border-radius:50%; background:var(--viga); box-shadow:0 0 0 2px var(--bg-panel);}
+  #app[data-chat-pleno] #mainList{display:flex; flex-direction:column;}
+  #app[data-chat-pleno] #mainList > .ticket.pedir{order:50;}
+  #app[data-chat-pleno] .ticket.pedir{position:sticky; bottom:0; z-index:30; margin:8px 0 0; border-top:3px solid var(--zona); box-shadow:0 -10px 24px rgba(0,0,0,.35);}
+  #app[data-chat-pleno] .ticket.pedir > .ticket-header{display:none;}
+  #app[data-chat-pleno] .pedir-cuerpo{padding:10px;}
+  #app[data-chat-pleno] .pedir-reserva[aria-pressed="false"]{display:none;}
+  #app[data-chat-pleno] .pedir-reserva{flex-direction:row; align-items:center; gap:8px; min-height:40px; margin-top:8px;}
+  #app[data-chat-pleno] .actividad-ticket{margin-bottom:0;}
+  @media (max-width:1100px){
+    #app[data-chat-pleno] .ticket.pedir{bottom:calc(64px + env(safe-area-inset-bottom, 0px));}
+    #app[data-chat-pleno] #sidePanel:not(.chat-panel-activo){display:none !important;}
+  }
+  /* Hoja que sube desde abajo: el menú + y los paneles ocasionales */
+  #chatFondo{position:fixed; inset:0; z-index:125; background:rgba(5,8,10,.6); display:flex; justify-content:flex-end; align-items:flex-start; padding:12px;}
+  #chatFondo[hidden]{display:none;}
+  .chat-panel-activo{display:block !important; position:fixed !important; left:0; right:0; bottom:0; z-index:130; max-height:78vh; overflow:auto; margin:0 !important; border-radius:0 !important; box-shadow:0 -12px 30px rgba(0,0,0,.5) !important; padding-bottom:calc(14px + env(safe-area-inset-bottom, 0px)) !important; order:0 !important;}
+  #chatMenu{position:fixed; inset:0; z-index:140; background:rgba(5,8,10,.6); display:flex; align-items:flex-end; justify-content:center;}
+  #chatMenu[hidden]{display:none;}
+  .chat-menu-hoja{width:min(560px, 100%); background:var(--bg-panel); border-top:4px solid var(--zona); padding:14px 14px calc(14px + env(safe-area-inset-bottom, 0px)); box-shadow:0 -12px 30px rgba(0,0,0,.5);}
+  .chat-menu-lista{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:10px 0;}
+  .chat-menu-lista .cam-btn{min-height:52px; justify-content:center; text-align:center; white-space:normal;}
+  .chat-menu-cerrar{width:100%;}
+  @media (min-width:1101px){
+    .chat-panel-activo{left:50%; right:auto; transform:translateX(-50%); width:min(720px, 100vw); bottom:16px; max-height:75vh;}
+    #chatMenu{align-items:center;}
+  }
+  /* Notas entre personas: burbujas; las mías a la derecha con el color de la sección */
+  .act-nota{display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:8px 0;}
+  .act-nota.mia{align-items:flex-end;}
+  .act-nota-quien{font-family:var(--letra-cartel); font-weight:700; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--text-faint);}
+  .act-nota-texto{max-width:85%; background:var(--etiqueta); color:var(--tinta); padding:9px 12px; border-radius:var(--radio); font-size:15px; line-height:1.4; white-space:pre-wrap; word-break:break-word;}
+  .act-nota.mia .act-nota-texto{background:var(--zona);}
+  .act-nuevos{display:flex; align-items:center; gap:8px; margin:8px 0; font-family:var(--letra-cartel); font-weight:800; font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--viga);}
+  .act-nuevos::before, .act-nuevos::after{content:""; flex:1; height:2px; background:var(--viga);}
+  .act-tarjeta{display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:6px;}
+  .act-tarjeta .act-asociar{margin:0;}
+  .estado-linea[data-estado="cerrada"]{background:var(--bg-raised-2); color:var(--text-muted);}
+  @media (prefers-reduced-motion:no-preference){
+    .chat-panel-activo, .chat-menu-hoja{animation:chat-sube .22s cubic-bezier(.16,1,.3,1);}
+    @keyframes chat-sube{from{transform:translateY(24px); opacity:.6;}}
+  }
   /* ── Mejoras de uso ── */
   /* Estado de cada línea del pedido: placa con texto, nunca solo color */
   .estado-linea{display:inline-block; font-family:var(--letra-cartel); font-weight:700; font-size:12px; letter-spacing:.05em; text-transform:uppercase; padding:2px 7px; border-radius:2px; vertical-align:1px; white-space:nowrap; background:var(--bg-raised-2); color:var(--text-primary);}

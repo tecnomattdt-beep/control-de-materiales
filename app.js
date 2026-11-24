@@ -1181,6 +1181,7 @@
     escucharListasCompartidas();
     escuchar("pedido_chat", valor => {
       if (Array.isArray(valor)) {
+        avisarNotasNuevas(estado.pedidoChat, valor);
         estado.pedidoChat = valor;
       }
     });
@@ -1365,6 +1366,7 @@
       escuchar("group_" + _0x3cd23c + "_" + aSlug(_0x4e0ced), _0x49e120 => {
         const _0x15ad47 = Object.assign(grupoVacio(), _0x49e120);
         const _0x534093 = _0x3cd23c + "::" + _0x4e0ced;
+        avisarNotasNuevas(estado.groupData[_0x534093] && estado.groupData[_0x534093].chat, _0x15ad47.chat);
         recordarGrupo(_0x534093, _0x15ad47);
         if (estado.groupData[_0x534093]) {
           Object.assign(estado.groupData[_0x534093], _0x15ad47);
@@ -1696,26 +1698,343 @@
     }
   });
   function _0x17a460(_0x362fa9, _0x27790c) {
-    _0x27790c = _0x27790c || {};
-    if (!_0x362fa9.length) {
-      return "<div class=\"empty-state\">Todavía no hay movimientos. Lo que pidas, escanees o firmes aparecerá aquí.</div>";
+    const op = _0x27790c || {};
+    const lista = _0x362fa9 || [];
+    if (!lista.length) {
+      return '<div class="empty-state">Todavía no hay movimientos. Escribe lo que necesitas o deja una nota.</div>';
     }
-    const clave = _0x27790c.clave || "general";
-    const todos = _0x362fa9.slice().reverse();
-    const visibles = actividadCompleta.has(clave) ? todos : todos.slice(0, ACTIVIDAD_VISIBLE);
+    const clave = op.clave || "general";
+    const visibles = actividadCompleta.has(clave) ? lista : lista.slice(-ACTIVIDAD_VISIBLE);
+    const ocultos = lista.length - visibles.length;
+    const yo = usuarioActual();
+    const visto = leerVisto(clave);
+    let nuevoPuesto = false;
     let diaAnterior = null;
-    const filas = visibles.map(_0x3e7680 => {
-      const _0xd08edb = _0x27790c.target && _0x3e7680.pendienteId && _0x27790c.target.pendiente.items.find(_0x41faa6 => _0x41faa6.id === _0x3e7680.pendienteId && _0x41faa6.textoLibre);
-      const tipo = tipoActividad(_0x3e7680.texto);
-      const cuando = momentoActividad(_0x3e7680);
-      const cabecera = cuando.dia !== diaAnterior ? "<li class=\"act-dia\" aria-hidden=\"true\">" + cuando.dia + "</li>" : "";
+    const filas = visibles.map(m => {
+      const cuando = momentoActividad(m);
+      let html = cuando.dia !== diaAnterior ? '<li class="act-dia" aria-hidden="true">' + cuando.dia + '</li>' : '';
       diaAnterior = cuando.dia;
+      if (!nuevoPuesto && visto && (m.tsMs || 0) > visto && m.usuario && m.usuario !== yo) {
+        nuevoPuesto = true;
+        html += '<li class="act-nuevos" role="separator">Nuevo</li>';
+      }
+      const quien = m.usuario ? escaparHtml(quienActividad(m.usuario)) : '';
+      const hora = '<span class="sr-solo">' + cuando.dia + ', </span>' + cuando.hora;
+      if (m.tipo === 'nota') {
+        const mia = m.usuario === yo;
+        return html + '<li class="act-nota' + (mia ? ' mia' : '') + '"><span class="act-nota-quien">' + (mia ? 'Tú' : quien || 'Nota') + '</span><span class="act-nota-texto">' + escaparHtml(m.texto) + '</span><span class="act-cuando">' + hora + '</span></li>';
+      }
+      const tipo = tipoActividad(m.texto);
       const importante = tipo.clase === "firma" || tipo.clase === "doc" || tipo.clase === "envio" || tipo.clase === "falta";
-      return cabecera + "<li class=\"act-fila" + (importante ? " importante" : "") + "\"><span class=\"act-tipo act-" + tipo.clase + "\">" + tipo.etiqueta + "</span><span class=\"act-texto\">" + escaparHtml(tipo.texto) + (_0xd08edb && _0x27790c.puedeAsociar ? " <button class=\"cam-btn act-asociar\" data-asociar-chat=\"" + _0x3e7680.pendienteId + "\">Asignar referencia</button>" : "") + "</span><span class=\"act-cuando\"><span class=\"sr-solo\">" + cuando.dia + ", </span>" + cuando.hora + (_0x3e7680.usuario ? " · " + escaparHtml(quienActividad(_0x3e7680.usuario)) : "") + "</span></li>";
-    }).join("");
-    const ocultos = todos.length - visibles.length;
-    return "<ul class=\"chat-feed actividad\" role=\"log\" aria-label=\"Actividad\">" + filas + "</ul>" + (ocultos ? "<button type=\"button\" class=\"cam-btn act-mas\" data-ver-actividad=\"" + escaparHtml(clave) + "\">Ver los " + ocultos + " anteriores</button>" : "");
+      const tarjeta = op.target && m.pendienteId ? tarjetaPedido(op.target, m.pendienteId, op.puedeAsociar) : '';
+      return html + '<li class="act-fila' + (importante ? ' importante' : '') + '"><span class="act-tipo act-' + tipo.clase + '">' + tipo.etiqueta + '</span><span class="act-texto">' + escaparHtml(tipo.texto) + tarjeta + '</span><span class="act-cuando">' + hora + (quien ? ' · ' + quien : '') + '</span></li>';
+    }).join('');
+    return (ocultos ? '<button type="button" class="cam-btn act-mas" data-ver-actividad="' + escaparHtml(clave) + '">Ver los ' + ocultos + ' anteriores</button>' : '') + '<ul class="chat-feed actividad" role="log" aria-label="Actividad">' + filas + '</ul>';
   }
+  // Tarjeta de un pedido dentro del chat: su estado de ahora y lo que se puede hacer con él
+  function tarjetaPedido(grupo, id, puedeAsociar) {
+    const linea = ((grupo.pendiente && grupo.pendiente.items) || []).find(l => l.id === id);
+    if (!linea) {
+      return '<span class="act-tarjeta"><span class="estado-linea" data-estado="cerrada">Ya no está pendiente</span></span>';
+    }
+    const e = TecnomatDatos.estadoLinea(linea);
+    return '<span class="act-tarjeta"><span class="estado-linea" data-estado="' + e.clave + '">' + e.texto + '</span>' + (linea.textoLibre && puedeAsociar ? '<button type="button" class="cam-btn act-asociar" data-asociar-chat="' + id + '">Asignar referencia</button>' : '') + '<button type="button" class="cam-btn act-asociar" data-view="hoja">Ver en hoja</button></span>';
+  }
+  // Hasta dónde ha leído este dispositivo cada chat (para el separador «Nuevo»)
+  function leerVisto(clave) {
+    try {
+      return Number(localStorage.getItem("tecnomat_visto_" + clave)) || 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+  function guardarVisto(clave, ts) {
+    try {
+      localStorage.setItem("tecnomat_visto_" + clave, String(ts || 0));
+    } catch (e) {}
+  }
+
+  // ── Chat a pantalla completa (Trabajo y Reponer) ──
+  // La conversación ocupa la pantalla; abajo, una barra fija para escribir. Lo ocasional (pegar lista,
+  // documentos, correo externo, resumen…) sigue en la página pero oculto, y el botón + lo abre como hoja.
+  let chatPanel = "";
+  let chatModo = "pedir";
+  let chatClaveAnterior = "";
+  let chatUltimoTs = 0;
+  let chatBajar = false;
+  const PANELES_CHAT = { texto: "#textoPanel", docs: ".ticket:has(> #toggleDocumentosBtn)", correo: "#clasifCorreoGlobal", lateral: "#sidePanel", rapida: ".pedir-rapida", buscar: "#globalSearchZone", avisos: "#pedidoNotifBanner" };
+  // En el chat solo quedan a la vista estas piezas; el resto de apartados de la orden se abre desde el menú +
+  const CHAT_VISIBLE = ".project-bar, .project-bar-inline, :has(> #toggleMasOpcionesBtn), #groupFilterInput, .franja-estado, .aviso-sinref, .actividad-ticket, .ticket.pedir, #prepareGroupDeliveryBtn";
+  const ICONO_MAS = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
+  function chatClaveActual() {
+    if ((estado.mode === "montaje" || estado.mode === "proyecto") && _0x5592da === "chat" && estado.current[estado.mode]) {
+      return estado.mode + "::" + estado.current[estado.mode];
+    }
+    return estado.mode === "pedido" && _0x4a2938 === "chat" ? "reponer" : "";
+  }
+  function chatListaActual(clave) {
+    if (clave === "reponer") {
+      return estado.pedidoChat || [];
+    }
+    const g = _0x1ea037();
+    return g && g.chat ? g.chat : [];
+  }
+  const chatModosHtml = () => '<div class="pedir-modos" role="group" aria-label="Qué vas a enviar"><button type="button" class="pedir-modo" data-chat-modo="pedir" aria-pressed="' + (chatModo === "pedir") + '">Pedir material</button><button type="button" class="pedir-modo" data-chat-modo="nota" aria-pressed="' + (chatModo === "nota") + '">Escribir nota</button></div>';
+  const chatMasHtml = () => '<button type="button" class="pedir-mas" id="chatMasBtn" aria-label="Más opciones" aria-haspopup="dialog">' + ICONO_MAS + '</button>';
+  const chatPlaceholder = () => chatModo === "nota" ? "Nota para " + (_0x2df77d() === "taller" ? "almacén" : "el taller") + "…" : "Qué necesitas…";
+  function chatPlenoAplicar() {
+    const app = document.getElementById("app");
+    if (!app) {
+      return;
+    }
+    const clave = chatClaveActual();
+    if (clave !== chatClaveAnterior) {
+      if (chatClaveAnterior) {
+        guardarVisto(chatClaveAnterior, chatUltimoTs);
+      }
+      chatClaveAnterior = clave;
+      chatPanel = "";
+      chatBajar = !!clave;
+    }
+    if (clave) {
+      chatUltimoTs = chatListaActual(clave).reduce((max, m) => Math.max(max, m.tsMs || 0), 0);
+    }
+    app.dataset.chatPleno = clave ? (clave === "reponer" ? "reponer" : "trabajo") : "";
+    app.dataset.chatModo = chatModo;
+    app.dataset.chatPm = typeof __pmActivo !== "undefined" && __pmActivo ? "1" : "";
+    document.querySelectorAll("[data-chat-sec]").forEach(e => e.removeAttribute("data-chat-sec"));
+    let ocultos = 0;
+    if (clave) {
+      const fijos = Object.values(PANELES_CHAT).join(", ");
+      [...document.getElementById("mainList").children].forEach((e, i) => {
+        if (!e.matches(CHAT_VISIBLE)) {
+          e.setAttribute("data-chat-sec", String(i));
+          if (!e.matches(fijos + ", .chat-tabs-row, #guiaTrabajo, :has(> [data-pedido-view])")) {
+            ocultos++;
+          }
+        }
+      });
+    }
+    const mas = document.getElementById("chatMasBtn");
+    if (mas) {
+      mas.dataset.hay = ocultos ? "1" : "";
+    }
+    document.querySelectorAll(".chat-panel-activo").forEach(e => e.classList.remove("chat-panel-activo"));
+    const selPanel = chatPanel.indexOf("sec:") === 0 ? '[data-chat-sec="' + chatPanel.slice(4) + '"]' : PANELES_CHAT[chatPanel];
+    const el = clave && selPanel ? document.querySelector(selPanel) : null;
+    if (el) {
+      el.classList.add("chat-panel-activo");
+      el.classList.remove("cerrado"); // los paneles plegables se abren ya desplegados
+    } else {
+      chatPanel = "";
+    }
+    let fondo = document.getElementById("chatFondo");
+    if (!fondo) {
+      fondo = document.createElement("div");
+      fondo.id = "chatFondo";
+      fondo.innerHTML = '<button type="button" class="cam-btn">Cerrar</button>';
+      fondo.addEventListener("click", () => {
+        chatPanel = "";
+        chatPlenoAplicar();
+      });
+      document.body.appendChild(fondo);
+    }
+    fondo.hidden = !chatPanel;
+    if (chatBajar && clave) {
+      chatBajar = false;
+      requestAnimationFrame(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    }
+  }
+  function chatMenuAbrir() {
+    const clave = chatClaveActual();
+    if (!clave) {
+      return;
+    }
+    const trabajo = clave !== "reponer";
+    const hay = sel => !!document.querySelector(sel);
+    const movil = window.innerWidth <= 1100;
+    const items = [
+      ["camara", "Escanear con la cámara", hay("#camBtn")],
+      ["pm", "Pequeño material", trabajo && hay("#clasifPmBtn")],
+      ["rapida", "Lista rápida", trabajo && hay(".pedir-rapida")],
+      ["texto", "Pegar una lista larga", trabajo && hay("#textoPanel")],
+      ["docs", "Documentos escaneados", trabajo && hay(PANELES_CHAT.docs)],
+      ["correo", "Correo de material externo", trabajo && hay("#clasifCorreoGlobal")],
+      ["reservar", _0x1b4d13.reservaActiva ? "Dejar de reservar" : "Reservar lo que pida ahora", trabajo && hay("#chatReservaToggleBtn")],
+      ["vista:hoja", "Hoja de pedido", trabajo && hay('[data-view="hoja"]')],
+      ["vista:servido", "Servido", trabajo && hay('[data-view="servido"]')],
+      ["vista:devuelto", "Devuelto", trabajo && hay('[data-view="devuelto"]')],
+      ["lista", "Ver el pedido", !trabajo && hay('[data-pedido-view="lista"]')],
+      ["lateral", trabajo ? "Resumen y herramientas" : "Resumen y envío", movil && hay("#sidePanel > *")]
+      ,["buscar", "Buscar en el stock", hay("#globalSearchZone > *")]
+      ,["avisos", "Avisos de pedidos", hay("#pedidoNotifBanner > *")]
+    ].filter(i => i[2]);
+    const fijos = Object.values(PANELES_CHAT).join(", ");
+    document.querySelectorAll("#mainList [data-chat-sec]").forEach(e => {
+      if (e.matches(fijos + ", .chat-tabs-row, #guiaTrabajo, :has(> [data-pedido-view])")) {
+        return;
+      }
+      const titulo = e.matches("button") ? e.innerText : (e.querySelector(".ticket-title, .panel-title, summary") || {}).innerText;
+      if (titulo && titulo.trim()) {
+        items.unshift(["sec:" + e.dataset.chatSec, titulo.trim().split(String.fromCharCode(10))[0].slice(0, 48), true]);
+      }
+    });
+    let menu = document.getElementById("chatMenu");
+    if (!menu) {
+      menu = document.createElement("div");
+      menu.id = "chatMenu";
+      menu.setAttribute("role", "dialog");
+      menu.setAttribute("aria-label", "Más opciones");
+      menu.addEventListener("click", e => {
+        const b = e.target.closest("[data-chat-accion]");
+        if (b) {
+          chatMenuAccion(b.dataset.chatAccion);
+        } else if (e.target === menu) {
+          menu.hidden = true;
+        }
+      });
+      menu.addEventListener("keydown", e => {
+        if (e.key === "Escape") {
+          menu.hidden = true;
+        }
+      });
+      document.body.appendChild(menu);
+    }
+    menu.innerHTML = '<div class="chat-menu-hoja"><p class="panel-title">Más opciones</p><div class="chat-menu-lista">' + items.map(i => '<button type="button" class="cam-btn" data-chat-accion="' + i[0] + '">' + i[1] + '</button>').join('') + '</div><button type="button" class="btn-return chat-menu-cerrar" data-chat-accion="cerrar">Cerrar</button></div>';
+    menu.hidden = false;
+    const primero = menu.querySelector("[data-chat-accion]");
+    if (primero) {
+      primero.focus();
+    }
+  }
+  function chatMenuAccion(accion) {
+    const menu = document.getElementById("chatMenu");
+    if (menu) {
+      menu.hidden = true;
+    }
+    const pulsar = sel => {
+      const b = document.querySelector(sel);
+      if (b) {
+        b.click();
+      }
+    };
+    if (accion === "cerrar") {
+      return;
+    }
+    if (accion === "camara") {
+      return pulsar("#camBtn");
+    }
+    if (accion === "pm") {
+      return pulsar("#clasifPmBtn");
+    }
+    if (accion === "reservar") {
+      return pulsar("#chatReservaToggleBtn");
+    }
+    if (accion === "lista") {
+      return pulsar('[data-pedido-view="lista"]');
+    }
+    if (accion.indexOf("vista:") === 0) {
+      return pulsar('[data-view="' + accion.slice(6) + '"]');
+    }
+    if (accion.indexOf("sec:") === 0) {
+      const sec = document.querySelector('[data-chat-sec="' + accion.slice(4) + '"]');
+      if (sec && sec.matches("button")) {
+        return sec.click();
+      }
+    }
+    chatPanel = accion;
+    chatPlenoAplicar();
+  }
+  // Un código del catálogo escrito o leído con el lector en el campo del chat se registra como un escaneo
+  function chatComoEscaneo(campo) {
+    const v = campo ? campo.value.trim() : "";
+    if (!v || !/^[!-~]+$/.test(v) || !buscarPorCodigo(v)) {
+      return false;
+    }
+    const entrada = document.getElementById("scanInput");
+    const boton = document.getElementById("scanSubmitBtn");
+    if (!entrada || !boton || boton.disabled) {
+      return false;
+    }
+    entrada.value = v;
+    campo.value = "";
+    boton.click();
+    chatBajar = true;
+    return true;
+  }
+  function enviarNota() {
+    const campo = document.getElementById("chatMensajeInput");
+    const texto = campo ? campo.value.trim() : "";
+    if (!texto) {
+      mostrarAviso("Escribe la nota antes de enviar.");
+      return;
+    }
+    const clave = chatClaveActual();
+    const lista = clave === "reponer" ? estado.pedidoChat : (_0x1ea037() || {}).chat;
+    if (!lista) {
+      return;
+    }
+    anadirMensajeChat(lista, texto.slice(0, 1000));
+    lista[lista.length - 1].tipo = "nota";
+    campo.value = "";
+    if (clave === "reponer") {
+      guardarPedidoChat();
+    } else {
+      _0x29f0a4();
+    }
+    chatBajar = true;
+    render();
+  }
+  // Avisa de una nota nueva de otra persona que llega en tiempo real
+  function avisarNotasNuevas(antes, despues) {
+    if (!Array.isArray(antes) || !Array.isArray(despues)) {
+      return;
+    }
+    const vistos = new Set(antes.map(m => m.id));
+    const yo = usuarioActual();
+    const nuevas = despues.filter(m => m.tipo === "nota" && !vistos.has(m.id) && m.usuario !== yo);
+    if (!nuevas.length) {
+      return;
+    }
+    const u = nuevas[nuevas.length - 1];
+    mostrarAviso("Nota de " + quienActividad(u.usuario) + ": " + String(u.texto).slice(0, 90));
+    try {
+      if (navigator.vibrate) {
+        navigator.vibrate([40, 60, 40]);
+      }
+    } catch (e) {}
+  }
+  document.addEventListener("click", e => {
+    const modo = e.target.closest && e.target.closest(".pedir-modo[data-chat-modo]");
+    if (modo) {
+      chatModo = modo.dataset.chatModo;
+      document.querySelectorAll(".pedir-modo[data-chat-modo]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.chatModo === chatModo)));
+      const campo = document.getElementById("chatMensajeInput");
+      if (campo) {
+        campo.placeholder = chatPlaceholder();
+        campo.focus();
+      }
+      const enviar = document.getElementById("chatEnviarBtn");
+      if (enviar && enviar.lastChild && enviar.lastChild.nodeType === 3) {
+        enviar.lastChild.textContent = chatModo === "nota" ? "Enviar nota" : "Enviar";
+      }
+      const app = document.getElementById("app");
+      if (app) {
+        app.dataset.chatModo = chatModo;
+      }
+      return;
+    }
+    if (e.target.closest && e.target.closest("#chatMasBtn")) {
+      chatMenuAbrir();
+    }
+  });
+  document.addEventListener("input", e => {
+    if (e.target && e.target.id === "chatMensajeInput" && e.target.tagName === "TEXTAREA") {
+      e.target.style.height = "auto";
+      e.target.style.height = Math.min(e.target.scrollHeight, 140) + "px";
+    }
+  });
+
   function _0x529094() {
     // Cada entrega lleva la firma como imagen (hasta ~30 KB): con más de 30 el documento se acerca al límite de 1 MB de Firestore
     if (estado.deliveries.length > 30) {
@@ -5618,6 +5937,9 @@
   // Un solo envío a la vez: separar el texto puede consultar la IA y tardar; un segundo toque duplicaría las líneas
   let chatEnviando = false;
   async function __chatEnviar() {
+    if (chatModo === "nota") {
+      return enviarNota();
+    }
     if (chatEnviando) {
       return;
     }
@@ -9589,6 +9911,7 @@
     _0x474249_impl();
     __clasifPostRender();
     __restaurarEstadoUI(__uiEstado);
+    chatPlenoAplicar();
   }
   function _0x474249_impl() {
     if ((estado.mode === "almacen" || estado.mode === "resumen" || estado.mode === "mantenimiento") && _0x2df77d() === "taller") {
@@ -10775,25 +11098,30 @@
     const _0x3a71dc = $("#mainList");
     const _0x1538e9 = estado.pedidoItems.map(_0x49a1a4 => "\n      <div class=\"ticket-row\" data-id=\"" + _0x49a1a4.id + "\">" + etiquetaUbicacion(_0x49a1a4) + "\n        <div class=\"row-main\">\n          <div class=\"row-code\">" + escaparHtml(_0x49a1a4.code) + "</div>\n          <div class=\"row-desc\">" + escaparHtml(_0x49a1a4.desc) + "</div>\n        </div>\n        <div class=\"row-qty\">x" + _0x49a1a4.qty + "</div>\n        <button class=\"btn-return\" data-pedido-del=\"" + _0x49a1a4.id + "\">Quitar</button>\n      </div>\n    ").join("");
     const _0x5976cf = "\n      <div class=\"scanner-row\" style=\"margin-bottom:10px; flex-wrap:wrap;\">\n        <button class=\"mode-btn\" data-pedido-view=\"chat\" style=\"flex:none; padding:8px 16px; " + (_0x4a2938 === "chat" ? "background:var(--accent); color:#2A0800;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Pedir</button>\n        <button class=\"mode-btn\" data-pedido-view=\"lista\" style=\"flex:none; padding:8px 16px; " + (_0x4a2938 === "lista" ? "background:var(--accent); color:#2A0800;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Lista (" + estado.pedidoItems.length + ")</button>\n      </div>\n    ";
-    const _0x3e2599 = _0x4a2938 === "chat" ? "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Pedir y actividad</span></div>\n        <div class=\"ticket-body\">" + _0x17a460(estado.pedidoChat, { clave: "reponer" }) + "</div>\n        <div style=\"display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border);\">\n          <input type=\"text\" id=\"chatMensajeInput\" aria-label=\"Qué hace falta pedir\" placeholder=\"Describe qué hace falta pedir…\" style=\"flex:2; min-width:0;\">\n          <input type=\"number\" id=\"chatCantidadInput\" aria-label=\"Unidades\" placeholder=\"Uds\" min=\"1\" value=\"1\" style=\"flex:none; width:64px;\">\n          <button class=\"btn primary\" id=\"chatEnviarBtn\" style=\"width:auto; flex:none;\">" + _0x56ae2b("enviar") + "Enviar</button>\n        </div>\n      </div>\n    " : "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\">Pedido de materiales</span>\n          <span class=\"ticket-title\">" + estado.pedidoItems.length + " referencias</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + (_0x1538e9 || "<div class=\"empty-state\">Todavía no has añadido nada al pedido. Escanea o busca un material del stock para empezar.</div>") + "\n        </div>\n      </div>\n    ";
+    const _0x3e2599 = _0x4a2938 === "chat" ? "<div class=\"ticket actividad-ticket\"><div class=\"ticket-header\"><span class=\"ticket-title\">Actividad del pedido</span></div><div class=\"ticket-body\">" + _0x17a460(estado.pedidoChat, { clave: "reponer" }) + "</div></div><div class=\"ticket pedir\"><div class=\"pedir-cuerpo\">" + chatModosHtml() + "<div class=\"pedir-barra\">" + chatMasHtml() + "<input type=\"text\" id=\"chatMensajeInput\" aria-label=\"Qué hace falta pedir\" placeholder=\"" + chatPlaceholder() + "\"><input type=\"number\" id=\"chatCantidadInput\" aria-label=\"Unidades\" placeholder=\"Uds\" min=\"1\" value=\"1\"><button class=\"btn primary\" id=\"chatEnviarBtn\">" + _0x56ae2b("enviar") + (chatModo === "nota" ? "Enviar nota" : "Enviar") + "</button></div></div></div>" : "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\">Pedido de materiales</span>\n          <span class=\"ticket-title\">" + estado.pedidoItems.length + " referencias</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + (_0x1538e9 || "<div class=\"empty-state\">Todavía no has añadido nada al pedido. Escanea o busca un material del stock para empezar.</div>") + "\n        </div>\n      </div>\n    ";
     _0x3a71dc.innerHTML = _0x5976cf + _0x3e2599;
     _0x10279f(_0x3a71dc);
     _0x3a71dc.querySelectorAll("[data-pedido-view]").forEach(_0x363990 => {
       _0x363990.addEventListener("click", () => {
         _0x4a2938 = _0x363990.dataset.pedidoView;
         _0x4a9ee1();
+        chatPlenoAplicar();
       });
     });
     const _0x1e3e46 = $("#chatEnviarBtn");
     if (_0x1e3e46) {
-      _0x1e3e46.addEventListener("click", _0x36610a);
+      _0x1e3e46.addEventListener("click", () => chatModo === "nota" ? enviarNota() : _0x36610a());
     }
     const _0x4dfed2 = $("#chatMensajeInput");
     if (_0x4dfed2) {
       _0x4dfed2.addEventListener("keydown", _0x16542a => {
         if (_0x16542a.key === "Enter") {
           _0x16542a.preventDefault();
-          _0x36610a();
+          if (chatModo === "nota") {
+            enviarNota();
+          } else if (!chatComoEscaneo(_0x4dfed2)) {
+            _0x36610a();
+          }
         }
       });
     }
@@ -10804,6 +11132,7 @@
   function _0x8db8ba() {
     _0x8db8ba_impl();
     __clasifPostRender();
+    chatPlenoAplicar();
   }
   function _0x8db8ba_impl() {
     let _0x5f4a21 = null;
@@ -10837,7 +11166,7 @@
     let _0x4895bf;
     if (_0x5592da === "chat") {
       const __sinRef = _0x4368d0.pendiente.items.filter(__l => __l.textoLibre).length;
-      _0x4895bf = (__sinRef ? "<div class=\"aviso-sinref\" role=\"status\"><b>" + __sinRef + "</b><p>" + (__sinRef === 1 ? "línea sin referencia" : "líneas sin referencia") + (_0xe5dca9 ? ": almacén tiene que asignarla" + (__sinRef === 1 ? "" : "s") : ": asígnala" + (__sinRef === 1 ? "" : "s") + " con «Asignar referencia» en la Actividad") + "</p><button type=\"button\" class=\"cam-btn\" data-view=\"hoja\">Ver hoja</button></div>" : "") + "<div class=\"ticket pedir\"><div class=\"ticket-header\"><span class=\"ticket-title\">¿Qué necesitas?</span><span class=\"ticket-title pedir-orden\">" + escaparHtml(estado.current[estado.mode] || "") + "</span></div>" + "<div class=\"pedir-cuerpo\"><label for=\"chatMensajeInput\" class=\"sr-solo\">Qué hace falta</label><textarea id=\"chatMensajeInput\" rows=\"3\" placeholder=\"Un material por línea. Ej.: borna paso UT-10 x 20\"></textarea>" + "<div class=\"pedir-acciones\"><button type=\"button\" id=\"chatReservaToggleBtn\" class=\"cam-btn pedir-reserva\" aria-pressed=\"false\">Reservar<small>Apartar, no entregar aún</small></button><button class=\"btn primary\" id=\"chatEnviarBtn\">" + _0x56ae2b("enviar") + "Enviar a almacén</button></div></div>" + (estado.materialesRapidos.length ? "\n          <div style=\"padding:10px 14px; border-top:1px solid var(--border);\">\n            <p style=\"font-size:11px; font-weight:700; color:var(--text-faint); text-transform:uppercase; letter-spacing:.03em; margin:0 0 8px 2px;\">Lista rápida</p>\n            <div style=\"display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto;\">\n              " + estado.materialesRapidos.map(_0x2fccc7 => "\n                <label style=\"display:flex; align-items:center; gap:8px; font-size:12.5px;\">\n                  <input type=\"checkbox\" class=\"rapido-check\" aria-label=\"Añadir este material\" data-rapido-id=\"" + _0x2fccc7.id + "\" style=\"width:16px; height:16px; flex:none;\">\n                  <span style=\"flex:1;\">" + escaparHtml(_0x2fccc7.nombre) + "</span>\n                  <input type=\"number\" class=\"rapido-qty\" aria-label=\"Cantidad\" data-rapido-qty=\"" + _0x2fccc7.id + "\" value=\"1\" min=\"1\" style=\"width:52px; flex:none;\">\n                </label>\n              ").join("") + "\n            </div>\n            <button class=\"cam-btn\" id=\"anadirRapidosBtn\" style=\"width:100%; margin-top:8px;\">Añadir seleccionados</button>\n          </div>\n          " : "") + "</div><div class=\"ticket actividad-ticket\"><div class=\"ticket-header\"><span class=\"ticket-title\">Actividad</span><span class=\"ticket-title pedir-orden\">" + _0x4368d0.chat.length + " movimientos</span></div><div class=\"ticket-body\">" + _0x17a460(_0x4368d0.chat, {
+      _0x4895bf = (__sinRef ? "<div class=\"aviso-sinref\" role=\"status\"><b>" + __sinRef + "</b><p>" + (__sinRef === 1 ? "línea sin referencia" : "líneas sin referencia") + (_0xe5dca9 ? ": almacén tiene que asignarla" + (__sinRef === 1 ? "" : "s") : ": asígnala" + (__sinRef === 1 ? "" : "s") + " con «Asignar referencia» en la Actividad") + "</p><button type=\"button\" class=\"cam-btn\" data-view=\"hoja\">Ver hoja</button></div>" : "") + "<div class=\"ticket pedir\"><div class=\"ticket-header\"><span class=\"ticket-title\">¿Qué necesitas?</span><span class=\"ticket-title pedir-orden\">" + escaparHtml(estado.current[estado.mode] || "") + "</span></div>" + "<div class=\"pedir-cuerpo\">" + chatModosHtml() + "<label for=\"chatMensajeInput\" class=\"sr-solo\">Qué hace falta</label><div class=\"pedir-barra\">" + chatMasHtml() + "<textarea id=\"chatMensajeInput\" rows=\"1\" placeholder=\"" + chatPlaceholder() + "\"></textarea><button class=\"btn primary\" id=\"chatEnviarBtn\">" + _0x56ae2b("enviar") + (chatModo === "nota" ? "Enviar nota" : "Enviar") + "</button></div><button type=\"button\" id=\"chatReservaToggleBtn\" class=\"cam-btn pedir-reserva\" aria-pressed=\"false\">Reservar<small>Apartar, no entregar aún</small></button></div>" + (estado.materialesRapidos.length ? "\n          <div class=\"pedir-rapida\" style=\"padding:10px 14px; border-top:1px solid var(--border);\">\n            <p style=\"font-size:11px; font-weight:700; color:var(--text-faint); text-transform:uppercase; letter-spacing:.03em; margin:0 0 8px 2px;\">Lista rápida</p>\n            <div style=\"display:flex; flex-direction:column; gap:6px; max-height:180px; overflow-y:auto;\">\n              " + estado.materialesRapidos.map(_0x2fccc7 => "\n                <label style=\"display:flex; align-items:center; gap:8px; font-size:12.5px;\">\n                  <input type=\"checkbox\" class=\"rapido-check\" aria-label=\"Añadir este material\" data-rapido-id=\"" + _0x2fccc7.id + "\" style=\"width:16px; height:16px; flex:none;\">\n                  <span style=\"flex:1;\">" + escaparHtml(_0x2fccc7.nombre) + "</span>\n                  <input type=\"number\" class=\"rapido-qty\" aria-label=\"Cantidad\" data-rapido-qty=\"" + _0x2fccc7.id + "\" value=\"1\" min=\"1\" style=\"width:52px; flex:none;\">\n                </label>\n              ").join("") + "\n            </div>\n            <button class=\"cam-btn\" id=\"anadirRapidosBtn\" style=\"width:100%; margin-top:8px;\">Añadir seleccionados</button>\n          </div>\n          " : "") + "</div><div class=\"ticket actividad-ticket\"><div class=\"ticket-header\"><span class=\"ticket-title\">Actividad</span><span class=\"ticket-title pedir-orden\">" + _0x4368d0.chat.length + " movimientos</span></div><div class=\"ticket-body\">" + _0x17a460(_0x4368d0.chat, {
         target: _0x4368d0,
         puedeAsociar: !_0xe5dca9,
         clave: estado.mode + "::" + (estado.current[estado.mode] || "")
@@ -10981,6 +11310,14 @@
     const _0x3bed56 = $("#chatEnviarBtn");
     if (_0x3bed56) {
       _0x3bed56.addEventListener("click", _0x1b4d13);
+    }
+    const __campoChat = $("#chatMensajeInput");
+    if (__campoChat) {
+      __campoChat.addEventListener("keydown", e => {
+        if (e.key === "Enter" && !e.shiftKey && chatModo === "pedir" && chatComoEscaneo(__campoChat)) {
+          e.preventDefault();
+        }
+      });
     }
     const __btnReservaChat = $("#chatReservaToggleBtn");
     if (__btnReservaChat) {
