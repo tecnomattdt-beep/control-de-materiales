@@ -1779,7 +1779,7 @@
   }
   const chatModosHtml = () => '<div class="pedir-modos" role="group" aria-label="Qué vas a enviar"><button type="button" class="pedir-modo" data-chat-modo="pedir" aria-pressed="' + (chatModo === "pedir") + '">Pedir material</button><button type="button" class="pedir-modo" data-chat-modo="nota" aria-pressed="' + (chatModo === "nota") + '">Escribir nota</button></div>';
   const chatMasHtml = () => '<button type="button" class="pedir-mas" id="chatMasBtn" aria-label="Más opciones" aria-haspopup="dialog">' + ICONO_MAS + '</button>';
-  const chatPlaceholder = () => chatModo === "nota" ? "Nota para " + (_0x2df77d() === "taller" ? "almacén" : "el taller") + "…" : "Qué necesitas. Ej.: borna paso UT-10 x 20";
+  const chatPlaceholder = () => chatModo === "nota" ? "Nota para " + (_0x2df77d() === "taller" ? "almacén" : "el taller") + "…" : "Qué necesitas…";
   function chatPlenoAplicar() {
     const app = document.getElementById("app");
     if (!app) {
@@ -1966,10 +1966,10 @@
     } catch (e) {}
   }
   document.addEventListener("click", e => {
-    const modo = e.target.closest && e.target.closest("[data-chat-modo]");
+    const modo = e.target.closest && e.target.closest(".pedir-modo[data-chat-modo]");
     if (modo) {
       chatModo = modo.dataset.chatModo;
-      document.querySelectorAll("[data-chat-modo]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.chatModo === chatModo)));
+      document.querySelectorAll(".pedir-modo[data-chat-modo]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.chatModo === chatModo)));
       const campo = document.getElementById("chatMensajeInput");
       if (campo) {
         campo.placeholder = chatPlaceholder();
