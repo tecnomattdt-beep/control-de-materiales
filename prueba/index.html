@@ -1348,6 +1348,15 @@
   #app[data-chat-pleno="trabajo"][data-chat-pm="1"] .chat-tabs-row{display:flex !important;}
   #app[data-chat-pleno="reponer"] :is(#escanerBarra, #scannerZone):not(.chat-panel-activo){display:none !important;}
   #app[data-chat-pleno] .pedir-rapida:not(.chat-panel-activo){display:none !important;}
+  /* El chat ocupa toda la sección: fuera el cartel, el buscador, los avisos y los apartados que van al menú + */
+  #app[data-chat-pleno] :is([data-chat-sec], #globalSearchZone, #pedidoNotifBanner, #alertBanner, #statusBanner:empty):not(.chat-panel-activo){display:none !important;}
+  #app[data-chat-pleno] > h1, #app[data-chat-pleno] > .subtitle, #app[data-chat-pleno] > .autosave-note{display:none !important;}
+  #app[data-chat-pleno] .project-bar:not(.project-bar-inline){position:sticky; top:0; z-index:28; background:var(--bg-panel); box-shadow:0 6px 14px rgba(0,0,0,.3);}
+  #app[data-chat-pleno] .franja-estado{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none;}
+  #app[data-chat-pleno] .franja-estado::-webkit-scrollbar{display:none;}
+  #app[data-chat-pleno] #prepareGroupDeliveryBtn{order:45; margin:8px 0 0;}
+  .pedir-mas{position:relative;}
+  .pedir-mas[data-hay="1"]::after{content:""; position:absolute; top:6px; right:6px; width:10px; height:10px; border-radius:50%; background:var(--viga); box-shadow:0 0 0 2px var(--bg-panel);}
   #app[data-chat-pleno] #mainList{display:flex; flex-direction:column;}
   #app[data-chat-pleno] #mainList > .ticket.pedir{order:50;}
   #app[data-chat-pleno] .ticket.pedir{position:sticky; bottom:0; z-index:30; margin:8px 0 0; border-top:3px solid var(--zona); box-shadow:0 -10px 24px rgba(0,0,0,.35);}

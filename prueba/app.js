@@ -1762,7 +1762,9 @@
   let chatClaveAnterior = "";
   let chatUltimoTs = 0;
   let chatBajar = false;
-  const PANELES_CHAT = { texto: "#textoPanel", docs: ".ticket:has(> #toggleDocumentosBtn)", correo: "#clasifCorreoGlobal", lateral: "#sidePanel", rapida: ".pedir-rapida" };
+  const PANELES_CHAT = { texto: "#textoPanel", docs: ".ticket:has(> #toggleDocumentosBtn)", correo: "#clasifCorreoGlobal", lateral: "#sidePanel", rapida: ".pedir-rapida", buscar: "#globalSearchZone", avisos: "#pedidoNotifBanner" };
+  // En el chat solo quedan a la vista estas piezas; el resto de apartados de la orden se abre desde el menú +
+  const CHAT_VISIBLE = ".project-bar, .project-bar-inline, :has(> #toggleMasOpcionesBtn), #groupFilterInput, .franja-estado, .aviso-sinref, .actividad-ticket, .ticket.pedir, #prepareGroupDeliveryBtn";
   const ICONO_MAS = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>';
   function chatClaveActual() {
     if ((estado.mode === "montaje" || estado.mode === "proyecto") && _0x5592da === "chat" && estado.current[estado.mode]) {
@@ -1800,8 +1802,26 @@
     app.dataset.chatPleno = clave ? (clave === "reponer" ? "reponer" : "trabajo") : "";
     app.dataset.chatModo = chatModo;
     app.dataset.chatPm = typeof __pmActivo !== "undefined" && __pmActivo ? "1" : "";
+    document.querySelectorAll("[data-chat-sec]").forEach(e => e.removeAttribute("data-chat-sec"));
+    let ocultos = 0;
+    if (clave) {
+      const fijos = Object.values(PANELES_CHAT).join(", ");
+      [...document.getElementById("mainList").children].forEach((e, i) => {
+        if (!e.matches(CHAT_VISIBLE)) {
+          e.setAttribute("data-chat-sec", String(i));
+          if (!e.matches(fijos)) {
+            ocultos++;
+          }
+        }
+      });
+    }
+    const mas = document.getElementById("chatMasBtn");
+    if (mas) {
+      mas.dataset.hay = ocultos ? "1" : "";
+    }
     document.querySelectorAll(".chat-panel-activo").forEach(e => e.classList.remove("chat-panel-activo"));
-    const el = clave && PANELES_CHAT[chatPanel] ? document.querySelector(PANELES_CHAT[chatPanel]) : null;
+    const selPanel = chatPanel.indexOf("sec:") === 0 ? '[data-chat-sec="' + chatPanel.slice(4) + '"]' : PANELES_CHAT[chatPanel];
+    const el = clave && selPanel ? document.querySelector(selPanel) : null;
     if (el) {
       el.classList.add("chat-panel-activo");
       el.classList.remove("cerrado"); // los paneles plegables se abren ya desplegados
@@ -1846,7 +1866,19 @@
       ["vista:devuelto", "Devuelto", trabajo && hay('[data-view="devuelto"]')],
       ["lista", "Ver el pedido", !trabajo && hay('[data-pedido-view="list"]')],
       ["lateral", trabajo ? "Resumen y herramientas" : "Resumen y envío", movil && hay("#sidePanel > *")]
+      ,["buscar", "Buscar en el stock", hay("#globalSearchZone > *")]
+      ,["avisos", "Avisos de pedidos", hay("#pedidoNotifBanner > *")]
     ].filter(i => i[2]);
+    const fijos = Object.values(PANELES_CHAT).join(", ");
+    document.querySelectorAll("#mainList [data-chat-sec]").forEach(e => {
+      if (e.matches(fijos)) {
+        return;
+      }
+      const titulo = e.matches("button") ? e.innerText : (e.querySelector(".ticket-title, .panel-title, summary") || {}).innerText;
+      if (titulo && titulo.trim()) {
+        items.unshift(["sec:" + e.dataset.chatSec, titulo.trim().split(String.fromCharCode(10))[0].slice(0, 48), true]);
+      }
+    });
     let menu = document.getElementById("chatMenu");
     if (!menu) {
       menu = document.createElement("div");
@@ -1903,6 +1935,12 @@
     }
     if (accion.indexOf("vista:") === 0) {
       return pulsar('[data-view="' + accion.slice(6) + '"]');
+    }
+    if (accion.indexOf("sec:") === 0) {
+      const sec = document.querySelector('[data-chat-sec="' + accion.slice(4) + '"]');
+      if (sec && sec.matches("button")) {
+        return sec.click();
+      }
     }
     chatPanel = accion;
     chatPlenoAplicar();
