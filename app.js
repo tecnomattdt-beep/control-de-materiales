@@ -1070,8 +1070,9 @@
     }
     if (_0x4505ef) {
       estado.mode = "resumen";
-      estado.current.montaje = _0x4505ef.currentMontajeOrder || null;
-      estado.current.proyecto = _0x4505ef.currentProject || null;
+      // Trabajo empieza siempre por la lista de órdenes: no se reabre la última, para no escribir en la equivocada
+      estado.current.montaje = null;
+      estado.current.proyecto = null;
       if (_0x4505ef.vehiculoActualId) {
         estado.vehiculoActualId = _0x4505ef.vehiculoActualId;
       }
@@ -1787,6 +1788,7 @@
     if (!app) {
       return;
     }
+    ordenCabecera();
     const clave = chatClaveActual();
     if (clave !== chatClaveAnterior) {
       if (chatClaveAnterior) {
@@ -1845,6 +1847,113 @@
       requestAnimationFrame(() => window.scrollTo(0, document.documentElement.scrollHeight));
     }
   }
+  // ── Lista de órdenes: lo primero que se ve en Trabajo ──
+  // Cada orden como una tarjeta con su último movimiento y lo que tiene pendiente; al tocarla se abre su chat.
+  const ICONO_VOLVER = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
+  let ordenesCargando = false;
+  // shortcut: lee una vez cada orden activa que aún no esté en memoria; con muchas órdenes activas, pasar a un resumen guardado
+  async function cargarOrdenesLista(faltan) {
+    if (ordenesCargando) {
+      return;
+    }
+    ordenesCargando = true;
+    try {
+      for (const o of faltan) {
+        const k = o.kind + "::" + o.g.name;
+        if (!estado.groupData[k]) {
+          const v = await leerDato("group_" + o.kind + "_" + aSlug(o.g.name));
+          estado.groupData[k] = v ? Object.assign(grupoVacio(), v) : grupoVacio();
+        }
+      }
+    } finally {
+      ordenesCargando = false;
+    }
+    render();
+  }
+  function listaOrdenesHtml() {
+    const ordenes = [];
+    ["montaje", "proyecto"].forEach(kind => (estado.groups[kind] || []).forEach(g => ordenes.push({ kind, g })));
+    const faltan = ordenes.filter(o => o.g.status !== "finalizado" && !estado.groupData[o.kind + "::" + o.g.name]);
+    if (faltan.length) {
+      cargarOrdenesLista(faltan);
+    }
+    const yo = usuarioActual();
+    const filas = ordenes.map(o => {
+      const clave = o.kind + "::" + o.g.name;
+      const d = estado.groupData[clave];
+      const chat = (d && d.chat) || [];
+      const ultimo = chat[chat.length - 1];
+      const items = (d && d.pendiente && d.pendiente.items) || [];
+      return {
+        o, clave, d, ultimo, items,
+        listas: items.filter(l => l.reservado).length,
+        sinRef: items.filter(l => l.textoLibre).length,
+        nuevo: !!(ultimo && ultimo.usuario && ultimo.usuario !== yo && (ultimo.tsMs || 0) > leerVisto(clave)),
+        ts: ultimo ? ultimo.tsMs || 0 : 0
+      };
+    });
+    const activas = filas.filter(f => f.o.g.status !== "finalizado").sort((a, b) => (b.nuevo - a.nuevo) || (b.ts - a.ts));
+    const finalizadas = filas.filter(f => f.o.g.status === "finalizado");
+    const plural = (n, s) => n + " " + s + (n === 1 ? "" : "s");
+    const tarjeta = f => {
+      const u = f.ultimo;
+      let resumen = f.o.g.status === "finalizado" ? "Finalizada" : !f.d ? "Cargando…" : "Sin movimientos todavía";
+      if (u) {
+        const t = tipoActividad(u.texto);
+        resumen = u.tipo === "nota" ? "Nota de " + quienActividad(u.usuario) + ": " + u.texto : t.etiqueta + ": " + t.texto;
+      }
+      const cuando = u ? momentoActividad(u) : null;
+      const chips = (f.items.length ? '<span class="estado-linea" data-estado="pedido">' + plural(f.items.length, "pendiente") + '</span>' : '') + (f.listas ? '<span class="estado-linea" data-estado="listo">' + plural(f.listas, "lista") + ' para recoger</span>' : '') + (f.sinRef ? '<span class="estado-linea" data-estado="borrador">' + f.sinRef + ' sin referencia</span>' : '');
+      return '<button type="button" class="orden-tarjeta' + (f.nuevo ? ' nueva' : '') + '" data-abrir-orden="' + escaparHtml(f.clave) + '"><span class="orden-tarjeta-cab"><b>' + escaparHtml(f.o.g.name) + '</b>' + (cuando ? '<time>' + cuando.dia + ' · ' + cuando.hora + '</time>' : '') + '</span><span class="orden-tarjeta-tipo">' + (f.o.kind === "proyecto" ? "Proyecto" : "Montaje") + (f.o.g.tipo ? " · " + escaparHtml(f.o.g.tipo) : "") + (f.nuevo ? ' · <span class="orden-nuevo">Nuevo</span>' : '') + '</span><span class="orden-tarjeta-ultimo">' + escaparHtml(String(resumen).slice(0, 100)) + '</span>' + (chips ? '<span class="orden-tarjeta-chips">' + chips + '</span>' : '') + '</button>';
+    };
+    return '<section class="lista-ordenes" aria-label="Órdenes activas"><div class="lista-ordenes-cab"><h2>Órdenes activas</h2><span>' + activas.length + '</span></div>' + (filas.length > 6 ? '<input type="search" class="lista-ordenes-filtro" placeholder="Buscar orden o proyecto…" aria-label="Buscar orden o proyecto">' : '') + (activas.length ? activas.map(tarjeta).join('') : '<div class="empty-state">No hay órdenes activas. Crea una con «+ Nueva».</div>') + (finalizadas.length ? '<details class="lista-ordenes-fin"><summary>Finalizadas (' + finalizadas.length + ')</summary>' + finalizadas.map(tarjeta).join('') + '</details>' : '') + '</section>';
+  }
+  function abrirOrdenDesdeLista(clave) {
+    const i = clave.indexOf("::");
+    const kind = clave.slice(0, i);
+    _0x1e9600 = kind;
+    estado.mode = kind;
+    _0x5592da = "chat";
+    _0x2f0e01(kind, clave.slice(i + 2));
+  }
+  function volverALaLista() {
+    estado.current.montaje = null;
+    estado.current.proyecto = null;
+    guardarPantallaActual();
+    render();
+    window.scrollTo(0, 0);
+  }
+  // Cabecera de la orden abierta: «← Órdenes» y su nombre bien visible, para no escribir en la orden equivocada
+  function ordenCabecera() {
+    const app = document.getElementById("app");
+    const trabajo = estado.mode === "montaje" || estado.mode === "proyecto";
+    const nombre = trabajo ? estado.current[estado.mode] : null;
+    app.dataset.listaOrdenes = trabajo && !nombre ? "1" : "";
+    app.dataset.ordenAbierta = nombre ? "1" : "";
+    const barra = nombre && document.querySelector("#mainList .project-bar:not(.project-bar-inline)");
+    if (barra && !barra.querySelector("[data-volver-ordenes]")) {
+      const g = buscarGrupo(estado.mode, nombre) || {};
+      barra.insertAdjacentHTML("afterbegin", '<button type="button" class="cam-btn orden-volver" data-volver-ordenes aria-label="Volver a la lista de órdenes">' + ICONO_VOLVER + 'Órdenes</button><span class="orden-actual"><b>' + escaparHtml(nombre) + '</b><small>' + (estado.mode === "proyecto" ? "Proyecto" : "Montaje") + (g.tipo ? " · " + escaparHtml(g.tipo) : "") + '</small></span>');
+    }
+  }
+  document.addEventListener("click", e => {
+    const abrir = e.target.closest && e.target.closest("[data-abrir-orden]");
+    if (abrir) {
+      abrirOrdenDesdeLista(abrir.dataset.abrirOrden);
+      return;
+    }
+    if (e.target.closest && e.target.closest("[data-volver-ordenes]")) {
+      volverALaLista();
+    }
+  });
+  document.addEventListener("input", e => {
+    if (e.target && e.target.classList && e.target.classList.contains("lista-ordenes-filtro")) {
+      const q = e.target.value.trim().toLowerCase();
+      document.querySelectorAll(".lista-ordenes .orden-tarjeta").forEach(t => {
+        t.hidden = !!q && t.innerText.toLowerCase().indexOf(q) < 0;
+      });
+    }
+  });
   function chatMenuAbrir() {
     const clave = chatClaveActual();
     if (!clave) {
@@ -3328,7 +3437,7 @@
       const _0x1b3be7 = estado.groupData[_0x57ba4d];
       if (_0x1b3be7 && _0x1b3be7.pendiente.items.length) {
         const _0x51e77e = _0x1b3be7.pendiente.items.reduce((_0x575887, _0xce2396) => _0x575887 + _0xce2396.qty, 0);
-        mostrarAviso("Esta " + (_0x5a7091 === "montaje" ? "orden" : "este proyecto") + " tiene " + _0x1b3be7.pendiente.items.length + " línea(s) sin recoger (" + _0x51e77e + " uds).");
+        mostrarAviso((_0x5a7091 === "montaje" ? "Esta orden" : "Este proyecto") + " tiene " + _0x1b3be7.pendiente.items.length + " línea(s) sin recoger (" + _0x51e77e + " uds).");
       }
     }
     _0x1b4d13.reservaActiva = false; // «Reservar» es de la orden en la que se marcó, no pasa a la siguiente
@@ -10157,6 +10266,10 @@
     _0x212998.querySelectorAll(".mode-btn[data-mode]").forEach(_0x20a919 => {
       _0x20a919.addEventListener("click", () => {
         estado.mode = _0x20a919.dataset.mode === "trabajo" ? _0x1e9600 : _0x20a919.dataset.mode;
+        if (_0x20a919.dataset.mode === "trabajo") {
+          estado.current.montaje = null;
+          estado.current.proyecto = null;
+        }
         _0x24edec = null;
         _0x1dfbd0 = null;
         _0x5592da = "chat";
@@ -11143,7 +11256,7 @@
     const _0x196921 = _0x33d6d2();
     const _0x4368d0 = _0x1ea037();
     if (!_0x4368d0) {
-      _0x1b7047.innerHTML = _0x196921 + "<div class=\"empty-state\">Selecciona una orden o proyecto arriba, o crea uno nuevo, para empezar a registrar material.</div>";
+      _0x1b7047.innerHTML = _0x196921 + listaOrdenesHtml();
       _0x241b98(_0x1b7047);
       return;
     }

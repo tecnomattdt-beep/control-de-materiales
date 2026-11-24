@@ -1398,6 +1398,35 @@
     .chat-panel-activo, .chat-menu-hoja{animation:chat-sube .22s cubic-bezier(.16,1,.3,1);}
     @keyframes chat-sube{from{transform:translateY(24px); opacity:.6;}}
   }
+  /* ── Lista de órdenes (entrada a Trabajo) y cabecera de la orden abierta ── */
+  #app[data-lista-ordenes="1"] :is(#groupSelect, #groupFilterInput){display:none !important;}
+  #app[data-lista-ordenes="1"] #toggleNuevoTrabajoBtn{flex:1; min-height:48px;}
+  @media (max-width:1100px){ #app[data-lista-ordenes="1"] :is(#sidePanel, #scannerZone, #escanerBarra){display:none !important;} }
+  #app[data-orden-abierta="1"] .project-bar:not(.project-bar-inline) :is(#groupSelect, #toggleNuevoTrabajoBtn){display:none !important;}
+  #app[data-orden-abierta="1"] #groupFilterInput{display:none !important;}
+  #app[data-orden-abierta="1"] .project-bar:not(.project-bar-inline){flex-direction:row !important; flex-wrap:nowrap !important; align-items:center; gap:10px;}
+  .orden-volver{width:auto !important; flex:none; display:inline-flex; align-items:center; gap:4px; min-height:44px; padding:6px 12px 6px 8px;}
+  .orden-actual{flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; line-height:1.15;}
+  .orden-actual b{font-family:var(--letra-cartel); font-weight:800; font-size:20px; letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .orden-actual small{font-size:12.5px; color:var(--text-muted); font-weight:600;}
+  .lista-ordenes{display:flex; flex-direction:column; gap:8px; margin-top:10px;}
+  .lista-ordenes-cab{display:flex; align-items:baseline; justify-content:space-between;}
+  .lista-ordenes-cab h2{margin:0; font-family:var(--letra-cartel); font-weight:800; font-size:20px; letter-spacing:.05em; text-transform:uppercase; color:var(--text-primary);}
+  .lista-ordenes-cab span{font-family:var(--letra-cartel); font-weight:800; font-size:20px; color:var(--zona);}
+  .lista-ordenes-filtro{width:100%; min-height:48px;}
+  .orden-tarjeta{display:flex; flex-direction:column; gap:4px; width:100%; text-align:left; padding:12px 14px; background:var(--etiqueta); color:var(--tinta); border:0; border-radius:var(--radio); box-shadow:var(--sombra); cursor:pointer; position:relative; font-family:var(--letra);}
+  .orden-tarjeta:hover{outline:2px solid var(--zona);}
+  .orden-tarjeta.nueva{box-shadow:inset 6px 0 0 var(--viga), var(--sombra); padding-left:18px;}
+  .orden-tarjeta-cab{display:flex; align-items:baseline; justify-content:space-between; gap:10px;}
+  .orden-tarjeta-cab b{font-family:var(--letra-cartel); font-weight:800; font-size:20px; letter-spacing:.02em;}
+  .orden-tarjeta-cab time{font-size:12.5px; font-weight:600; color:var(--tinta-2); white-space:nowrap;}
+  .orden-tarjeta-tipo{font-size:13px; font-weight:600; color:var(--tinta-2);}
+  .orden-nuevo{color:#B84500; font-weight:800;}
+  .orden-tarjeta-ultimo{font-size:14.5px; line-height:1.35; color:var(--tinta);}
+  .orden-tarjeta-chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:4px;}
+  .lista-ordenes-fin{margin-top:6px;}
+  .lista-ordenes-fin > summary{min-height:44px; display:flex; align-items:center; cursor:pointer; font-family:var(--letra-cartel); font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--text-muted);}
+  .lista-ordenes-fin .orden-tarjeta{opacity:.75; margin-bottom:8px;}
   /* ── Mejoras de uso ── */
   /* Estado de cada línea del pedido: placa con texto, nunca solo color */
   .estado-linea{display:inline-block; font-family:var(--letra-cartel); font-weight:700; font-size:12px; letter-spacing:.05em; text-transform:uppercase; padding:2px 7px; border-radius:2px; vertical-align:1px; white-space:nowrap; background:var(--bg-raised-2); color:var(--text-primary);}
