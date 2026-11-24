@@ -1809,7 +1809,7 @@
       [...document.getElementById("mainList").children].forEach((e, i) => {
         if (!e.matches(CHAT_VISIBLE)) {
           e.setAttribute("data-chat-sec", String(i));
-          if (!e.matches(fijos + ", .chat-tabs-row, #guiaTrabajo")) {
+          if (!e.matches(fijos + ", .chat-tabs-row, #guiaTrabajo, :has(> [data-pedido-view])")) {
             ocultos++;
           }
         }
@@ -1864,14 +1864,14 @@
       ["vista:hoja", "Hoja de pedido", trabajo && hay('[data-view="hoja"]')],
       ["vista:servido", "Servido", trabajo && hay('[data-view="servido"]')],
       ["vista:devuelto", "Devuelto", trabajo && hay('[data-view="devuelto"]')],
-      ["lista", "Ver el pedido", !trabajo && hay('[data-pedido-view="list"]')],
+      ["lista", "Ver el pedido", !trabajo && hay('[data-pedido-view="lista"]')],
       ["lateral", trabajo ? "Resumen y herramientas" : "Resumen y envío", movil && hay("#sidePanel > *")]
       ,["buscar", "Buscar en el stock", hay("#globalSearchZone > *")]
       ,["avisos", "Avisos de pedidos", hay("#pedidoNotifBanner > *")]
     ].filter(i => i[2]);
     const fijos = Object.values(PANELES_CHAT).join(", ");
     document.querySelectorAll("#mainList [data-chat-sec]").forEach(e => {
-      if (e.matches(fijos + ", .chat-tabs-row, #guiaTrabajo")) {
+      if (e.matches(fijos + ", .chat-tabs-row, #guiaTrabajo, :has(> [data-pedido-view])")) {
         return;
       }
       const titulo = e.matches("button") ? e.innerText : (e.querySelector(".ticket-title, .panel-title, summary") || {}).innerText;
@@ -1931,7 +1931,7 @@
       return pulsar("#chatReservaToggleBtn");
     }
     if (accion === "lista") {
-      return pulsar('[data-pedido-view="list"]');
+      return pulsar('[data-pedido-view="lista"]');
     }
     if (accion.indexOf("vista:") === 0) {
       return pulsar('[data-view="' + accion.slice(6) + '"]');
