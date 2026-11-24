@@ -38,6 +38,43 @@
     return lista;
   }
 
+  // Orden o proyecto: el chat se une por fecha; las líneas pedidas y servidas, como cualquier lista compartida
+  // (lo que otro dispositivo añadió y aquí no se conocía, se conserva). conocidos: { pendiente: Set, servido: Set }.
+  // Devuelto no lleva id: manda la local.
+  function fusionarGrupo(servidor, local, conocidos) {
+    const srv = servidor || {};
+    const pend = Object.assign({}, local.pendiente, {
+      items: fusionarLista(srv.pendiente && srv.pendiente.items, local.pendiente && local.pendiente.items, conocidos.pendiente)
+    });
+    return Object.assign({}, local, {
+      chat: fusionarPorId(srv.chat, local.chat, "asc", 300),
+      pendiente: pend,
+      servido: fusionarLista(srv.servido, local.servido, conocidos.servido)
+    });
+  }
+
+  // Separa cantidad y material en lo que escribe el taller: «20 x borna», «borna 20 uds», «borna paso UT-10 x 20».
+  // codigos: códigos del catálogo en minúsculas (un número que es un código no es una cantidad).
+  const TEXTO_MEDIDA = /^(?:mm|cm|m|mt|mts|metro|metros|kg|g|gr|w|kw|v|a|amp|ah|l|lt|litro|litros|bar|pulgada|pulgadas)\b/i;
+  // «tornillo M6 x 30», «brida DN40 2»: un número detrás de una métrica es su medida, salvo que diga «uds»
+  const TRAS_METRICA = /(?:^|\s)(?:M|DN|PN|Ø)\s?\d+(?:[.,]\d+)?$/i;
+  function textoCantidad(texto, codigos) {
+    const t = String(texto == null ? "" : texto);
+    const cods = codigos || new Set();
+    const tope = n => Math.min(9999, Math.max(1, n));
+    let m = /^(\d{1,4})\s*[xX×]\s*(?!\d)(\S.*)$/.exec(t) || /^(\d{1,4})\s*(?:uds?\.?|unidades?|u\.?|pzs?\.?|piezas?)\s+(\S.*)$/i.exec(t);
+    if (m) return { texto: m[2].trim(), qty: tope(parseInt(m[1], 10)) };
+    m = /^(\d{1,4})\s+(\S.*)$/.exec(t);
+    if (m && !cods.has(m[1]) && /[A-Za-zÁÉÍÓÚÑáéíóúñ]/.test(m[2]) && !TEXTO_MEDIDA.test(m[2])) {
+      return { texto: m[2].trim(), qty: tope(parseInt(m[1], 10)) };
+    }
+    m = /^(.*?\S)\s+(?:[xX×]\s*)?(\d{1,4})(\s*(?:uds?\.?|unidades?|u\.?|pzs?\.?|piezas?))?$/i.exec(t);
+    if (m && (/[A-Za-zÁÉÍÓÚÑáéíóúñ]/.test(m[1]) || cods.has(m[1].toLowerCase())) && !cods.has(m[2]) && !cods.has(t.toLowerCase()) && (m[3] || !TRAS_METRICA.test(m[1]))) {
+      return { texto: m[1].trim(), qty: tope(parseInt(m[2], 10)) };
+    }
+    return { texto: t, qty: 1 };
+  }
+
   // Estado de una línea de la hoja de pedido, en palabras del taller. `servida`: la línea ya está en Servido.
   function estadoLinea(linea, servida) {
     if (servida) return { clave: "recogido", texto: "Recogido" };
@@ -84,5 +121,5 @@
     }
     return { clase: "nota", etiqueta: "Nota", texto: t };
   }
-  raiz.TecnomatDatos = { fusionarPorId, fusionarCatalogo, fusionarLista, estadoLinea, textoBarras, vaciarCola, tipoActividad };
+  raiz.TecnomatDatos = { fusionarPorId, fusionarCatalogo, fusionarLista, estadoLinea, textoBarras, vaciarCola, tipoActividad, fusionarGrupo, textoCantidad };
 })(globalThis);

@@ -5,7 +5,7 @@ import vm from 'node:vm';
 
 const ctx = vm.createContext({});
 vm.runInContext(readFileSync(new URL('../datos.js', import.meta.url), 'utf8'), ctx);
-const { fusionarPorId, fusionarCatalogo, fusionarLista, estadoLinea, textoBarras, vaciarCola, tipoActividad } = ctx.TecnomatDatos;
+const { fusionarPorId, fusionarCatalogo, fusionarLista, estadoLinea, textoBarras, vaciarCola, tipoActividad, fusionarGrupo, textoCantidad } = ctx.TecnomatDatos;
 const plano = x => JSON.parse(JSON.stringify(x));
 const ids = l => plano(l).map(x => x.id);
 
@@ -116,6 +116,45 @@ test('actividad: cada mensaje de la app sale con su tipo y sin repetir la palabr
   assert.equal(t('Pequeño material: Test ×1 (pide: test)')[0], 'pedido');
   assert.equal(t('Algo que no conoce')[1], 'Nota');
   assert.equal(t('')[1], 'Nota');
+});
+
+test('orden: si el taller pide y almacén reserva a la vez, no se pierde ninguna de las dos cosas', () => {
+  const conocidos = { pendiente: new Set(['l1']), servido: new Set() };
+  const servidor = { chat: [], pendiente: { items: [{ id: 'l1' }, { id: 'nuevaTaller' }] }, servido: [] }; // el taller añadió una línea
+  const local = { chat: [], pendiente: { requesterName: 'Ana', items: [{ id: 'l1', reservado: true }] }, servido: [], devuelto: [] }; // almacén reservó l1
+  const r = plano(fusionarGrupo(servidor, local, conocidos));
+  assert.deepEqual(r.pendiente.items, [{ id: 'l1', reservado: true }, { id: 'nuevaTaller' }]);
+  assert.equal(r.pendiente.requesterName, 'Ana');
+});
+
+test('orden: una línea servida aquí no vuelve a pendientes, y la servida en otro móvil se conserva', () => {
+  const conocidos = { pendiente: new Set(['l1']), servido: new Set() };
+  const servidor = { chat: [], pendiente: { items: [{ id: 'l1' }] }, servido: [{ id: 's9' }] };
+  const local = { chat: [], pendiente: { items: [] }, servido: [{ id: 's1' }] }; // aquí se sirvió l1
+  const r = plano(fusionarGrupo(servidor, local, conocidos));
+  assert.deepEqual(ids(r.pendiente.items), []);
+  assert.deepEqual(ids(r.servido), ['s1', 's9']);
+});
+
+test('pedir: cantidad delante o detrás, con x o con «uds»', () => {
+  const c = t => plano(textoCantidad(t, new Set()));
+  assert.deepEqual(c('20 x borna paso UT-10'), { texto: 'borna paso UT-10', qty: 20 });
+  assert.deepEqual(c('borna paso UT-10 x 20'), { texto: 'borna paso UT-10', qty: 20 });
+  assert.deepEqual(c('topes fhoenix 40'), { texto: 'topes fhoenix', qty: 40 });
+  assert.deepEqual(c('cable 3x2,5'), { texto: 'cable 3x2,5', qty: 1 });
+  assert.deepEqual(c('5 m de cable'), { texto: '5 m de cable', qty: 1 }, '«5 m» es una medida');
+});
+
+test('pedir: el número detrás de una métrica es su medida, no la cantidad', () => {
+  const c = t => plano(textoCantidad(t, new Set()));
+  assert.deepEqual(c('tornillo M6 x 30'), { texto: 'tornillo M6 x 30', qty: 1 });
+  assert.deepEqual(c('brida DN40 2'), { texto: 'brida DN40 2', qty: 1 });
+  assert.deepEqual(c('tornillo M6 x 30 x 10 uds'), { texto: 'tornillo M6 x 30', qty: 10 }, 'con «uds» sí es cantidad');
+  assert.deepEqual(c('tornillo M6 10 uds'), { texto: 'tornillo M6', qty: 10 });
+});
+
+test('pedir: un número que es un código del catálogo no se toma como cantidad', () => {
+  assert.deepEqual(plano(textoCantidad('borna 53195', new Set(['53195']))), { texto: 'borna 53195', qty: 1 });
 });
 
 test('estado de cada línea de la hoja de pedido, en el orden que la vive el taller', () => {

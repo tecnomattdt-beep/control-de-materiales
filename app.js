@@ -1365,6 +1365,7 @@
       escuchar("group_" + _0x3cd23c + "_" + aSlug(_0x4e0ced), _0x49e120 => {
         const _0x15ad47 = Object.assign(grupoVacio(), _0x49e120);
         const _0x534093 = _0x3cd23c + "::" + _0x4e0ced;
+        recordarGrupo(_0x534093, _0x15ad47);
         if (estado.groupData[_0x534093]) {
           Object.assign(estado.groupData[_0x534093], _0x15ad47);
         } else {
@@ -1532,13 +1533,22 @@
     if (!local) {
       return;
     }
-    return guardarFusionado("group_" + _0x22ca02 + "_" + aSlug(_0x9ffa21), local, servidor => Object.assign({}, local, {
-      chat: TecnomatDatos.fusionarPorId(servidor.chat, local.chat, "asc", 300)
-    }), valor => {
+    const conocidos = recordarGrupo(_0x22ca02 + "::" + _0x9ffa21, local);
+    return guardarFusionado("group_" + _0x22ca02 + "_" + aSlug(_0x9ffa21), local, servidor => TecnomatDatos.fusionarGrupo(servidor, local, conocidos), valor => {
       if (estado.groupData[_0x22ca02 + "::" + _0x9ffa21] === local) {
         local.chat = valor.chat;
+        local.pendiente = valor.pendiente;
+        local.servido = valor.servido;
       }
     });
+  }
+  // Líneas de cada orden que este dispositivo ya ha visto: distingue «se quitó aquí» de «la añadió otro móvil»
+  const conocidosGrupos = {};
+  function recordarGrupo(clave, g) {
+    const c = conocidosGrupos[clave] || (conocidosGrupos[clave] = { pendiente: new Set(), servido: new Set() });
+    ((g && g.pendiente && g.pendiente.items) || []).forEach(x => c.pendiente.add(x.id));
+    ((g && g.servido) || []).forEach(x => c.servido.add(x.id));
+    return c;
   }
   function guardarBobinas() {
     guardar("bobinas", estado.bobinas);
@@ -3002,6 +3012,7 @@
         mostrarAviso("Esta " + (_0x5a7091 === "montaje" ? "orden" : "este proyecto") + " tiene " + _0x1b3be7.pendiente.items.length + " línea(s) sin recoger (" + _0x51e77e + " uds).");
       }
     }
+    _0x1b4d13.reservaActiva = false; // «Reservar» es de la orden en la que se marcó, no pasa a la siguiente
     guardarPantallaActual();
     escucharOrdenesAbiertas();
     render();
@@ -5604,7 +5615,28 @@
   const __AUTO_ENVIO_MS = 15000;
   let __autoEnvio = null;
   let __avisoValidar = "";
+  // Un solo envío a la vez: separar el texto puede consultar la IA y tardar; un segundo toque duplicaría las líneas
+  let chatEnviando = false;
   async function __chatEnviar() {
+    if (chatEnviando) {
+      return;
+    }
+    chatEnviando = true;
+    const boton = document.getElementById("chatEnviarBtn");
+    if (boton) {
+      boton.disabled = true;
+    }
+    try {
+      await chatEnviarUnaVez();
+    } finally {
+      chatEnviando = false;
+      const b = document.getElementById("chatEnviarBtn");
+      if (b) {
+        b.disabled = false;
+      }
+    }
+  }
+  async function chatEnviarUnaVez() {
     const _0x3edc96 = _0x1ea037();
     if (!_0x3edc96) {
       return;
@@ -5975,10 +6007,13 @@
       _0x46f1a4.className = _0x22c995.className;
       _0x46f1a4.type = "button";
       _0x46f1a4.textContent = "Pequeño material";
+      _0x46f1a4.setAttribute("role", "tab");
+      _0x46f1a4.setAttribute("aria-selected", String(!!__pmActivo));
       _0x46f1a4.setAttribute("style", __pmActivo ? _0x43e1be : _0x3db0fb);
       _0x22c995.parentNode.insertBefore(_0x46f1a4, _0x22c995.nextSibling);
       if (__pmActivo) {
         _0x22c995.setAttribute("style", _0x3db0fb);
+        _0x22c995.setAttribute("aria-selected", "false");
       }
       _0x46f1a4.addEventListener("click", () => {
         __pmActivo = true;
@@ -7639,7 +7674,6 @@
   }
   const __TEXTO_CODIGO = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9][A-Za-z0-9._\/-]*$/;
   const __TEXTO_CANT = /^(?:[xX×])?(\d{1,4})$/;
-  const __TEXTO_MEDIDA = /^(?:mm|cm|m|mt|mts|metro|metros|kg|g|gr|w|kw|v|a|amp|ah|l|lt|litro|litros|bar|pulgada|pulgadas)\b/i;
   function __textoCodigos() {
     return new Set((estado.catalog || []).map(_0x3d80ca => String(_0x3d80ca.code || "").toLowerCase()));
   }
@@ -7697,35 +7731,8 @@
     _0x8eb4c2.filter(_0x551450 => _0x551450.length > 1).forEach(_0x17c1f0 => __textoRepartir(_0x17c1f0, _0x501af6).forEach(_0x11a269 => _0x4b9d2c.push(_0x11a269)));
     return _0x4b9d2c.slice(0, 60);
   }
-  function __textoCantidad(_0x4a7494) {
-    const _0x2d09aa = __textoCodigos();
-    const _0x1353d7 = _0x3c82d0 => Math.min(9999, Math.max(1, _0x3c82d0));
-    let _0x240822 = /^(\d{1,4})\s*[xX×]\s*(?!\d)(\S.*)$/.exec(_0x4a7494) || /^(\d{1,4})\s*(?:uds?\.?|unidades?|u\.?|pzs?\.?|piezas?)\s+(\S.*)$/i.exec(_0x4a7494);
-    if (_0x240822) {
-      return {
-        texto: _0x240822[2].trim(),
-        qty: _0x1353d7(parseInt(_0x240822[1], 10))
-      };
-    }
-    _0x240822 = /^(\d{1,4})\s+(\S.*)$/.exec(_0x4a7494);
-    if (_0x240822 && !_0x2d09aa.has(_0x240822[1]) && /[A-Za-zÁÉÍÓÚÑáéíóúñ]/.test(_0x240822[2]) && !__TEXTO_MEDIDA.test(_0x240822[2])) {
-      return {
-        texto: _0x240822[2].trim(),
-        qty: _0x1353d7(parseInt(_0x240822[1], 10))
-      };
-    }
-    _0x240822 = /^(.*?\S)\s+(?:[xX×]\s*)?(\d{1,4})(?:\s*(?:uds?\.?|unidades?|u\.?|pzs?\.?|piezas?))?$/i.exec(_0x4a7494);
-    if (_0x240822 && (/[A-Za-zÁÉÍÓÚÑáéíóúñ]/.test(_0x240822[1]) || _0x2d09aa.has(_0x240822[1].toLowerCase())) && !_0x2d09aa.has(_0x240822[2]) && !_0x2d09aa.has(_0x4a7494.toLowerCase())) {
-      return {
-        texto: _0x240822[1].trim(),
-        qty: _0x1353d7(parseInt(_0x240822[2], 10))
-      };
-    }
-    return {
-      texto: _0x4a7494,
-      qty: 1
-    };
-  }
+  // La regla vive en datos.js (con pruebas); aquí solo se le pasan los códigos del catálogo
+  const __textoCantidad = texto => TecnomatDatos.textoCantidad(texto, __textoCodigos());
   function __textoComplejo(_0x353ef1) {
     const _0x565aae = __clasifNormalizar(_0x353ef1).split(" ");
     const _0x4af095 = /\s(?:y|e|más|además|también|tambien)\s|\s\+\s/i.test(_0x353ef1);
@@ -10768,7 +10775,7 @@
     const _0x3a71dc = $("#mainList");
     const _0x1538e9 = estado.pedidoItems.map(_0x49a1a4 => "\n      <div class=\"ticket-row\" data-id=\"" + _0x49a1a4.id + "\">" + etiquetaUbicacion(_0x49a1a4) + "\n        <div class=\"row-main\">\n          <div class=\"row-code\">" + escaparHtml(_0x49a1a4.code) + "</div>\n          <div class=\"row-desc\">" + escaparHtml(_0x49a1a4.desc) + "</div>\n        </div>\n        <div class=\"row-qty\">x" + _0x49a1a4.qty + "</div>\n        <button class=\"btn-return\" data-pedido-del=\"" + _0x49a1a4.id + "\">Quitar</button>\n      </div>\n    ").join("");
     const _0x5976cf = "\n      <div class=\"scanner-row\" style=\"margin-bottom:10px; flex-wrap:wrap;\">\n        <button class=\"mode-btn\" data-pedido-view=\"chat\" style=\"flex:none; padding:8px 16px; " + (_0x4a2938 === "chat" ? "background:var(--accent); color:#2A0800;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Pedir</button>\n        <button class=\"mode-btn\" data-pedido-view=\"lista\" style=\"flex:none; padding:8px 16px; " + (_0x4a2938 === "lista" ? "background:var(--accent); color:#2A0800;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Lista (" + estado.pedidoItems.length + ")</button>\n      </div>\n    ";
-    const _0x3e2599 = _0x4a2938 === "chat" ? "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Pedir y actividad</span></div>\n        <div class=\"ticket-body\">" + _0x17a460(estado.pedidoChat, { clave: "reponer" }) + "</div>\n        <div style=\"display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border);\">\n          <input type=\"text\" id=\"chatMensajeInput\" placeholder=\"Describe qué hace falta pedir…\" style=\"flex:2; min-width:0;\">\n          <input type=\"number\" id=\"chatCantidadInput\" placeholder=\"Uds\" min=\"1\" value=\"1\" style=\"flex:none; width:64px;\">\n          <button class=\"btn primary\" id=\"chatEnviarBtn\" style=\"width:auto; flex:none;\">" + _0x56ae2b("enviar") + "Enviar</button>\n        </div>\n      </div>\n    " : "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\">Pedido de materiales</span>\n          <span class=\"ticket-title\">" + estado.pedidoItems.length + " referencias</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + (_0x1538e9 || "<div class=\"empty-state\">Todavía no has añadido nada al pedido. Escanea o busca un material del stock para empezar.</div>") + "\n        </div>\n      </div>\n    ";
+    const _0x3e2599 = _0x4a2938 === "chat" ? "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\"><span class=\"ticket-title\">Pedir y actividad</span></div>\n        <div class=\"ticket-body\">" + _0x17a460(estado.pedidoChat, { clave: "reponer" }) + "</div>\n        <div style=\"display:flex; gap:6px; padding:10px 14px; border-top:1px solid var(--border);\">\n          <input type=\"text\" id=\"chatMensajeInput\" aria-label=\"Qué hace falta pedir\" placeholder=\"Describe qué hace falta pedir…\" style=\"flex:2; min-width:0;\">\n          <input type=\"number\" id=\"chatCantidadInput\" aria-label=\"Unidades\" placeholder=\"Uds\" min=\"1\" value=\"1\" style=\"flex:none; width:64px;\">\n          <button class=\"btn primary\" id=\"chatEnviarBtn\" style=\"width:auto; flex:none;\">" + _0x56ae2b("enviar") + "Enviar</button>\n        </div>\n      </div>\n    " : "\n      <div class=\"ticket\">\n        <div class=\"ticket-header\">\n          <span class=\"ticket-title\">Pedido de materiales</span>\n          <span class=\"ticket-title\">" + estado.pedidoItems.length + " referencias</span>\n        </div>\n        <div class=\"ticket-body\">\n          " + (_0x1538e9 || "<div class=\"empty-state\">Todavía no has añadido nada al pedido. Escanea o busca un material del stock para empezar.</div>") + "\n        </div>\n      </div>\n    ";
     _0x3a71dc.innerHTML = _0x5976cf + _0x3e2599;
     _0x10279f(_0x3a71dc);
     _0x3a71dc.querySelectorAll("[data-pedido-view]").forEach(_0x363990 => {
@@ -10826,7 +10833,7 @@
       __cuentaEstados.set("recogido", { texto: "Recogido", n: _0x4368d0.servido.length });
     }
     const __franjaEstado = __cuentaEstados.size ? "<div class=\"franja-estado\" role=\"status\"><b>Estado del pedido</b>" + [...__cuentaEstados].map(([__k, __v]) => "<span class=\"estado-linea\" data-estado=\"" + __k + "\">" + __v.n + " · " + __v.texto + "</span>").join("") + "</div>" : "";
-    const _0x2616e9 = __franjaEstado + "\n      <div class=\"chat-tabs-row\" role=\"tablist\" aria-label=\"Vistas de la orden\" style=\"margin-bottom:10px;\">\n        <button class=\"mode-btn\" data-view=\"chat\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "chat" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\" role=\"tab\" aria-selected=\"" + (_0x5592da === "chat") + "\">Pedir</button>\n        <button class=\"mode-btn\" data-view=\"hoja\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "hoja" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\" role=\"tab\" aria-selected=\"" + (_0x5592da === "hoja") + "\">Hoja de pedido" + (_0x4368d0.pendiente.items.length ? " (" + _0x4368d0.pendiente.items.length + ")" : "") + "</button>\n        " + (_0xe5dca9 ? "" : "\n        <button class=\"mode-btn\" data-view=\"servido\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "servido" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Servido (" + _0x4368d0.servido.length + ")</button>\n        <button class=\"mode-btn\" data-view=\"devuelto\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "devuelto" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\">Devuelto (" + _0x4368d0.devuelto.length + ")</button>\n        ") + "\n      </div>\n    ";
+    const _0x2616e9 = __franjaEstado + "\n      <div class=\"chat-tabs-row\" role=\"tablist\" aria-label=\"Vistas de la orden\" style=\"margin-bottom:10px;\">\n        <button class=\"mode-btn\" data-view=\"chat\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "chat" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\" role=\"tab\" aria-selected=\"" + (_0x5592da === "chat") + "\">Pedir</button>\n        <button class=\"mode-btn\" data-view=\"hoja\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "hoja" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\" role=\"tab\" aria-selected=\"" + (_0x5592da === "hoja") + "\">Hoja de pedido" + (_0x4368d0.pendiente.items.length ? " (" + _0x4368d0.pendiente.items.length + ")" : "") + "</button>\n        " + (_0xe5dca9 ? "" : "\n        <button class=\"mode-btn\" data-view=\"servido\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "servido" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\" role=\"tab\" aria-selected=\"" + (_0x5592da === "servido") + "\">Servido (" + _0x4368d0.servido.length + ")</button>\n        <button class=\"mode-btn\" data-view=\"devuelto\" style=\"flex:none; padding:8px 16px; " + (_0x5592da === "devuelto" ? "background:var(--accent); color:#150A28;" : "background:var(--bg-panel); border:1px solid var(--border);") + "\" role=\"tab\" aria-selected=\"" + (_0x5592da === "devuelto") + "\">Devuelto (" + _0x4368d0.devuelto.length + ")</button>\n        ") + "\n      </div>\n    ";
     let _0x4895bf;
     if (_0x5592da === "chat") {
       const __sinRef = _0x4368d0.pendiente.items.filter(__l => __l.textoLibre).length;
