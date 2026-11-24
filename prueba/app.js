@@ -1809,7 +1809,7 @@
       [...document.getElementById("mainList").children].forEach((e, i) => {
         if (!e.matches(CHAT_VISIBLE)) {
           e.setAttribute("data-chat-sec", String(i));
-          if (!e.matches(fijos)) {
+          if (!e.matches(fijos + ", .chat-tabs-row, #guiaTrabajo")) {
             ocultos++;
           }
         }
@@ -1871,7 +1871,7 @@
     ].filter(i => i[2]);
     const fijos = Object.values(PANELES_CHAT).join(", ");
     document.querySelectorAll("#mainList [data-chat-sec]").forEach(e => {
-      if (e.matches(fijos)) {
+      if (e.matches(fijos + ", .chat-tabs-row, #guiaTrabajo")) {
         return;
       }
       const titulo = e.matches("button") ? e.innerText : (e.querySelector(".ticket-title, .panel-title, summary") || {}).innerText;
